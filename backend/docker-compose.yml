@@ -1,0 +1,20 @@
+services:
+  backend:
+    image: food-saas-backend:v1
+
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    ports:
+      - "4000:4000"
+
+    networks:
+      - food-saas-network
+
+    restart: unless-stopped
+
+networks:
+  food-saas-network:
+    name: food-saas-network
+    driver: bridge

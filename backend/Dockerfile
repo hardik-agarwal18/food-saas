@@ -29,11 +29,21 @@ COPY --from=dependencies /app/node_modules ./node_modules
 
 COPY . .
 
-EXPOSE 3000
+EXPOSE 4000
 
 CMD ["npm", "run", "dev"]
 
 #######################
 # STAGE-4 BUILD PHASE #
 #######################
+
+FROM base AS build
+
+ENV NODE_ENV=development
+
+COPY --from=dependencies /app/node_modules ./node_modules
+
+COPY . .
+
+RUN npm run build
 
