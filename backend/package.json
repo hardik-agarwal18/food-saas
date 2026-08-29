@@ -2,15 +2,16 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx watch src/main.ts",
     "build": "tsc",
-    "start": "node dist/main.js"
+    "start": "node dist/main.js",
+    "prettier": "prettier --write \"src/**/*.ts\""
   },
   "keywords": [],
-  "author": "Abhishek Sharma",
+  "author": "Hardik Agarwal",
   "license": "ISC",
   "type": "module",
   "dependencies": {

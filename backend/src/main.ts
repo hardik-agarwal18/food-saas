@@ -1,22 +1,24 @@
-import { app } from "./app/app.js";
-import { env } from "./config/env.config.js";
+import { bootstrap } from "./app/bootstrap.js";
+import { createServer } from "./app/server.js";
+import { shutdown } from "./app/shutdown.js";
 import { logger } from "./config/logger.js";
 
-const PORT = env.PORT;
+const start = async (): Promise<void> => {
+  try {
+    await bootstrap();
 
-const server = app.listen(PORT, () => {
-  logger.info(`Server is running on port ${PORT}`);
-});
+    const server = createServer();
 
-const gracefulShutdown = (signal: string) => {
-  logger.info(`Shutting down gracefully on ${signal}`);
-  server.close(() => {
-    process.exit(0);
-  });
+    process.on("SIGINT", () => shutdown(server, "SIGINT"));
+    process.on("SIGTERM", () => shutdown(server, "SIGTERM"));
+  } catch (error) {
+    logger.error(error);
+
+    process.exit(1);
+  }
 };
 
-process.on("SIGINT", () => gracefulShutdown("SIGINT"));
-process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+await start();
 
 process.on("uncaughtException", (err) => {
   logger.error(`Uncaught Exception: ${err.message}`);

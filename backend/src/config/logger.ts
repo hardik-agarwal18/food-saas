@@ -8,4 +8,5 @@ export const logger = pino({
           target: "pino-pretty",
         }
       : undefined,
+  base: undefined,
 });
