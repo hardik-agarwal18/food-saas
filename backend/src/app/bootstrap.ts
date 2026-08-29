@@ -1,5 +1,5 @@
-import { logger } from "../config/logger.js";
+import { logger } from '../config/logger.js';
 
 export const bootstrap = async (): Promise<void> => {
-  logger.info("Bootstrapping application...");
+  logger.info('Bootstrapping application...');
 };

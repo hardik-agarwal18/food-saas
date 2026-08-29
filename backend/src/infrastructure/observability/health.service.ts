@@ -1,4 +1,4 @@
-import { checkApiHealth } from "../../app/health.service.js";
+import { checkApiHealth } from '../../app/health.service.js';
 
 export const getHealthStatus = async () => {
   return {

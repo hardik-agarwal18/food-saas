@@ -1,3 +1,3 @@
 export const checkApiHealth = () => {
-  return "Healthy";
+  return 'Healthy';
 };
