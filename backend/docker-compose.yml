@@ -7,14 +7,38 @@ services:
       dockerfile: Dockerfile
 
     ports:
-      - "4000:4000"
+      - '4000:4000'
+
+    env_file:
+      - .env
 
     networks:
       - food-saas-network
 
+    depends_on:
+      - redis
+
+    restart: unless-stopped
+
+  redis:
+    image: redis:7.0.11-alpine
+
+    container_name: redis
+
+    ports:
+      - '6379:6379'
+
+    volumes:
+      - redis-data:/data
+
+    networks:
+      - food-saas-network
     restart: unless-stopped
 
 networks:
   food-saas-network:
     name: food-saas-network
     driver: bridge
+
+volumes:
+  redis-data:

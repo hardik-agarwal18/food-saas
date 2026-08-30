@@ -6,6 +6,8 @@ dist
 
 test
 
+generated
+
 # Git
 .git
 .gitignore
