@@ -5,7 +5,9 @@ import { logger } from '../../config/logger.js';
 export const redisConnection = {
   host: env.REDIS_HOST,
   port: env.REDIS_PORT,
+  lazyConnect: true,
   maxRetriesPerRequest: null,
+  enableReadyCheck: true,
 };
 
 export const redis = new Redis(redisConnection);

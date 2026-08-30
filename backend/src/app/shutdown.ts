@@ -1,6 +1,7 @@
 import { Server } from 'http';
 import { logger } from '../config/logger.js';
 import { disconnectFromDatabase } from '../infrastructure/database/database.service.js';
+import { disconnectFromRedis } from '../infrastructure/cache/redis.service.js';
 
 export const shutdown = (server: Server, signal: string): void => {
   logger.info(`${signal} received. Shutting down gracefully...`);
@@ -12,6 +13,14 @@ export const shutdown = (server: Server, signal: string): void => {
       await disconnectFromDatabase();
     } catch (error) {
       logger.error({ error }, 'Error occurred while disconnecting from the database.');
+
+      process.exit(1); // Exit the process with a failure code
+    }
+
+    try {
+      await disconnectFromRedis();
+    } catch (error) {
+      logger.error({ error }, 'Error occurred while disconnecting from Redis.');
 
       process.exit(1); // Exit the process with a failure code
     }
