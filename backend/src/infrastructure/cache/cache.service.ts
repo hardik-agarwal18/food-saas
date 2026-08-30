@@ -1,5 +1,6 @@
 import { redis } from './redis.js';
 import { logger } from '../../config/logger.js';
+import { cacheSerializer } from './cache.serializer.js';
 
 export class CacheService {
   async get<T>(key: string): Promise<T | null> {
@@ -10,7 +11,7 @@ export class CacheService {
         return null;
       }
 
-      return JSON.parse(value) as T;
+      return cacheSerializer.deserialize<T>(value);
     } catch (error) {
       logger.error({ error, key }, 'Failed to get value from cache for key');
       return null;
@@ -19,7 +20,7 @@ export class CacheService {
 
   async set<T>(key: string, value: T, ttlInSeconds?: number): Promise<void> {
     try {
-      const serializedValue = JSON.stringify(value);
+      const serializedValue = cacheSerializer.serialize(value);
 
       if (ttlInSeconds) {
         await redis.set(key, serializedValue, 'EX', ttlInSeconds);
