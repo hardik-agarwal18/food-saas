@@ -7,6 +7,13 @@ const connectionString = env.DATABASE_URL;
 const adapter = new PrismaPg({
   connectionString,
 });
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient({
+  adapter,
+  log: [
+    { emit: 'event', level: 'query' },
+    { emit: 'stdout', level: 'warn' },
+    { emit: 'stdout', level: 'error' },
+  ],
+});
 
 export { prisma };
