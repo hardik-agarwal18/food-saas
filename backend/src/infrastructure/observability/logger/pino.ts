@@ -1,5 +1,5 @@
 import { pino } from 'pino';
-import { env } from './env.config.js';
+import { env } from '../../../config/env.config.js';
 
 export const logger = pino({
   transport:
