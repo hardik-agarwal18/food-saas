@@ -1,11 +1,14 @@
-import { injectable } from 'tsyringe';
+import { inject, injectable } from 'tsyringe';
 import type { ILogger } from '../../../shared/logger/logger.interface.js';
 import type { Logger } from 'pino';
 import { logger as pinoLogger } from './pino.js';
+import { InfrastructureTokens } from '../../container/index.js';
 
 @injectable()
 export class LoggerService implements ILogger {
-  constructor(private readonly logger: Logger = pinoLogger) {}
+  constructor(
+    @inject(InfrastructureTokens.PinoLogger) private readonly logger: Logger = pinoLogger,
+  ) {}
 
   trace(message: string, context: Record<string, unknown> = {}): void {
     this.logger.trace(context, message);

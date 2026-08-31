@@ -8,7 +8,7 @@ export const registerQueryLogger = (): void => {
 
   prisma.$on('query', (event) => {
     logger.debug('Database Query Executed', {
-      component: 'database',
+      component: 'Database',
       query: event.query,
       duration: event.duration,
       params: event.params,

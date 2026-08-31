@@ -14,7 +14,7 @@ export class DatabaseService {
 
     loggerFactory: LoggerFactory,
   ) {
-    this.logger = loggerFactory.create({ component: 'DatabaseService', module: 'infrastructure' });
+    this.logger = loggerFactory.create({ component: 'Database', module: 'infrastructure' });
   }
 
   async connectToDatabase(): Promise<void> {
