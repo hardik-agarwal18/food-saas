@@ -33,4 +33,22 @@ export class RedisService {
       this.logger.fatal({ error }, 'Failed to disconnect from Redis');
     }
   }
+
+  async checkRedisHealth() {
+    try {
+      const startedAt = process.hrtime.bigint();
+
+      await this.redis.ping();
+
+      const latency = Number(process.hrtime.bigint() - startedAt) / 1_000_000; // Convert to milliseconds
+
+      return {
+        status: 'healthy',
+        latency,
+      };
+    } catch (error) {
+      this.logger.error({ error }, 'Redis health check failed');
+      return { status: 'unhealthy' };
+    }
+  }
 }

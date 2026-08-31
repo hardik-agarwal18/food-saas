@@ -37,4 +37,22 @@ export class DatabaseService {
       this.logger.fatal({ error }, 'Failed to disconnect from the database.');
     }
   }
+
+  async checkDatabaseHealth() {
+    try {
+      const startedAt = process.hrtime.bigint();
+
+      await this.prisma.$queryRaw`SELECT 1`;
+
+      const latency = Number(process.hrtime.bigint() - startedAt) / 1_000_000;
+
+      return {
+        status: 'healthy',
+        latency,
+      };
+    } catch (error) {
+      this.logger.error({ error }, 'Database health check failed');
+      return { status: 'unhealthy' };
+    }
+  }
 }

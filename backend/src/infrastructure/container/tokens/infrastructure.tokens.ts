@@ -12,4 +12,6 @@ export const InfrastructureTokens = {
   RedisService: Symbol.for('Infrastructure.RedisService'),
 
   CacheService: Symbol.for('Infrastructure.CacheService'),
+
+  HealthService: Symbol.for('Infrastructure.HealthService'),
 } as const;

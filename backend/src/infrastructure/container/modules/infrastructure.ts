@@ -7,6 +7,7 @@ import { redis } from '../../cache/redis.js';
 import { DatabaseService } from '../../database/database.service.js';
 import { RedisService } from '../../cache/redis.service.js';
 import { CacheService } from '../../cache/cache.service.js';
+import { HealthService } from '../../observability/health.service.js';
 
 export const registerInfrastructure = (): void => {
   container.registerInstance(InfrastructureTokens.Configuration, env);
@@ -22,4 +23,6 @@ export const registerInfrastructure = (): void => {
   container.register(InfrastructureTokens.RedisService, { useClass: RedisService });
 
   container.register(InfrastructureTokens.CacheService, { useClass: CacheService });
+
+  container.register(InfrastructureTokens.HealthService, { useClass: HealthService });
 };
