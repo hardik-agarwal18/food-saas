@@ -1,47 +1,47 @@
-import { logger } from '../../config/logger.js';
+import { inject, injectable } from 'tsyringe';
+import { InfrastructureTokens } from '../container/index.js';
+import type { ILogger } from '../../shared/logger/logger.interface.js';
 
+@injectable()
 export class CacheMetrics {
+  constructor(@inject(InfrastructureTokens.Logger) private readonly logger: ILogger) {}
+
   recordHit(cacheKey: string): void {
-    logger.debug({ cacheKey }, 'Cache hit');
+    this.logger.debug('Cache hit', { cacheKey });
   }
 
   recordMiss(cacheKey: string): void {
-    logger.debug({ cacheKey }, 'Cache miss');
+    this.logger.debug('Cache miss', { cacheKey });
   }
 
   recordSet(cacheKey: string): void {
-    logger.debug({ cacheKey }, 'Cache set');
+    this.logger.debug('Cache set', { cacheKey });
   }
 
   recordDelete(cacheKey: string): void {
-    logger.debug({ cacheKey }, 'Cache delete');
+    this.logger.debug('Cache delete', { cacheKey });
   }
 
   recordExists(cacheKey: string): void {
-    logger.debug({ cacheKey }, 'Cache exists check');
+    this.logger.debug('Cache exists check', { cacheKey });
   }
   recordIncrement(cacheKey: string): void {
-    logger.debug({ cacheKey }, 'Cache increment');
+    this.logger.debug('Cache increment', { cacheKey });
   }
 
   recordExpire(cacheKey: string, ttlInSeconds: number): void {
-    logger.debug({ cacheKey, ttlInSeconds }, 'Cache expiry set');
+    this.logger.debug('Cache expiry set', { cacheKey, ttlInSeconds });
   }
 
   recordFailure(operation: string, key: string, error: unknown): void {
-    logger.warn({ operation, key, error }, 'Cache operation failed');
+    this.logger.warn('Cache operation failed', { operation, key, error });
   }
 
   recordLatency(operation: string, key: string, durationMs: number): void {
-    logger.debug(
-      {
-        operation,
-        key,
-        durationMs,
-      },
-      'Cache latency',
-    );
+    this.logger.debug('Cache latency', {
+      operation,
+      key,
+      durationMs,
+    });
   }
 }
-
-export const cacheMetrics = new CacheMetrics();

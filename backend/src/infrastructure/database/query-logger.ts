@@ -1,16 +1,17 @@
+import { ILogger } from '../../shared/logger/logger.interface.js';
+import { InfrastructureTokens } from '../container/index.js';
 import { prisma } from './prisma.js';
-import { logger } from '../../config/logger.js';
+import { container } from 'tsyringe';
 
 export const registerQueryLogger = (): void => {
+  const logger = container.resolve<ILogger>(InfrastructureTokens.Logger);
+
   prisma.$on('query', (event) => {
-    logger.debug(
-      {
-        component: 'database',
-        query: event.query,
-        duration: event.duration,
-        params: event.params,
-      },
-      'Database Query Executed',
-    );
+    logger.debug('Database Query Executed', {
+      component: 'Database',
+      query: event.query,
+      duration: event.duration,
+      params: event.params,
+    });
   });
 };

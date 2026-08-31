@@ -1,14 +1,14 @@
 import { inject, injectable } from 'tsyringe';
 import { InfrastructureTokens } from '../container/index.js';
 
-import type { Logger } from 'pino';
+import type { ILogger } from '../../shared/logger/logger.interface.js';
 import type { Redis } from 'ioredis';
 
 @injectable()
 export class RedisService {
   constructor(
     @inject(InfrastructureTokens.RedisClient) private readonly redis: Redis,
-    @inject(InfrastructureTokens.Logger) private readonly logger: Logger,
+    @inject(InfrastructureTokens.Logger) private readonly logger: ILogger,
   ) {}
 
   async connectToRedis(): Promise<void> {
@@ -18,7 +18,7 @@ export class RedisService {
 
       this.logger.info('Connected to Redis successfully');
     } catch (error) {
-      this.logger.fatal({ error }, 'Failed to connect to Redis');
+      this.logger.fatal('Failed to connect to Redis', error);
     }
   }
 
@@ -30,7 +30,7 @@ export class RedisService {
 
       this.logger.info('Disconnected from Redis successfully');
     } catch (error) {
-      this.logger.fatal({ error }, 'Failed to disconnect from Redis');
+      this.logger.fatal('Failed to disconnect from Redis', error);
     }
   }
 
@@ -47,7 +47,7 @@ export class RedisService {
         latency,
       };
     } catch (error) {
-      this.logger.error({ error }, 'Redis health check failed');
+      this.logger.error('Redis health check failed', error);
       return { status: 'unhealthy' };
     }
   }
