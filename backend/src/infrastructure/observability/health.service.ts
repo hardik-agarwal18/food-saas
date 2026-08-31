@@ -2,18 +2,19 @@ import { injectable, inject } from 'tsyringe';
 import { InfrastructureTokens } from '../container/index.js';
 import { DatabaseService } from '../database/database.service.js';
 import { RedisService } from '../cache/redis.service.js';
-import { checkApiHealth } from '../../app/health.service.js';
+import { ApiService } from '../../app/health.service.js';
 
 @injectable()
 export class HealthService {
   constructor(
     @inject(InfrastructureTokens.DatabaseService) private readonly databaseService: DatabaseService,
     @inject(InfrastructureTokens.RedisService) private readonly redisService: RedisService,
+    @inject(InfrastructureTokens.ApiService) private readonly apiService: ApiService,
   ) {}
 
   getHealthStatus = async () => {
     const [api, database, redis] = await Promise.all([
-      checkApiHealth(),
+      this.apiService.checKApiHealth(),
       this.databaseService.checkDatabaseHealth(),
       this.redisService.checkRedisHealth(),
     ]);
