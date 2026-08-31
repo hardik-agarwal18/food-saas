@@ -1,26 +1,54 @@
-import { logger } from '../../config/logger.js';
-import redis from './redis.js';
+import { inject, injectable } from 'tsyringe';
+import { InfrastructureTokens } from '../container/index.js';
 
-export const connectToRedis = async () => {
-  try {
-    logger.info('Connecting to Redis...');
+import type { Logger } from 'pino';
+import type { Redis } from 'ioredis';
 
-    await redis.connect();
+@injectable()
+export class RedisService {
+  constructor(
+    @inject(InfrastructureTokens.RedisClient) private readonly redis: Redis,
+    @inject(InfrastructureTokens.Logger) private readonly logger: Logger,
+  ) {}
 
-    logger.info('Connected to Redis successfully');
-  } catch (error) {
-    logger.fatal({ error }, 'Failed to connect to Redis');
+  async connectToRedis(): Promise<void> {
+    try {
+      this.logger.info('Connecting to Redis...');
+      await this.redis.connect();
+
+      this.logger.info('Connected to Redis successfully');
+    } catch (error) {
+      this.logger.fatal({ error }, 'Failed to connect to Redis');
+    }
   }
-};
 
-export const disconnectFromRedis = async () => {
-  try {
-    logger.info('Disconnecting from Redis...');
+  async disconnectFromRedis(): Promise<void> {
+    try {
+      this.logger.info('Disconnecting from Redis...');
 
-    await redis.quit();
+      await this.redis.quit();
 
-    logger.info('Disconnected from Redis successfully');
-  } catch (error) {
-    logger.fatal({ error }, 'Failed to disconnect from Redis');
+      this.logger.info('Disconnected from Redis successfully');
+    } catch (error) {
+      this.logger.fatal({ error }, 'Failed to disconnect from Redis');
+    }
   }
-};
+
+  async checkRedisHealth() {
+    try {
+      const startedAt = process.hrtime.bigint();
+
+      await this.redis.ping();
+
+      const latency = Number(process.hrtime.bigint() - startedAt) / 1_000_000; // Convert to milliseconds
+
+      return {
+        status: 'healthy',
+        latency,
+      };
+    } catch (error) {
+      this.logger.error({ error }, 'Redis health check failed');
+      return { status: 'unhealthy' };
+    }
+  }
+}
