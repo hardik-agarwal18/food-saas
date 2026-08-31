@@ -1,15 +1,26 @@
-import { redis } from './redis.js';
-import { logger } from '../../config/logger.js';
+import { inject, injectable } from 'tsyringe';
+import { InfrastructureTokens } from '../container/index.js';
 import { cacheSerializer } from './cache.serializer.js';
 import { cacheMetrics } from './cache.metrics.js';
 import { CacheOperation as cacheOperations } from './cache.enum.js';
+import type { Logger } from 'pino';
+import type { Redis } from 'ioredis';
 
+@injectable()
 export class CacheService {
+  constructor(
+    @inject(InfrastructureTokens.RedisClient)
+    private readonly redis: Redis,
+
+    @inject(InfrastructureTokens.Logger)
+    private readonly logger: Logger,
+  ) {}
+
   async get<T>(key: string): Promise<T | null> {
     const startedAt = performance.now();
 
     try {
-      const value = await redis.get(key);
+      const value = await this.redis.get(key);
 
       if (value === null) {
         cacheMetrics.recordMiss(key);
@@ -22,7 +33,7 @@ export class CacheService {
     } catch (error) {
       cacheMetrics.recordFailure(cacheOperations.GET, key, error);
 
-      logger.error({ error, key }, 'Failed to get value from cache for key');
+      this.logger.error({ error, key }, 'Failed to get value from cache for key');
       return null;
     } finally {
       cacheMetrics.recordLatency(cacheOperations.GET, key, performance.now() - startedAt);
@@ -36,16 +47,16 @@ export class CacheService {
       const serializedValue = cacheSerializer.serialize(value);
 
       if (ttlInSeconds !== undefined && ttlInSeconds > 0) {
-        await redis.set(key, serializedValue, 'EX', ttlInSeconds);
+        await this.redis.set(key, serializedValue, 'EX', ttlInSeconds);
       } else {
-        await redis.set(key, serializedValue);
+        await this.redis.set(key, serializedValue);
       }
 
       cacheMetrics.recordSet(key);
     } catch (error) {
       cacheMetrics.recordFailure(cacheOperations.SET, key, error);
 
-      logger.error({ error, key }, 'Failed to set value in cache for key');
+      this.logger.error({ error, key }, 'Failed to set value in cache for key');
     } finally {
       cacheMetrics.recordLatency(cacheOperations.SET, key, performance.now() - startedAt);
     }
@@ -55,13 +66,13 @@ export class CacheService {
     const startedAt = performance.now();
 
     try {
-      await redis.del(key);
+      await this.redis.del(key);
 
       cacheMetrics.recordDelete(key);
     } catch (error) {
       cacheMetrics.recordFailure(cacheOperations.DELETE, key, error);
 
-      logger.error({ error, key }, 'Failed to delete value from cache for key');
+      this.logger.error({ error, key }, 'Failed to delete value from cache for key');
     } finally {
       cacheMetrics.recordLatency(cacheOperations.DELETE, key, performance.now() - startedAt);
     }
@@ -71,7 +82,7 @@ export class CacheService {
     const startedAt = performance.now();
 
     try {
-      if ((await redis.exists(key)) === 1) {
+      if ((await this.redis.exists(key)) === 1) {
         cacheMetrics.recordExists(key);
         return true;
       }
@@ -80,7 +91,7 @@ export class CacheService {
     } catch (error) {
       cacheMetrics.recordFailure(cacheOperations.EXISTS, key, error);
 
-      logger.error({ error, key }, 'Failed to check if key exists in cache');
+      this.logger.error({ error, key }, 'Failed to check if key exists in cache');
       return false;
     } finally {
       cacheMetrics.recordLatency(cacheOperations.EXISTS, key, performance.now() - startedAt);
@@ -91,13 +102,13 @@ export class CacheService {
     const startedAt = performance.now();
 
     try {
-      await redis.expire(key, ttlInSeconds);
+      await this.redis.expire(key, ttlInSeconds);
 
       cacheMetrics.recordExpire(key, ttlInSeconds);
     } catch (error) {
       cacheMetrics.recordFailure(cacheOperations.EXPIRE, key, error);
 
-      logger.error({ error, key }, 'Failed to update cache expiration for key');
+      this.logger.error({ error, key }, 'Failed to update cache expiration for key');
     } finally {
       cacheMetrics.recordLatency(cacheOperations.EXPIRE, key, performance.now() - startedAt);
     }
@@ -107,19 +118,17 @@ export class CacheService {
     const startedAt = performance.now();
 
     try {
-      const res = await redis.incr(key);
+      const res = await this.redis.incr(key);
       cacheMetrics.recordIncrement(key);
 
       return res;
     } catch (error) {
       cacheMetrics.recordFailure(cacheOperations.INCREMENT, key, error);
 
-      logger.error({ error, key }, 'Failed to increment value in cache for key');
+      this.logger.error({ error, key }, 'Failed to increment value in cache for key');
       return 0;
     } finally {
       cacheMetrics.recordLatency(cacheOperations.INCREMENT, key, performance.now() - startedAt);
     }
   }
 }
-
-export const cacheService = new CacheService();

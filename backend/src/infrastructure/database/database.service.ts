@@ -1,26 +1,40 @@
-import { logger } from '../../config/logger.js';
-import { prisma } from './prisma.js';
+import { inject, injectable } from 'tsyringe';
+import { InfrastructureTokens } from '../container/index.js';
+import { registerQueryLogger } from './query-logger.js';
+import type { PrismaClient } from '../../generated/prisma/client.js';
+import type { Logger } from 'pino';
 
-export const connectToDatabase = async (): Promise<void> => {
-  try {
-    logger.info('Connecting to the database...');
+@injectable()
+export class DatabaseService {
+  constructor(
+    @inject(InfrastructureTokens.PrismaClient) private readonly prisma: PrismaClient,
 
-    await prisma.$connect();
+    @inject(InfrastructureTokens.Logger) private readonly logger: Logger,
+  ) {}
 
-    logger.info('Successfully connected to the database.');
-  } catch (error) {
-    logger.fatal({ error }, 'Failed to connect to the database.');
+  async connectToDatabase(): Promise<void> {
+    try {
+      this.logger.info('Connecting to the database...');
+
+      registerQueryLogger();
+
+      await this.prisma.$connect();
+
+      this.logger.info('Successfully connected to the database.');
+    } catch (error) {
+      this.logger.fatal({ error }, 'Failed to connect to the database.');
+    }
   }
-};
 
-export const disconnectFromDatabase = async (): Promise<void> => {
-  try {
-    logger.info('Disconnecting from the database...');
+  async disconnectFromDatabase(): Promise<void> {
+    try {
+      this.logger.info('Disconnecting from the database...');
 
-    await prisma.$disconnect();
+      await this.prisma.$disconnect();
 
-    logger.info('Successfully disconnected from the database.');
-  } catch (error) {
-    logger.fatal({ error }, 'Failed to disconnect from the database.');
+      this.logger.info('Successfully disconnected from the database.');
+    } catch (error) {
+      this.logger.fatal({ error }, 'Failed to disconnect from the database.');
+    }
   }
-};
+}
