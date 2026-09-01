@@ -11,7 +11,7 @@ export class RequestContextMiddleware {
     private readonly requestContextService: RequestContextService,
   ) {}
 
-  handle(req: Request, res: Response, next: NextFunction): void {
+  handle = (req: Request, res: Response, next: NextFunction): void => {
     const requestId = randomUUID();
 
     const correlationIdHeader = req.header('x-correlation-id');
@@ -24,5 +24,5 @@ export class RequestContextMiddleware {
     this.requestContextService.run({ requestId, correlationId }, () => {
       next();
     });
-  }
+  };
 }
