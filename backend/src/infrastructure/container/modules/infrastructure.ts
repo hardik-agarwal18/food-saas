@@ -10,18 +10,18 @@ import { HealthService } from '../../observability/health.service.js';
 import { ApiService } from '../../../app/health.service.js';
 import { logger as pinoLogger } from '../../observability/logger/pino.js';
 import { LoggerService } from '../../observability/logger/logger.service.js';
-import { Logger } from 'pino';
 import { LoggerFactory } from '../../observability/logger/logger.factory.js';
 import { HttpLogger } from '../../observability/logger/http.logger.js';
+import { RequestContextService } from '../../observability/request-context/request-context.service.js';
+import { RequestContextMiddleware } from '../../observability/request-context/request-context.middleware.js';
+import { ErrorHandlerMiddleware } from '../../../app/middleware/error-handler.middleware.js';
 
 export const registerInfrastructure = (): void => {
   container.registerInstance(InfrastructureTokens.Configuration, env);
 
   container.registerInstance(InfrastructureTokens.PinoLogger, pinoLogger);
 
-  container.register(InfrastructureTokens.Logger, {
-    useFactory: (c) => new LoggerService(c.resolve<Logger>(InfrastructureTokens.PinoLogger)),
-  });
+  container.register(InfrastructureTokens.Logger, LoggerService);
 
   container.registerSingleton(LoggerFactory);
 
@@ -40,4 +40,10 @@ export const registerInfrastructure = (): void => {
   container.register(InfrastructureTokens.HealthService, { useClass: HealthService });
 
   container.register(InfrastructureTokens.ApiService, { useClass: ApiService });
+
+  container.registerSingleton(InfrastructureTokens.RequestContextService, RequestContextService);
+
+  container.registerSingleton(RequestContextMiddleware, RequestContextMiddleware);
+
+  container.registerSingleton(ErrorHandlerMiddleware);
 };

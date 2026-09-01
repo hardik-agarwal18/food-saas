@@ -18,4 +18,6 @@ export const InfrastructureTokens = {
   ApiService: Symbol.for('Infrastructure.ApiService'),
 
   HealthService: Symbol.for('Infrastructure.HealthService'),
+
+  RequestContextService: Symbol.for('Infrastructure.RequestContextService'),
 } as const;
