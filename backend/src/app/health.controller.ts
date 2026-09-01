@@ -34,7 +34,7 @@ export class HealthController {
   health = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const services = await this.healthService.getHealthStatus();
 
-    this.logger.info('Health serive');
+    this.logger.info('Health service', { services });
 
     return res.status(200).json({
       success: true,
