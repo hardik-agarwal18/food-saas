@@ -1,3 +1,6 @@
+/**
+ * Initializes the metadata system before your dependency injection code startsdoing its work
+ */
 import 'reflect-metadata';
 
 import './infrastructure/container/container.js';
@@ -8,6 +11,7 @@ import { shutdown } from './app/shutdown.js';
 import { LoggerService } from './infrastructure/observability/logger/logger.service.js';
 import { container } from 'tsyringe';
 
+// Dependenency Injection
 const logger = container.resolve(LoggerService);
 
 const start = async (): Promise<void> => {
