@@ -22,7 +22,7 @@ export class DatabaseService {
       this.logger.info('Connecting to the database...', {
         event: 'CONNECTING_DATABASE',
         component: 'Database',
-        module: 'infrastructure',
+        module: 'Infrastructure',
       });
 
       registerQueryLogger();
@@ -40,7 +40,7 @@ export class DatabaseService {
       this.logger.info('Disconnecting from the database...', {
         event: 'DISCONNECTING_DATABASE',
         component: 'Database',
-        module: 'infrastructure',
+        module: 'Infrastructure',
       });
 
       await this.prisma.$disconnect();
@@ -68,4 +68,8 @@ export class DatabaseService {
       return { status: 'unhealthy' };
     }
   }
+
+  public getClient = (): PrismaClient => {
+    return this.prisma;
+  };
 }
