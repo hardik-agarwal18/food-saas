@@ -6,10 +6,12 @@ import { registerDelivery } from './modules/delivery.js';
 import { registerDriver } from './modules/driver.js';
 import { registerOrdering } from './modules/ordering.js';
 import { registerPayment } from './modules/payment.js';
+import { registerIdentity } from './modules/identity.js';
 
 export const registerDependencies = (): void => {
   registerInfrastructure();
 
+  registerIdentity();
   registerAdmin();
   registerCustomer();
   registerDelivery();
