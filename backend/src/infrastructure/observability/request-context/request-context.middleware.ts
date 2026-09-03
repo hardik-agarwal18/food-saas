@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { inject, injectable } from 'tsyringe';
-import { InfrastructureTokens } from '../../container/index.js';
+import { InfrastructureTokens } from '../../container/tokens/infrastructure.tokens.js';
 import { RequestContextService } from '../../observability/request-context/request-context.service.js';
 import { randomUUID } from 'node:crypto';
 

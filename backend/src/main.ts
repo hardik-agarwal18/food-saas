@@ -19,7 +19,7 @@ import { bootstrap } from './app/bootstrap.js';
 import { createServer } from './app/server.js';
 import { shutdown } from './app/shutdown.js';
 
-import { InfrastructureTokens } from './infrastructure/container/index.js';
+import { InfrastructureTokens } from './infrastructure/container/tokens/infrastructure.tokens.js';
 import type { ILogger } from './shared/logger/logger.interface.js';
 
 /**

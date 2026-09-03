@@ -1,7 +1,7 @@
 import { injectable, inject } from 'tsyringe';
 import type { ErrorRequestHandler, NextFunction, Request, Response } from 'express';
 
-import { InfrastructureTokens } from '../../infrastructure/container/index.js';
+import { InfrastructureTokens } from '../../infrastructure/container/tokens/infrastructure.tokens.js';
 import type { ILogger } from '../../shared/logger/logger.interface.js';
 import { AppError } from '../../shared/errors/AppError.js';
 import { ErrorSerializer } from '../../shared/errors/error-serializer.js';

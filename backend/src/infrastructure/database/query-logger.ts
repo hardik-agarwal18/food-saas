@@ -16,7 +16,7 @@
  */
 
 import { ILogger } from '../../shared/logger/logger.interface.js';
-import { InfrastructureTokens } from '../container/index.js';
+import { InfrastructureTokens } from '../container/tokens/infrastructure.tokens.js';
 import { prisma } from './prisma.js';
 import { container } from 'tsyringe';
 

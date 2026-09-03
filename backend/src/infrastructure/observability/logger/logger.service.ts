@@ -2,7 +2,7 @@ import type { Logger } from 'pino';
 import { ILogger } from '../../../shared/logger/logger.interface.js';
 import { inject, injectable } from 'tsyringe';
 import { LogContext } from '../../../shared/logger/log-context.js';
-import { InfrastructureTokens } from '../../container/index.js';
+import { InfrastructureTokens } from '../../container/tokens/infrastructure.tokens.js';
 import { RequestContextService } from '../request-context/request-context.service.js';
 
 /**

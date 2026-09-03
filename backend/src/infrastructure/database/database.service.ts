@@ -16,7 +16,7 @@
 
 import { inject, injectable } from 'tsyringe';
 
-import { InfrastructureTokens } from '../container/index.js';
+import { InfrastructureTokens } from '../container/tokens/infrastructure.tokens.js';
 import { registerQueryLogger } from './query-logger.js';
 
 import type { PrismaClient } from '../../generated/prisma/client.js';

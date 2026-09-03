@@ -22,7 +22,7 @@ import { container } from 'tsyringe';
 import { Server } from 'http';
 import { DatabaseService } from '../infrastructure/database/database.service.js';
 import { RedisService } from '../infrastructure/cache/redis.service.js';
-import { InfrastructureTokens } from '../infrastructure/container/index.js';
+import { InfrastructureTokens } from '../infrastructure/container/tokens/infrastructure.tokens.js';
 import type { ILogger } from '../shared/logger/logger.interface.js';
 
 /**

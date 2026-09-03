@@ -27,7 +27,7 @@ import { container } from 'tsyringe';
 import { DatabaseService } from '../infrastructure/database/database.service.js';
 import { RedisService } from '../infrastructure/cache/redis.service.js';
 import { ILogger } from '../shared/logger/logger.interface.js';
-import { InfrastructureTokens } from '../infrastructure/container/index.js';
+import { InfrastructureTokens } from '../infrastructure/container/tokens/infrastructure.tokens.js';
 
 /**
  * Initializes the infrastructure required by the application.
