@@ -19,6 +19,7 @@ export class RedisService {
       this.logger.info('Connected to Redis successfully');
     } catch (error) {
       this.logger.fatal('Failed to connect to Redis', error);
+      throw error;
     }
   }
 

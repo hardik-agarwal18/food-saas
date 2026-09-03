@@ -14,7 +14,7 @@ export class DatabaseService {
 
     loggerFactory: LoggerFactory,
   ) {
-    this.logger = loggerFactory.create({ component: 'Database', module: 'infrastructure' });
+    this.logger = loggerFactory.create({ component: 'Database', module: 'Infrastructure' });
   }
 
   async connectToDatabase(): Promise<void> {
@@ -25,13 +25,16 @@ export class DatabaseService {
         module: 'Infrastructure',
       });
 
+      // Connects the Prisma's Query event system to app logger
       registerQueryLogger();
 
+      // Establishes the database connection
       await this.prisma.$connect();
 
       this.logger.info('Successfully connected to the database.');
     } catch (error) {
       this.logger.fatal('Failed to connect to the database.', error);
+      throw error;
     }
   }
 

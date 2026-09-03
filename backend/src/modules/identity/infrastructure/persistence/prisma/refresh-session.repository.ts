@@ -4,41 +4,48 @@ import { InfrastructureTokens } from '../../../../../infrastructure/container/in
 import { PrismaClient } from '../../../../../generated/prisma/client.js';
 import { RefreshSession } from '../../../domain/entities/index.js';
 import { RefreshSessionMapper } from './mappers/refresh-session.mapper.js';
+import { BaseRepository } from '../../../../../infrastructure/database/base.repository.js';
 
 @injectable()
-export class RefreshSessionRepository implements IRefreshSessionRepository {
+export class RefreshSessionRepository extends BaseRepository implements IRefreshSessionRepository {
   constructor(
     @inject(InfrastructureTokens.PrismaClient)
-    private readonly prisma: PrismaClient,
-  ) {}
+    prisma: PrismaClient,
+  ) {
+    super(prisma);
+  }
 
   async create(refreshSession: RefreshSession): Promise<RefreshSession> {
     const data = RefreshSessionMapper.toPersistence(refreshSession);
 
-    const createdRefreshSession = await this.prisma.refreshSession.create({
-      data: {
-        id: data.id,
-        userId: data.userId,
-        tokenHash: data.tokenHash,
-        expiresAt: data.expiresAt,
-        lastUsedAt: data.lastUsedAt,
-        revokedAt: data.revokedAt,
-        ipAddress: data.ipAddress,
-        userAgent: data.userAgent,
-        createdAt: data.createdAt,
-        updatedAt: data.updatedAt,
-      },
-    });
+    const createdRefreshSession = await this.execute(() =>
+      this.prisma.refreshSession.create({
+        data: {
+          id: data.id,
+          userId: data.userId,
+          tokenHash: data.tokenHash,
+          expiresAt: data.expiresAt,
+          lastUsedAt: data.lastUsedAt,
+          revokedAt: data.revokedAt,
+          ipAddress: data.ipAddress,
+          userAgent: data.userAgent,
+          createdAt: data.createdAt,
+          updatedAt: data.updatedAt,
+        },
+      }),
+    );
 
     return RefreshSessionMapper.toDomain(createdRefreshSession);
   }
 
   async findById(id: string): Promise<RefreshSession | null> {
-    const refreshSession = await this.prisma.refreshSession.findUnique({
-      where: {
-        id,
-      },
-    });
+    const refreshSession = await this.execute(() =>
+      this.prisma.refreshSession.findUnique({
+        where: {
+          id,
+        },
+      }),
+    );
 
     if (!refreshSession) {
       return null;
@@ -48,11 +55,13 @@ export class RefreshSessionRepository implements IRefreshSessionRepository {
   }
 
   async findByTokenHash(tokenHash: string): Promise<RefreshSession | null> {
-    const refreshSession = await this.prisma.refreshSession.findUnique({
-      where: {
-        tokenHash,
-      },
-    });
+    const refreshSession = await this.execute(() =>
+      this.prisma.refreshSession.findUnique({
+        where: {
+          tokenHash,
+        },
+      }),
+    );
 
     if (!refreshSession) {
       return null;
@@ -62,14 +71,16 @@ export class RefreshSessionRepository implements IRefreshSessionRepository {
   }
 
   async findByUserId(userId: string): Promise<RefreshSession[]> {
-    const refreshSessions = await this.prisma.refreshSession.findMany({
-      where: {
-        userId,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
+    const refreshSessions = await this.execute(() =>
+      this.prisma.refreshSession.findMany({
+        where: {
+          userId,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      }),
+    );
 
     return refreshSessions.map(RefreshSessionMapper.toDomain);
   }
@@ -77,24 +88,28 @@ export class RefreshSessionRepository implements IRefreshSessionRepository {
   async update(refreshSession: RefreshSession): Promise<RefreshSession> {
     const data = RefreshSessionMapper.toUpdatePersistence(refreshSession);
 
-    const updatedRefreshSession = await this.prisma.refreshSession.update({
-      where: {
-        id: refreshSession.getId(),
-      },
-      data,
-    });
+    const updatedRefreshSession = await this.execute(() =>
+      this.prisma.refreshSession.update({
+        where: {
+          id: refreshSession.getId(),
+        },
+        data,
+      }),
+    );
 
     return RefreshSessionMapper.toDomain(updatedRefreshSession);
   }
 
   async revoke(id: string, revokedAt: Date): Promise<void> {
-    await this.prisma.refreshSession.update({
-      where: {
-        id,
-      },
-      data: {
-        revokedAt,
-      },
-    });
+    await this.execute(() =>
+      this.prisma.refreshSession.update({
+        where: {
+          id,
+        },
+        data: {
+          revokedAt,
+        },
+      }),
+    );
   }
 }

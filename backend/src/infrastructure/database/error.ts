@@ -14,7 +14,7 @@ export const translateDatabaseError = (error: unknown): never => {
     case 'P2025':
       throw new NotFoundError('Requested resource not found');
     case 'P2003':
-      throw new ConflictError('Operation violateds a database constraint');
+      throw new ConflictError('Operation violates a database constraint');
     case 'P2024':
       throw new ServiceUnavailableError('Database is currently unavailable.');
     default:
