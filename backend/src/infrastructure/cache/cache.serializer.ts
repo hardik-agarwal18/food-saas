@@ -1,7 +1,19 @@
 import { CacheSerializationError } from '../../shared/errors/CacheSerializationError.js';
 
+/**
+ * Converts cache values to JSON strings and restores them
+ * from JSON strings.
+ *
+ * This keeps serialization logic separate from Redis commands.
+ */
 export class CacheSerializer {
-  serialize<T>(value: T) {
+  /**
+   * Converts a JavaScript value into a JSON string.
+   *
+   * Throws a domain-specific cache serialization error
+   * when JSON.stringify() fails.
+   */
+  serialize<T>(value: T): string {
     try {
       return JSON.stringify(value);
     } catch (error) {
@@ -9,7 +21,13 @@ export class CacheSerializer {
     }
   }
 
-  deserialize<T>(value: string) {
+  /**
+   * Converts a JSON string back into a typed value.
+   *
+   * The generic type describes the expected application type.
+   * It does not validate the runtime structure of the parsed data.
+   */
+  deserialize<T>(value: string): T {
     try {
       return JSON.parse(value) as T;
     } catch (error) {
@@ -18,4 +36,7 @@ export class CacheSerializer {
   }
 }
 
+/**
+ * Shared serializer instance.
+ */
 export const cacheSerializer = new CacheSerializer();

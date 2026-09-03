@@ -14,7 +14,7 @@ export class HealthService {
 
   getHealthStatus = async () => {
     const [api, database, redis] = await Promise.all([
-      this.apiService.checKApiHealth(),
+      this.apiService.checkApiHealth(),
       this.databaseService.checkDatabaseHealth(),
       this.redisService.checkRedisHealth(),
     ]);

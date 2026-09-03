@@ -4,6 +4,25 @@ import { InfrastructureTokens } from '../../container/index.js';
 import { RequestContextService } from '../../observability/request-context/request-context.service.js';
 import { randomUUID } from 'node:crypto';
 
+/**
+ * RequestContextMiddleware
+ *
+ * Creates a request-scoped context for every incoming HTTP request.
+ *
+ * The context contains:
+ * - requestId: Unique ID for this specific request
+ * - correlationId: ID used to connect logs across services or requests
+ *
+ * The context is stored using AsyncLocalStorage, which allows
+ * services deeper in the application to access request information
+ * without passing requestId and correlationId through every function.
+ *
+ * This middleware must run before:
+ * - HTTP logging middleware
+ * - Routes
+ * - Controllers
+ * - Services that need request context
+ */
 @injectable()
 export class RequestContextMiddleware {
   constructor(
