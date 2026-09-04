@@ -16,7 +16,7 @@
 import { container } from 'tsyringe';
 import { env } from '../config/env.config.js';
 import { app } from './app.js';
-import { InfrastructureTokens } from '../infrastructure/container/index.js';
+import { InfrastructureTokens } from '../infrastructure/container/tokens/infrastructure.tokens.js';
 import type { ILogger } from '../shared/logger/logger.interface.js';
 
 const port = env.PORT;

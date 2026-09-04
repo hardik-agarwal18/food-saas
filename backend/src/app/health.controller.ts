@@ -20,7 +20,7 @@
  */
 
 import { injectable, inject } from 'tsyringe';
-import { InfrastructureTokens } from '../infrastructure/container/index.js';
+import { InfrastructureTokens } from '../infrastructure/container/tokens/infrastructure.tokens.js';
 import { HealthService } from '../infrastructure/observability/health.service.js';
 import { catchAsync } from '../shared/utils/CatchAsync.js';
 import { NextFunction, Request, Response } from 'express';

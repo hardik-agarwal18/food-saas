@@ -1,5 +1,5 @@
 import { injectable, inject } from 'tsyringe';
-import { InfrastructureTokens } from '../../container/index.js';
+import { InfrastructureTokens } from '../../container/tokens/infrastructure.tokens.js';
 import type { ILogger } from '../../../shared/logger/logger.interface.js';
 import type { LogContext } from '../../../shared/logger/log-context.js';
 

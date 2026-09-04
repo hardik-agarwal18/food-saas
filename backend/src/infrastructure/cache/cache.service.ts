@@ -1,5 +1,5 @@
 import { inject, injectable } from 'tsyringe';
-import { InfrastructureTokens } from '../container/index.js';
+import { InfrastructureTokens } from '../container/tokens/infrastructure.tokens.js';
 import { cacheSerializer } from './cache.serializer.js';
 import { CacheMetrics } from './cache.metrics.js';
 import { CacheOperation } from './cache.enum.js';
