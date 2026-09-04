@@ -15,6 +15,7 @@ export const envSchema = z.object({
   REQUEST_TIMEOUT: z.string(),
   GLOBAL_RATE_LIMIT_WINDOW: z.coerce.number(),
   GLOBAL_RATE_LIMIT_MAX: z.coerce.number(),
+  SALT_ROUNDS: z.coerce.number(),
 });
 
 export type Env = z.infer<typeof envSchema>;

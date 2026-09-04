@@ -14,4 +14,9 @@ export const IdentityTokens = {
    * Token used to resolve the refresh-session repository implementation.
    */
   RefreshSessionRepository: Symbol('Identity.RefreshSessionRepository'),
+
+  /**
+   * Token used to resolve the password hasher implementation.
+   */
+  PasswordHasher: Symbol('Identity.PasswordHasher'),
 } as const;
