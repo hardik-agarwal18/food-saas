@@ -11,13 +11,19 @@ import { Role, UserStatus } from '../../../src/modules/identity/domain/enums/ind
 
 import { Email, PasswordHash } from '../../../src/modules/identity/domain/value-objects/index.js';
 
+import {
+  createTestUser,
+  createTestRefreshSession,
+  buildTestRefreshSession,
+} from '../../factories/index.js';
+
 describe('RefreshSessionRepository Integration Tests', () => {
   let prisma: PrismaClient;
   let repository: RefreshSessionRepository;
 
-  // ---------------------------------------------------------
+  // =========================================================
   // SETUP
-  // ---------------------------------------------------------
+  // =========================================================
 
   beforeAll(async () => {
     const adapter = new PrismaPg({
@@ -35,120 +41,56 @@ describe('RefreshSessionRepository Integration Tests', () => {
 
   beforeEach(async () => {
     /*
-     * RefreshSession has a foreign key to User.
+     * RefreshSession is the child.
      *
-     * Delete child records before parent records.
+     * It references User through a foreign key.
+     *
+     * Therefore:
+     *
+     * RefreshSession
+     *      ↓
+     * User
+     *
+     * Child must be deleted first.
      */
     await prisma.refreshSession.deleteMany();
+
     await prisma.user.deleteMany();
   });
 
   afterAll(async () => {
     await prisma.refreshSession.deleteMany();
+
     await prisma.user.deleteMany();
 
     await prisma.$disconnect();
   });
 
-  // ---------------------------------------------------------
-  // TEST USER HELPER
-  // ---------------------------------------------------------
-
-  const createTestUser = async (): Promise<User> => {
-    const user = new User({
-      id: crypto.randomUUID(),
-
-      email: Email.create(`refresh-test-${crypto.randomUUID()}@example.com`),
-
-      passwordHash: PasswordHash.create(
-        '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
-      ),
-
-      roles: [Role.CUSTOMER],
-
-      status: UserStatus.ACTIVE,
-
-      emailVerified: false,
-
-      createdAt: new Date(),
-
-      updatedAt: new Date(),
-    });
-
-    const createdUser = await prisma.user.create({
-      data: {
-        id: user.getId(),
-
-        email: user.getEmail().getValue(),
-
-        passwordHash: user.getPasswordHash().getValue(),
-
-        roles: user.getRoles(),
-
-        status: user.getStatus(),
-
-        emailVerified: user.isEmailVerified(),
-
-        createdAt: user.getCreatedAt(),
-
-        updatedAt: user.getUpdatedAt(),
-      },
-    });
-
-    expect(createdUser.id).toBe(user.getId());
-
-    return user;
-  };
-
-  // ---------------------------------------------------------
-  // REFRESH SESSION FACTORY
-  // ---------------------------------------------------------
-
-  const createRefreshSession = (
-    userId: string,
-
-    overrides: Partial<{
-      id: string;
-      tokenHash: string;
-      expiresAt: Date;
-      ipAddress: string | null;
-      userAgent: string | null;
-    }> = {},
-  ): RefreshSession => {
-    return RefreshSession.create(
-      {
-        userId,
-
-        tokenHash: overrides.tokenHash ?? `token-hash-${crypto.randomUUID()}`,
-
-        expiresAt: overrides.expiresAt ?? new Date(Date.now() + 1000 * 60 * 60),
-
-        ipAddress: overrides.ipAddress ?? '127.0.0.1',
-
-        userAgent: overrides.userAgent ?? 'vitest',
-      },
-
-      overrides.id ?? crypto.randomUUID(),
-    );
-  };
-
   // =========================================================
   // CREATE
   // =========================================================
 
-  /**
-   * Test suite for the create() method.
-   * Ensures that refresh session entities are properly saved to the database.
-   */
   describe('create()', () => {
     it('should create a refresh session in the database', async () => {
-      const user = await createTestUser();
+      /*
+       * User must exist because RefreshSession.userId
+       * is a foreign key.
+       */
+      const user = await createTestUser(prisma);
 
-      const session = createRefreshSession(user.getId());
+      /*
+       * We use buildTestRefreshSession() here because
+       * the repository's create() method should be the
+       * thing responsible for persistence.
+       */
+      const session = buildTestRefreshSession(user.getId());
 
       const createdSession = await repository.create(session);
 
+      // -----------------------------------------------------
       // Domain object
+      // -----------------------------------------------------
+
       expect(createdSession).toBeInstanceOf(RefreshSession);
 
       expect(createdSession.getId()).toBe(session.getId());
@@ -167,7 +109,10 @@ describe('RefreshSessionRepository Integration Tests', () => {
 
       expect(createdSession.getUserAgent()).toBe('vitest');
 
-      // Database verification
+      // -----------------------------------------------------
+      // Database
+      // -----------------------------------------------------
+
       const databaseSession = await prisma.refreshSession.findUnique({
         where: {
           id: session.getId(),
@@ -196,17 +141,11 @@ describe('RefreshSessionRepository Integration Tests', () => {
   // FIND BY ID
   // =========================================================
 
-  /**
-   * Test suite for the findById() method.
-   * Verifies retrieving sessions by their primary UUID.
-   */
   describe('findById()', () => {
     it('should return the refresh session when the id exists', async () => {
-      const user = await createTestUser();
+      const user = await createTestUser(prisma);
 
-      const session = createRefreshSession(user.getId());
-
-      await repository.create(session);
+      const session = await createTestRefreshSession(prisma, user.getId());
 
       const foundSession = await repository.findById(session.getId());
 
@@ -232,21 +171,15 @@ describe('RefreshSessionRepository Integration Tests', () => {
   // FIND BY TOKEN HASH
   // =========================================================
 
-  /**
-   * Test suite for the findByTokenHash() method.
-   * Verifies finding a session using its secure token hash.
-   */
   describe('findByTokenHash()', () => {
     it('should return the refresh session when the token hash exists', async () => {
-      const user = await createTestUser();
+      const user = await createTestUser(prisma);
 
       const tokenHash = `token-hash-${crypto.randomUUID()}`;
 
-      const session = createRefreshSession(user.getId(), {
+      const session = await createTestRefreshSession(prisma, user.getId(), {
         tokenHash,
       });
-
-      await repository.create(session);
 
       const foundSession = await repository.findByTokenHash(tokenHash);
 
@@ -272,20 +205,13 @@ describe('RefreshSessionRepository Integration Tests', () => {
   // FIND BY USER ID
   // =========================================================
 
-  /**
-   * Test suite for the findByUserId() method.
-   * Ensures that all sessions belonging to a specific user can be retrieved accurately.
-   */
   describe('findByUserId()', () => {
     it('should return all refresh sessions belonging to the user', async () => {
-      const user = await createTestUser();
+      const user = await createTestUser(prisma);
 
-      const session1 = createRefreshSession(user.getId());
+      const session1 = await createTestRefreshSession(prisma, user.getId());
 
-      const session2 = createRefreshSession(user.getId());
-
-      await repository.create(session1);
-      await repository.create(session2);
+      const session2 = await createTestRefreshSession(prisma, user.getId());
 
       const sessions = await repository.findByUserId(user.getId());
 
@@ -299,7 +225,7 @@ describe('RefreshSessionRepository Integration Tests', () => {
     });
 
     it('should return an empty array when the user has no refresh sessions', async () => {
-      const user = await createTestUser();
+      const user = await createTestUser(prisma);
 
       const sessions = await repository.findByUserId(user.getId());
 
@@ -307,16 +233,13 @@ describe('RefreshSessionRepository Integration Tests', () => {
     });
 
     it('should only return sessions belonging to the requested user', async () => {
-      const user1 = await createTestUser();
+      const user1 = await createTestUser(prisma);
 
-      const user2 = await createTestUser();
+      const user2 = await createTestUser(prisma);
 
-      const session1 = createRefreshSession(user1.getId());
+      const session1 = await createTestRefreshSession(prisma, user1.getId());
 
-      const session2 = createRefreshSession(user2.getId());
-
-      await repository.create(session1);
-      await repository.create(session2);
+      await createTestRefreshSession(prisma, user2.getId());
 
       const sessions = await repository.findByUserId(user1.getId());
 
@@ -332,22 +255,26 @@ describe('RefreshSessionRepository Integration Tests', () => {
   // UPDATE
   // =========================================================
 
-  /**
-   * Test suite for the update() method.
-   * Validates that mutable properties of a session are correctly persisted.
-   */
   describe('update()', () => {
     it('should update an existing refresh session', async () => {
-      const user = await createTestUser();
+      const user = await createTestUser(prisma);
 
-      const session = createRefreshSession(user.getId());
-
-      await repository.create(session);
+      /*
+       * Persist initial state directly.
+       */
+      const session = await createTestRefreshSession(prisma, user.getId());
 
       const usedAt = new Date();
 
+      /*
+       * Mutate domain entity.
+       */
       session.markAsUsed(usedAt);
 
+      /*
+       * Repository is responsible for persisting
+       * the domain change.
+       */
       const updatedSession = await repository.update(session);
 
       expect(updatedSession).toBeInstanceOf(RefreshSession);
@@ -356,7 +283,10 @@ describe('RefreshSessionRepository Integration Tests', () => {
 
       expect(updatedSession.getLastUsedAt()?.getTime()).toBe(usedAt.getTime());
 
-      // Verify database
+      // -----------------------------------------------------
+      // Database
+      // -----------------------------------------------------
+
       const databaseSession = await prisma.refreshSession.findUnique({
         where: {
           id: session.getId(),
@@ -371,11 +301,9 @@ describe('RefreshSessionRepository Integration Tests', () => {
     });
 
     it('should persist a revoked session through update()', async () => {
-      const user = await createTestUser();
+      const user = await createTestUser(prisma);
 
-      const session = createRefreshSession(user.getId());
-
-      await repository.create(session);
+      const session = await createTestRefreshSession(prisma, user.getId());
 
       const revokedAt = new Date();
 
@@ -387,7 +315,10 @@ describe('RefreshSessionRepository Integration Tests', () => {
 
       expect(updatedSession.getRevokedAt()?.getTime()).toBe(revokedAt.getTime());
 
-      // Verify database
+      // -----------------------------------------------------
+      // Database
+      // -----------------------------------------------------
+
       const databaseSession = await prisma.refreshSession.findUnique({
         where: {
           id: session.getId(),
@@ -406,17 +337,11 @@ describe('RefreshSessionRepository Integration Tests', () => {
   // REVOKE
   // =========================================================
 
-  /**
-   * Test suite for the revoke() method.
-   * Verifies the business operation of revoking a session.
-   */
   describe('revoke()', () => {
     it('should revoke an existing refresh session', async () => {
-      const user = await createTestUser();
+      const user = await createTestUser(prisma);
 
-      const session = createRefreshSession(user.getId());
-
-      await repository.create(session);
+      const session = await createTestRefreshSession(prisma, user.getId());
 
       const revokedAt = new Date();
 
@@ -436,14 +361,11 @@ describe('RefreshSessionRepository Integration Tests', () => {
     });
 
     it('should revoke the correct refresh session', async () => {
-      const user = await createTestUser();
+      const user = await createTestUser(prisma);
 
-      const session1 = createRefreshSession(user.getId());
+      const session1 = await createTestRefreshSession(prisma, user.getId());
 
-      const session2 = createRefreshSession(user.getId());
-
-      await repository.create(session1);
-      await repository.create(session2);
+      const session2 = await createTestRefreshSession(prisma, user.getId());
 
       const revokedAt = new Date();
 

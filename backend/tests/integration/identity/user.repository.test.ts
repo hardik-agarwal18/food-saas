@@ -10,9 +10,15 @@ import { Role, UserStatus } from '../../../src/modules/identity/domain/enums/ind
 
 import { Email, PasswordHash } from '../../../src/modules/identity/domain/value-objects/index.js';
 
+import { createTestUser, buildTestUser } from '../../factories/index.js';
+
 describe('UserRepository Integration Tests', () => {
   let prisma: PrismaClient;
   let repository: UserRepository;
+
+  // =========================================================
+  // SETUP
+  // =========================================================
 
   beforeAll(async () => {
     const adapter = new PrismaPg({
@@ -29,59 +35,48 @@ describe('UserRepository Integration Tests', () => {
   });
 
   beforeEach(async () => {
+    /*
+     * User is the parent of RefreshSession.
+     *
+     * Refresh sessions must be deleted first.
+     *
+     * This is important because these integration tests
+     * run against the real PostgreSQL database.
+     */
+    await prisma.refreshSession.deleteMany();
+
     await prisma.user.deleteMany();
   });
 
   afterAll(async () => {
+    await prisma.refreshSession.deleteMany();
+
+    await prisma.user.deleteMany();
+
     await prisma.$disconnect();
   });
 
-  const createUser = (
-    overrides: Partial<{
-      id: string;
-      email: string;
-      passwordHash: string;
-      roles: Role[];
-      status: UserStatus;
-      emailVerified: boolean;
-    }> = {},
-  ): User => {
-    return new User({
-      id: overrides.id ?? crypto.randomUUID(),
-
-      email: Email.create(overrides.email ?? `user-${crypto.randomUUID()}@example.com`),
-
-      passwordHash: PasswordHash.create(
-        overrides.passwordHash ?? '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
-      ),
-
-      roles: overrides.roles ?? [Role.CUSTOMER],
-
-      status: overrides.status ?? UserStatus.ACTIVE,
-
-      emailVerified: overrides.emailVerified ?? false,
-
-      createdAt: new Date(),
-
-      updatedAt: new Date(),
-    });
-  };
-
-  // ---------------------------------------------------------
+  // =========================================================
   // CREATE
-  // ---------------------------------------------------------
+  // =========================================================
 
-  /**
-   * Test suite for the create() method.
-   * Ensures that newly created domain entities are properly inserted into the database.
-   */
   describe('create()', () => {
     it('should create a user in the database', async () => {
-      const user = createUser({
+      /*
+       * buildTestUser() only creates the domain entity.
+       *
+       * The repository is responsible for persistence,
+       * so this is the correct factory for this test.
+       */
+      const user = buildTestUser({
         email: 'create@example.com',
       });
 
       const createdUser = await repository.create(user);
+
+      // -----------------------------------------------------
+      // Domain object
+      // -----------------------------------------------------
 
       expect(createdUser).toBeInstanceOf(User);
 
@@ -96,6 +91,10 @@ describe('UserRepository Integration Tests', () => {
       expect(createdUser.getStatus()).toBe(UserStatus.ACTIVE);
 
       expect(createdUser.isEmailVerified()).toBe(false);
+
+      // -----------------------------------------------------
+      // Database
+      // -----------------------------------------------------
 
       const databaseUser = await prisma.user.findUnique({
         where: {
@@ -119,21 +118,21 @@ describe('UserRepository Integration Tests', () => {
     });
   });
 
-  // ---------------------------------------------------------
+  // =========================================================
   // FIND BY ID
-  // ---------------------------------------------------------
+  // =========================================================
 
-  /**
-   * Test suite for the findById() method.
-   * Ensures that users can be correctly retrieved by their unique UUID.
-   */
   describe('findById()', () => {
     it('should return the user when the id exists', async () => {
-      const user = createUser({
+      /*
+       * The user must already exist in the database.
+       *
+       * We use createTestUser() because this test is about
+       * findById(), not create().
+       */
+      const user = await createTestUser(prisma, {
         email: 'find-by-id@example.com',
       });
-
-      await repository.create(user);
 
       const foundUser = await repository.findById(user.getId());
 
@@ -153,25 +152,19 @@ describe('UserRepository Integration Tests', () => {
     });
   });
 
-  // ---------------------------------------------------------
+  // =========================================================
   // FIND BY EMAIL
-  // ---------------------------------------------------------
+  // =========================================================
 
-  /**
-   * Test suite for the findByEmail() method.
-   * Verifies that the repository can correctly look up a user using their email address.
-   */
   describe('findByEmail()', () => {
     it('should return the user when the email exists', async () => {
-      const email = Email.create('find-by-email@example.com');
+      const email = 'find-by-email@example.com';
 
-      const user = createUser({
-        email: email.getValue(),
+      const user = await createTestUser(prisma, {
+        email,
       });
 
-      await repository.create(user);
-
-      const foundUser = await repository.findByEmail(email);
+      const foundUser = await repository.findByEmail(Email.create(email));
 
       expect(foundUser).not.toBeNull();
 
@@ -179,35 +172,29 @@ describe('UserRepository Integration Tests', () => {
 
       expect(foundUser?.getId()).toBe(user.getId());
 
-      expect(foundUser?.getEmail().getValue()).toBe(email.getValue());
+      expect(foundUser?.getEmail().getValue()).toBe(email);
     });
 
     it('should return null when the email does not exist', async () => {
-      const email = Email.create('does-not-exist@example.com');
+      const email = 'does-not-exist@example.com';
 
-      const result = await repository.findByEmail(email);
+      const result = await repository.findByEmail(Email.create(email));
 
       expect(result).toBeNull();
     });
   });
 
-  // ---------------------------------------------------------
+  // =========================================================
   // EXISTS BY EMAIL
-  // ---------------------------------------------------------
+  // =========================================================
 
-  /**
-   * Test suite for the existsByEmail() method.
-   * Verifies efficient existence checks without retrieving the full entity.
-   */
   describe('existsByEmail()', () => {
     it('should return true when the email exists', async () => {
       const email = 'exists@example.com';
 
-      const user = createUser({
+      await createTestUser(prisma, {
         email,
       });
-
-      await repository.create(user);
 
       const exists = await repository.existsByEmail(Email.create(email));
 
@@ -221,21 +208,20 @@ describe('UserRepository Integration Tests', () => {
     });
   });
 
-  // ---------------------------------------------------------
+  // =========================================================
   // UPDATE
-  // ---------------------------------------------------------
+  // =========================================================
 
-  /**
-   * Test suite for the update() method.
-   * Verifies that modifying a user entity correctly updates its corresponding database record.
-   */
   describe('update()', () => {
     it('should update an existing user', async () => {
-      const user = createUser({
+      /*
+       * We create the initial database state using the
+       * factory, then mutate the domain entity and use
+       * the repository to persist the update.
+       */
+      const user = await createTestUser(prisma, {
         email: 'update@example.com',
       });
-
-      await repository.create(user);
 
       user.changePassword(
         PasswordHash.create('$2b$10$6bF7f8j3pL0u2z3m4n5o6u8R7S6T5U4V3W2X1Y0Z9A8B7C6D5E4F3'),
@@ -249,6 +235,10 @@ describe('UserRepository Integration Tests', () => {
 
       const updatedUser = await repository.update(user);
 
+      // -----------------------------------------------------
+      // Domain object
+      // -----------------------------------------------------
+
       expect(updatedUser).toBeInstanceOf(User);
 
       expect(updatedUser.getId()).toBe(user.getId());
@@ -260,6 +250,10 @@ describe('UserRepository Integration Tests', () => {
       expect(updatedUser.hasRole(Role.DRIVER)).toBe(true);
 
       expect(updatedUser.getStatus()).toBe(UserStatus.SUSPENDED);
+
+      // -----------------------------------------------------
+      // Database
+      // -----------------------------------------------------
 
       const databaseUser = await prisma.user.findUnique({
         where: {
@@ -281,23 +275,19 @@ describe('UserRepository Integration Tests', () => {
     });
   });
 
-  // ---------------------------------------------------------
+  // =========================================================
   // UNIQUE EMAIL CONSTRAINT
-  // ---------------------------------------------------------
+  // =========================================================
 
-  /**
-   * Test suite for database constraints.
-   * Verifies that constraints like unique emails are properly enforced by the database.
-   */
   describe('unique email constraint', () => {
     it('should reject creating two users with the same email', async () => {
       const email = 'duplicate@example.com';
 
-      const firstUser = createUser({
+      const firstUser = buildTestUser({
         email,
       });
 
-      const secondUser = createUser({
+      const secondUser = buildTestUser({
         email,
       });
 

@@ -14,15 +14,15 @@ const prisma = getPrismaClient();
 
 /**
  * Database connection test suite.
- * 
- * Ensures that the testing environment can properly communicate with the 
+ *
+ * Ensures that the testing environment can properly communicate with the
  * underlying PostgreSQL database before running complex integration tests.
  */
 describe('Test PostgreSQL', () => {
   /**
    * Verifies basic connectivity and query execution.
-   * 
-   * This executes a raw SQL query `SELECT 1` which is the standard way to 
+   *
+   * This executes a raw SQL query `SELECT 1` which is the standard way to
    * ping a PostgreSQL database to verify connection health.
    */
   it('should connect to the test database', async () => {
