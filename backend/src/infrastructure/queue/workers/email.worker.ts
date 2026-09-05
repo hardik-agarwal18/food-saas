@@ -2,7 +2,7 @@ import { container } from 'tsyringe';
 import { Job, Worker } from 'bullmq';
 import { InfrastructureTokens } from '../../container/tokens/infrastructure.tokens.js';
 import { EmailJobProcessor } from '../jobs/email/email.job.processor.js';
-import { redisConnection } from '../../cache/redis.js';
+import { redisConnection } from '../../../config/redis.js';
 
 const emailJobProcessor = container.resolve<EmailJobProcessor>(
   InfrastructureTokens.EmailJobProcessor,

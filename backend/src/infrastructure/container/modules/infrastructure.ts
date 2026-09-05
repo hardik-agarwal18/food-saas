@@ -38,7 +38,7 @@ import { InfrastructureTokens } from '../tokens/infrastructure.tokens.js';
 import { env } from '../../../config/env.config.js';
 
 import { prisma } from '../../database/prisma.js';
-import { redis } from '../../cache/redis.js';
+import { redis } from '../../../config/redis.js';
 
 import { DatabaseService } from '../../database/database.service.js';
 import { RedisService } from '../../cache/redis.service.js';

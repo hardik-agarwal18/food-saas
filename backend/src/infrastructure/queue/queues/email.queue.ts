@@ -1,5 +1,5 @@
 import { Queue } from 'bullmq';
-import { redisConnection } from '../../cache/redis.js';
+import { redisConnection } from '../../../config/redis.js';
 import {
   EmailJobName,
   type SendResetPasswordEmailJob,
