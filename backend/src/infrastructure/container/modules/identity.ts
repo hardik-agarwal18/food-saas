@@ -32,6 +32,7 @@ import { IdentityTokens } from '../../../modules/identity/infrastructure/persist
 import { UserRepository } from '../../../modules/identity/infrastructure/persistence/prisma/user.repository.js';
 import { RefreshSessionRepository } from '../../../modules/identity/infrastructure/persistence/prisma/refresh-session.repository.js';
 import { BcryptPasswordHasher } from '../../../modules/identity/infrastructure/security/bcrypt-password-hasher.js';
+import { JwtService } from '../../../modules/identity/infrastructure/security/jwt/jwt.service.js';
 
 /**
  * Registers dependencies belonging to the Identity module.
@@ -67,4 +68,12 @@ export const registerIdentity = (): void => {
    * tsyringe provides PasswordHasher.
    */
   container.registerSingleton(IdentityTokens.PasswordHasher, BcryptPasswordHasher);
+
+  /**
+   * Register jwt service implementation.
+   *
+   * Whenever a class requests IdentityTokens.JwtService,
+   * tsyringe provides JwtService.
+   */
+  container.registerSingleton(IdentityTokens.JwtService, JwtService);
 };

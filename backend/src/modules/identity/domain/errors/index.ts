@@ -9,3 +9,6 @@ export * from './invalid-password-hash.error.js';
 export * from './refresh-session-expired.error.js';
 export * from './refresh-session-not-found.error.js';
 export * from './refresh-session-revoked.error.js';
+export * from './jwt-invalid-token-type.error.js';
+export * from './jwt-invalid-roles-claims.error.js';
+export * from './jwt-subject-missing.error.js';

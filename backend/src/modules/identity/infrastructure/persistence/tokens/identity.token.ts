@@ -19,4 +19,9 @@ export const IdentityTokens = {
    * Token used to resolve the password hasher implementation.
    */
   PasswordHasher: Symbol('Identity.PasswordHasher'),
+
+  /**
+   * Token used to resolve the JWT service implementation.
+   */
+  JwtService: Symbol('Identity.JwtService'),
 } as const;
