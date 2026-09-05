@@ -44,6 +44,9 @@ import { LogoutUserUseCaseImpl } from '../../../modules/identity/application/use
 import { ChangePasswordUseCaseImpl } from '../../../modules/identity/application/use-cases/change-password.use-case.impl.js';
 import { VerifyEmailUseCaseImpl } from '../../../modules/identity/application/use-cases/verify-email.use-case.impl.js';
 import { VerifyEmailRepository } from '../../../modules/identity/infrastructure/persistence/prisma/verify-email.repository.js';
+import { PasswordResetRepository } from '../../../modules/identity/infrastructure/persistence/prisma/password-reset.repository.js';
+import { ForgotPasswordUseCaseImpl } from '../../../modules/identity/application/use-cases/forgot-password.use-case.impl.js';
+import { ResetPasswordUseCaseImpl } from '../../../modules/identity/application/use-cases/reset-password.use-case.impl.js';
 /**
  * Registers dependencies belonging to the Identity module.
  *
@@ -79,6 +82,16 @@ export const registerIdentity = (): void => {
    */
   container.register(IdentityTokens.VerifyEmailRepository, {
     useClass: VerifyEmailRepository,
+  });
+
+  /**
+   * Register the password-reset repository implementation.
+   *
+   * Whenever a class requests IdentityTokens.PasswordResetRepository,
+   * tsyringe provides PasswordResetRepository.
+   */
+  container.register(IdentityTokens.PasswordResetRepository, {
+    useClass: PasswordResetRepository,
   });
 
   /**
@@ -186,4 +199,14 @@ export const registerIdentity = (): void => {
    * tsyringe provides VerifyEmailUseCaseImpl.
    */
   container.registerSingleton(IdentityTokens.VerifyEmailUseCase, VerifyEmailUseCaseImpl);
+
+  /**
+   * Register the forgot password use case implementation.
+   */
+  container.registerSingleton(IdentityTokens.ForgotPasswordUseCase, ForgotPasswordUseCaseImpl);
+
+  /**
+   * Register the reset password use case implementation.
+   */
+  container.registerSingleton(IdentityTokens.ResetPasswordUseCase, ResetPasswordUseCaseImpl);
 };
