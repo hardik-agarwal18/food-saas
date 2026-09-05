@@ -56,7 +56,7 @@ export class RefreshSessionRepository extends BaseRepository implements IRefresh
           expiresAt: data.expiresAt,
           lastUsedAt: data.lastUsedAt,
           revokedAt: data.revokedAt,
-          replaceBySessionId: data.replacedSessionId,
+          replaceBySessionId: data.replaceBySessionId,
           ipAddress: data.ipAddress,
           userAgent: data.userAgent,
           createdAt: data.createdAt,

@@ -16,6 +16,11 @@ export const IdentityTokens = {
   RefreshSessionRepository: Symbol.for('Identity.RefreshSessionRepository'),
 
   /**
+   * Token used to resolve the password reset repository implementation.
+   */
+  PasswordResetRepository: Symbol.for('IdentityTokens.PasswordResetRepository'),
+
+  /**
    * Token used to resolve the password hasher implementation.
    */
   PasswordHasher: Symbol.for('Identity.PasswordHasher'),
@@ -74,6 +79,16 @@ export const IdentityTokens = {
    * Token used to resolve the verify email use case implementation.
    */
   VerifyEmailUseCase: Symbol.for('Identity.VerifyEmailUseCase'),
+
+  /**
+   * Token used to resolve the forgot password use case implementation.
+   */
+  ForgotPasswordUseCase: Symbol.for('Identity.ForgotPasswordUseCase'),
+
+  /**
+   * Token used to resolve the reset password use case implementation.
+   */
+  ResetPasswordUseCase: Symbol.for('IdentityTokens.ResetPasswordUseCase'),
 
   /**
    * Token used to resolve the verify email repository implementation.

@@ -28,6 +28,7 @@ export const envSchema = z.object({
   SMTP_PASSWORD: z.string(),
   SMTP_FROM: z.string(),
   EMAIL_VERIFICATION_URL: z.url(),
+  RESET_PASSWORD_TOKEN_EXPIRY: z.coerce.number(),
 });
 
 export type Env = z.infer<typeof envSchema>;
