@@ -40,6 +40,8 @@ import { LoginUserUseCaseImplementation } from '../../../modules/identity/applic
 import { GetCurrentUserUseCaseImplementation } from '../../../modules/identity/application/use-cases/get-current-user.use-case.implementation.js';
 import { AuthorizationService } from '../../../modules/identity/domain/authorization/authorization.service.js';
 import { RefreshTokenUseCaseImpl } from '../../../modules/identity/application/use-cases/refresh-token.use-case.impl.js';
+import { LogoutUserUseCaseImpl } from '../../../modules/identity/application/use-cases/logout.user.use-case.impl.js';
+import { ChangePasswordUseCaseImpl } from '../../../modules/identity/application/use-cases/change-password.use-case.impl.js';
 
 /**
  * Registers dependencies belonging to the Identity module.
@@ -149,4 +151,20 @@ export const registerIdentity = (): void => {
    * tsyringe provides RefreshTokenUseCaseImpl.
    */
   container.registerSingleton(IdentityTokens.RefreshTokenUseCase, RefreshTokenUseCaseImpl);
+
+  /**
+   * Register the logout user use case implementation.
+   *
+   * Whenever a class requests IdentityTokens.LogoutUserUseCase,
+   * tsyringe provides LogoutUserUseCaseImpl.
+   */
+  container.registerSingleton(IdentityTokens.LogoutUserUseCase, LogoutUserUseCaseImpl);
+
+  /**
+   * Register the change password use case implementation.
+   *
+   * Whenever a class requests IdentityTokens.ChangePasswordUseCase,
+   * tsyringe provides ChangePasswordUseCaseImpl.
+   */
+  container.registerSingleton(IdentityTokens.ChangePasswordUseCase, ChangePasswordUseCaseImpl);
 };

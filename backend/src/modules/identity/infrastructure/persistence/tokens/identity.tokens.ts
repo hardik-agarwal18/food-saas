@@ -59,4 +59,14 @@ export const IdentityTokens = {
    * Token used to resolve the refresh token use case implementation.
    */
   RefreshTokenUseCase: Symbol.for('Identity.RefreshTokenUseCase'),
+
+  /**
+   * Token used to resolve the logout user use case implementation.
+   */
+  LogoutUserUseCase: Symbol.for('Identity.LogoutUserUseCase'),
+
+  /**
+   * Token used to resolve the change password use case implementation.
+   */
+  ChangePasswordUseCase: Symbol.for('Identity.ChangePasswordUseCase'),
 } as const;

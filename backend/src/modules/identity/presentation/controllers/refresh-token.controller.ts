@@ -3,7 +3,7 @@ import { IdentityTokens } from '../../infrastructure/persistence/tokens/identity
 import type { RefreshTokenUseCase } from '../../application/use-cases/refresh-token.use-case.js';
 import { catchAsync } from '../../../../shared/utils/CatchAsync.js';
 import { NextFunction, Request, Response } from 'express';
-import { setRefreshTokenCookie } from '../../../../shared/utils/Cookie.js';
+import { clearCookies, setRefreshTokenCookie } from '../../../../shared/utils/Cookie.js';
 import { sendResponse } from '../../../../shared/utils/AppResponse.js';
 
 @injectable()
@@ -14,13 +14,11 @@ export class RefreshTokenController {
   ) {}
 
   handle = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const refreshToken = req.cookies.refreshToken;
-
-    console.log({ Cookies: req.cookies });
-
-    console.log({ refreshToken });
+    const refreshToken = req.cookies?.refreshToken;
 
     if (!refreshToken) {
+      clearCookies(res, 'refreshToken');
+
       return sendResponse(res, 400, {
         success: false,
         message: 'Refresh token not found',
