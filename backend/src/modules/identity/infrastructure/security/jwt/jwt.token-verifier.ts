@@ -1,0 +1,90 @@
+import { JWTPayload, jwtVerify } from 'jose';
+import { ITokenPayload } from '../../../domain/services/token-payload.js';
+import { IJwtClaims, IJwtConfig } from './jwt.types.js';
+import {
+  JWTInvalidRolesClaimError,
+  JwtInvalidTokenTypeError,
+  JwtSubjectMissingError,
+} from '../../../domain/errors/index.js';
+import { TokenType } from '../../../domain/enums/token-type.enum.js';
+
+export class JWTTokenVerifier {
+  constructor(private readonly config: IJwtConfig) {}
+
+  private getSecret(type: TokenType): Uint8Array {
+    const secret =
+      type === TokenType.ACCESS ? this.config.accessTokenSecret : this.config.refreshTokenSecret;
+
+    return new TextEncoder().encode(secret);
+  }
+
+  private validateClaims(payload: JWTPayload): IJwtClaims {
+    if (!payload.sub) throw new JwtSubjectMissingError();
+
+    if (payload.type !== TokenType.ACCESS && payload.type !== TokenType.REFRESH)
+      throw new JwtInvalidTokenTypeError();
+
+    const roles = payload.roles;
+
+    if (
+      roles !== undefined &&
+      (!Array.isArray(roles) || !roles.every((role): role is string => typeof role === 'string'))
+    )
+      throw new JWTInvalidRolesClaimError();
+
+    return {
+      sub: payload.sub,
+      roles,
+      type: payload.type,
+
+      iat: payload.iat,
+      exp: payload.exp,
+      iss: typeof payload.iss === 'string' ? payload.iss : undefined,
+      aud: typeof payload.aud === 'string' ? payload.aud : undefined,
+    };
+  }
+
+  private async verify(token: string, expectedType: TokenType): Promise<IJwtClaims> {
+    const secret = this.getSecret(expectedType);
+
+    const { payload } = await jwtVerify(token, secret, {
+      issuer: this.config.issuer,
+      audience: this.config.audience,
+      algorithms: ['HS256'],
+    });
+
+    return this.validateClaims(payload);
+  }
+
+  private toTokenPayload(payload: IJwtClaims): ITokenPayload {
+    return {
+      sub: payload.sub,
+      roles: (payload.roles as ITokenPayload['roles']) ?? [],
+      type: payload.type,
+      iat: payload.iat,
+      exp: payload.exp,
+      iss: payload.iss,
+      aud: payload.aud,
+    };
+  }
+
+  async verifyAccessToken(accessToken: string): Promise<ITokenPayload> {
+    const payload = await this.verify(accessToken, TokenType.ACCESS);
+
+    if (payload.type !== TokenType.ACCESS) {
+      throw new JwtInvalidTokenTypeError();
+    }
+
+    return this.toTokenPayload(payload);
+  }
+
+  async verifyRefreshToken(token: string): Promise<ITokenPayload> {
+    const payload = await this.verify(token, TokenType.REFRESH);
+
+    if (payload.type !== TokenType.REFRESH) {
+      throw new JwtInvalidTokenTypeError();
+    }
+
+    return this.toTokenPayload(payload);
+  }
+}
