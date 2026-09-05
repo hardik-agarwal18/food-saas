@@ -7,6 +7,7 @@ import { loginUserSchema } from '../../validators/login-user.validator.js';
 import { LoginUserController } from '../controllers/login-user.controller.js';
 import { GetCurrentUserController } from '../controllers/get-current-user.controller.js';
 import { AuthenticationMiddleware } from '../../../../app/middleware/authentication.middleware.js';
+import { RefreshTokenController } from '../controllers/refresh-token.controller.js';
 
 const router = express.Router();
 
@@ -14,6 +15,7 @@ const registerController = container.resolve(RegisterUserController);
 const loginController = container.resolve(LoginUserController);
 const authenticationMiddleware = container.resolve(AuthenticationMiddleware);
 const getCurrentUserController = container.resolve(GetCurrentUserController);
+const refreshTokenController = container.resolve(RefreshTokenController);
 
 router
   .route('/register')
@@ -22,6 +24,8 @@ router
 router
   .route('/login')
   .post(validate({ body: loginUserSchema }), loginController.handle.bind(loginController));
+
+router.route('/refresh').post(refreshTokenController.handle.bind(refreshTokenController));
 
 router
   .route('/me')

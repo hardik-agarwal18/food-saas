@@ -9,7 +9,7 @@
     "start": "node dist/main.js",
     "format": "prettier --write \"src/**/*.ts\"",
     "db:generate": "npx prisma generate",
-    "db:migrate": "npx prisma migrate dev --name init",
+    "db:migrate": "npx prisma migrate dev --name",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:integration": "vitest run tests/integration",

@@ -36,6 +36,11 @@ export const IdentityTokens = {
   Transaction: Symbol.for('Identity.Transaction'),
 
   /**
+   * Token used to resolve the authorization service implementation.
+   */
+  AuthorizationService: Symbol.for('Identity.AuthorizationService'),
+
+  /**
    * Token used to resolve the register user use case implementation.
    */
   RegisterUserUseCase: Symbol.for('Identity.RegisterUserUseCase'),
@@ -49,4 +54,9 @@ export const IdentityTokens = {
    * Token used to resolve the get current user use case implementation.
    */
   GetCurrentUserUseCase: Symbol.for('Identity.GetCurrentUserUseCase'),
+
+  /**
+   * Token used to resolve the refresh token use case implementation.
+   */
+  RefreshTokenUseCase: Symbol.for('Identity.RefreshTokenUseCase'),
 } as const;

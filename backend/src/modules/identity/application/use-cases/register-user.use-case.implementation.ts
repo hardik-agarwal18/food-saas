@@ -83,6 +83,7 @@ export class RegisterUserUseCaseImplementation implements RegisterUserUseCase {
         const refreshSession = RefreshSession.create(
           {
             userId: createdUser.getId(),
+            familyId: crypto.randomUUID(),
             tokenHash: hashedRrefreshToken,
             expiresAt: refreshSessionExpiresAt,
             ipAddress: null,

@@ -1,6 +1,7 @@
 import { injectable, inject } from 'tsyringe';
 import { IRefreshSessionRepository } from '../../../domain/repositories/index.js';
 import { InfrastructureTokens } from '../../../../../infrastructure/container/tokens/infrastructure.tokens.js';
+// import { PrismaClient } from "../../../../../../generated/prisma/client.js";
 import { RefreshSession } from '../../../domain/entities/index.js';
 import { RefreshSessionMapper } from './mappers/refresh-session.mapper.js';
 import { BaseRepository } from '../../../../../infrastructure/database/base.repository.js';
@@ -50,10 +51,12 @@ export class RefreshSessionRepository extends BaseRepository implements IRefresh
         data: {
           id: data.id,
           userId: data.userId,
+          familyId: data.familyId,
           tokenHash: data.tokenHash,
           expiresAt: data.expiresAt,
           lastUsedAt: data.lastUsedAt,
           revokedAt: data.revokedAt,
+          replaceBySessionId: data.replacedSessionId,
           ipAddress: data.ipAddress,
           userAgent: data.userAgent,
           createdAt: data.createdAt,
@@ -151,10 +154,25 @@ export class RefreshSessionRepository extends BaseRepository implements IRefresh
   }
 
   /**
-   * Updates an existing refresh session.
+   * Finds all refresh sessions belonging to a specific family.
    *
-   * Only the fields returned by toUpdatePersistence are updated.
+   * Sessions are returned from newest to oldest based on createdAt.
    */
+  async findByFamilyId(familyId: string): Promise<RefreshSession[]> {
+    const refreshSession = await this.execute(() =>
+      this.prisma.refreshSession.findMany({
+        where: {
+          familyId,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      }),
+    );
+
+    return refreshSession.map(RefreshSessionMapper.toDomain);
+  }
+
   async update(refreshSession: RefreshSession): Promise<RefreshSession> {
     /**
      * Convert the domain entity into update-specific persistence data.
@@ -192,14 +210,46 @@ export class RefreshSessionRepository extends BaseRepository implements IRefresh
         where: {
           id,
         },
-
-        /**
-         * Mark the session as revoked.
-         */
         data: {
           revokedAt,
         },
       }),
     );
+  }
+
+  async revokeFamily(familyId: string, revokedAt: Date): Promise<void> {
+    await this.execute(() =>
+      this.prisma.refreshSession.updateMany({
+        where: {
+          familyId,
+          revokedAt: null,
+        },
+        data: {
+          revokedAt,
+        },
+      }),
+    );
+  }
+
+  async rotate(sessionId: string, replacementSessionId: string, usedAt: Date): Promise<boolean> {
+    const result = await this.execute(() =>
+      this.prisma.refreshSession.updateMany({
+        where: {
+          id: sessionId,
+          revokedAt: null,
+          expiresAt: {
+            gt: usedAt,
+          },
+          replaceBySessionId: null,
+        },
+        data: {
+          revokedAt: usedAt,
+          lastUsedAt: usedAt,
+          replaceBySessionId: replacementSessionId,
+        },
+      }),
+    );
+
+    return result.count === 1;
   }
 }

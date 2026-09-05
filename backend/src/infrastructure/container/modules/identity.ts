@@ -38,6 +38,8 @@ import { IdentityTransaction } from '../../../modules/identity/infrastructure/pe
 import { RegisterUserUseCaseImplementation } from '../../../modules/identity/application/use-cases/register-user.use-case.implementation.js';
 import { LoginUserUseCaseImplementation } from '../../../modules/identity/application/use-cases/login-user.use-case.implementation.js';
 import { GetCurrentUserUseCaseImplementation } from '../../../modules/identity/application/use-cases/get-current-user.use-case.implementation.js';
+import { AuthorizationService } from '../../../modules/identity/domain/authorization/authorization.service.js';
+import { RefreshTokenUseCaseImpl } from '../../../modules/identity/application/use-cases/refresh-token.use-case.impl.js';
 
 /**
  * Registers dependencies belonging to the Identity module.
@@ -103,6 +105,14 @@ export const registerIdentity = (): void => {
   });
 
   /**
+   * Register the authorization service implementation.
+   *
+   * Whenever a class requests IdentityTokens.AuthorizationService,
+   * tsyringe provides AuthorizationService.
+   */
+  container.registerSingleton(IdentityTokens.AuthorizationService, AuthorizationService);
+
+  /**
    * Register the register user use case implementation.
    *
    * Whenever a class requests IdentityTokens.RegisterUserUseCase,
@@ -131,4 +141,12 @@ export const registerIdentity = (): void => {
     IdentityTokens.GetCurrentUserUseCase,
     GetCurrentUserUseCaseImplementation,
   );
+
+  /**
+   * Register the refresh token use case implementation.
+   *
+   * Whenever a class requests IdentityTokens.RefreshTokenUseCase,
+   * tsyringe provides RefreshTokenUseCaseImpl.
+   */
+  container.registerSingleton(IdentityTokens.RefreshTokenUseCase, RefreshTokenUseCaseImpl);
 };
