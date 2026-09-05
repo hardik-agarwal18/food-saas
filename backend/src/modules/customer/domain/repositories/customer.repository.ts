@@ -7,5 +7,5 @@ export interface ICustomerRepository {
 
   create(customer: Customer): Promise<Customer>;
 
-  save(customer: Customer): Promise<Customer>;
+  update(customer: Customer): Promise<Customer>;
 }
