@@ -7,6 +7,7 @@ export * from './email-already-verified.error.js';
 export * from './email-already-register.error.js';
 export * from './invalid-email.error.js';
 export * from './invalid-password-hash.error.js';
+export * from './invalid-credentials.error.js';
 export * from './refresh-session-expired.error.js';
 export * from './refresh-session-not-found.error.js';
 export * from './refresh-session-revoked.error.js';

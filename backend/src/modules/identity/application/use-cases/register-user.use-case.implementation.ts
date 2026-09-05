@@ -4,7 +4,7 @@ import { RegisterUserInput } from '../dto/register-user.dto.js';
 import { RegisterUserResult } from '../dto/register-user-result.dto.js';
 import { Email } from '../../domain/value-objects/email.vo.js';
 import { EmailAlreadyRegisteredError } from '../../domain/errors/email-already-register.error.js';
-import { IdentityTokens } from '../../infrastructure/persistence/tokens/identity.token.js';
+import { IdentityTokens } from '../../infrastructure/persistence/tokens/identity.tokens.js';
 import { User } from '../../domain/entities/user.entity.js';
 import type { IPasswordHasher } from '../../domain/services/password-hasher.js';
 import type { IJwtService } from '../../domain/services/jwt.service.js';
@@ -40,22 +40,28 @@ export class RegisterUserUseCaseImplementation implements RegisterUserUseCase {
       passwordHash,
     });
 
+    const accessTokenIssuedAt = Math.floor(Date.now() / 1000);
+    const accessTokenExpirationTime = accessTokenIssuedAt + env.JWT_ACCESS_EXPIRES_IN;
+
     const accessToken = await this.jwtService.signAccessToken({
       sub: user.getId(),
       roles: user.getRoles(),
       type: TokenType.ACCESS,
-      iat: Date.now(),
-      exp: env.JWT_ACCESS_EXPIRES_IN,
+      iat: accessTokenIssuedAt,
+      exp: accessTokenExpirationTime,
       iss: env.JWT_ISSUER,
       aud: env.JWT_AUDIENCE,
     });
+
+    const refreshTokenIssuedAt = Math.floor(Date.now() / 1000);
+    const refreshTokenExpirationTime = refreshTokenIssuedAt + env.JWT_REFRESH_EXPIRES_IN;
 
     const refreshToken = await this.jwtService.signRefreshToken({
       sub: user.getId(),
       roles: user.getRoles(),
       type: TokenType.REFRESH,
-      iat: Date.now(),
-      exp: env.JWT_REFRESH_EXPIRES_IN,
+      iat: refreshTokenIssuedAt,
+      exp: refreshTokenExpirationTime,
       iss: env.JWT_ISSUER,
       aud: env.JWT_AUDIENCE,
     });

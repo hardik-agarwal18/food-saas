@@ -15,13 +15,6 @@ export class AuthorizationError extends AppError {
   constructor(message: string) {
     // This error means the identity may be known, but the user
     // is not allowed to perform the requested action.
-    super(
-      // The supplied message is currently replaced by the default
-      // "Forbidden" message.
-      (message = 'Forbidden'),
-      403,
-      'AUTHORIZATION_ERROR',
-      true,
-    );
+    super(message, 403, 'AUTHORIZATION_ERROR', true);
   }
 }

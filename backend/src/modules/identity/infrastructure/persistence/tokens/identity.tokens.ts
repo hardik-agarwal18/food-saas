@@ -39,4 +39,14 @@ export const IdentityTokens = {
    * Token used to resolve the register user use case implementation.
    */
   RegisterUserUseCase: Symbol.for('Identity.RegisterUserUseCase'),
+
+  /**
+   * Token used to resolve the login user use case implementation.
+   */
+  LoginUserUseCase: Symbol.for('Identity.LoginUserUseCase'),
+
+  /**
+   * Token used to resolve the get current user use case implementation.
+   */
+  GetCurrentUserUseCase: Symbol.for('Identity.GetCurrentUserUseCase'),
 } as const;

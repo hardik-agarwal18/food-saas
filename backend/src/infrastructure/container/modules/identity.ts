@@ -36,6 +36,8 @@ import { JwtService } from '../../../modules/identity/infrastructure/security/jw
 import { Sha256TokenHasher } from '../../../modules/identity/infrastructure/security/sha256-token-hasher.js';
 import { IdentityTransaction } from '../../../modules/identity/infrastructure/persistence/prisma/identity.transcation.js';
 import { RegisterUserUseCaseImplementation } from '../../../modules/identity/application/use-cases/register-user.use-case.implementation.js';
+import { LoginUserUseCaseImplementation } from '../../../modules/identity/application/use-cases/login-user.use-case.implementation.js';
+import { GetCurrentUserUseCaseImplementation } from '../../../modules/identity/application/use-cases/get-current-user.use-case.implementation.js';
 
 /**
  * Registers dependencies belonging to the Identity module.
@@ -109,5 +111,24 @@ export const registerIdentity = (): void => {
   container.registerSingleton(
     IdentityTokens.RegisterUserUseCase,
     RegisterUserUseCaseImplementation,
+  );
+
+  /**
+   * Register the login user use case implementation.
+   *
+   * Whenever a class requests IdentityTokens.LoginUserUseCase,
+   * tsyringe provides LoginUserUseCaseImplementation.
+   */
+  container.registerSingleton(IdentityTokens.LoginUserUseCase, LoginUserUseCaseImplementation);
+
+  /**
+   * Register the get current user use case implementation.
+   *
+   * Whenever a class requests IdentityTokens.GetCurrentUserUseCase,
+   * tsyringe provides GetCurrentUserUseCaseImplementation.
+   */
+  container.registerSingleton(
+    IdentityTokens.GetCurrentUserUseCase,
+    GetCurrentUserUseCaseImplementation,
   );
 };
