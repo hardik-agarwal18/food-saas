@@ -16,7 +16,7 @@ export type CreateTestRefreshSessionOptions = Partial<{
   revokedAt: Date | null;
   ipAddress: string | null;
   userAgent: string | null;
-  replacedBySessionId: string | null;
+  replaceBySessionId: string | null;
 }>;
 
 /**
@@ -46,7 +46,7 @@ export const buildTestRefreshSession = (
 
       userAgent: overrides.userAgent ?? 'vitest',
 
-      replacedBySessionId: overrides.replacedBySessionId ?? null,
+      replaceBySessionId: overrides.replaceBySessionId ?? null,
     },
 
     overrides.id ?? crypto.randomUUID(),
