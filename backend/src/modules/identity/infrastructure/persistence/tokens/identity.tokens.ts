@@ -94,4 +94,9 @@ export const IdentityTokens = {
    * Token used to resolve the verify email repository implementation.
    */
   VerifyEmailRepository: Symbol.for('Identity.VerifyEmailRepository'),
+
+  /**
+   * Token used to resolve the email job queue implementation.
+   */
+  EmailJobQueue: Symbol.for('Identity.EmailJobQueue'),
 } as const;

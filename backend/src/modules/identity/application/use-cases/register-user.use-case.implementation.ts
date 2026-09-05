@@ -16,8 +16,7 @@ import type { IIdentityTransaction } from '../transaction/identity.transaction.j
 import crypto from 'node:crypto';
 import { VerifyEmail } from '../../domain/entities/verify-email.entity.js';
 import type { IVerifyEmailRepository } from '../../domain/repositories/verify-email.repository.js';
-import { InfrastructureTokens } from '../../../../infrastructure/container/index.js';
-import type { EmailService } from '../../../../infrastructure/email/email.service.js';
+import type { IEmailJobQueue } from '../services/email-job-queue.js';
 
 @injectable()
 export class RegisterUserUseCaseImplementation implements RegisterUserUseCase {
@@ -37,8 +36,8 @@ export class RegisterUserUseCaseImplementation implements RegisterUserUseCase {
     @inject(IdentityTokens.Transaction)
     private readonly transaction: IIdentityTransaction,
 
-    @inject(InfrastructureTokens.EmailService)
-    private readonly emailService: EmailService,
+    @inject(IdentityTokens.EmailJobQueue)
+    private readonly emailJobQueue: IEmailJobQueue,
   ) {}
 
   async execute(input: RegisterUserInput): Promise<RegisterUserResult> {
@@ -125,8 +124,12 @@ export class RegisterUserUseCaseImplementation implements RegisterUserUseCase {
 
     console.log({ verificationUrl });
 
-    // here we will implement background jobs later
-    await this.emailService.sendVerificationEmail(newUser.getEmail().getValue(), verificationUrl);
+    await this.emailJobQueue.enqueueVerificationEmail({
+      userId: newUser.getId(),
+      email: newUser.getEmail().getValue(),
+      verificationUrl,
+    });
+
     return {
       user: {
         id: newUser.getId(),

@@ -47,6 +47,8 @@ import { VerifyEmailRepository } from '../../../modules/identity/infrastructure/
 import { PasswordResetRepository } from '../../../modules/identity/infrastructure/persistence/prisma/password-reset.repository.js';
 import { ForgotPasswordUseCaseImpl } from '../../../modules/identity/application/use-cases/forgot-password.use-case.impl.js';
 import { ResetPasswordUseCaseImpl } from '../../../modules/identity/application/use-cases/reset-password.use-case.impl.js';
+import { BullMQEmailJobQueue } from '../../queue/queues/bullmq-email-job.queue.js';
+
 /**
  * Registers dependencies belonging to the Identity module.
  *
@@ -209,4 +211,11 @@ export const registerIdentity = (): void => {
    * Register the reset password use case implementation.
    */
   container.registerSingleton(IdentityTokens.ResetPasswordUseCase, ResetPasswordUseCaseImpl);
+
+  /**
+   * Register the email job queue implementation.
+   */
+  container.register(IdentityTokens.EmailJobQueue, {
+    useClass: BullMQEmailJobQueue,
+  });
 };

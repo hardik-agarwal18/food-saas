@@ -57,6 +57,7 @@ import { RequestContextMiddleware } from '../../observability/request-context/re
 
 import { ErrorHandlerMiddleware } from '../../../app/middleware/error-handler.middleware.js';
 import { SmtpService } from '../../email/smtp.email.service.js';
+import { EmailJobProcessor } from '../../queue/jobs/email/email.job.processor.js';
 
 /**
  * Registers all infrastructure dependencies.
@@ -203,5 +204,9 @@ export const registerInfrastructure = (): void => {
    */
   container.register(InfrastructureTokens.EmailService, {
     useClass: SmtpService,
+  });
+
+  container.register(InfrastructureTokens.EmailJobProcessor, {
+    useClass: EmailJobProcessor,
   });
 };

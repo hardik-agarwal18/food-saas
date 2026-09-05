@@ -107,4 +107,9 @@ export const InfrastructureTokens = {
    * infrastructure registration file.
    */
   EmailService: Symbol.for('Infrastructure.EmailService'),
+
+  /**
+   * Email job processor.
+   */
+  EmailJobProcessor: Symbol.for('Infrastructure.EmailJobProcessor'),
 } as const;

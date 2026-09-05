@@ -23,7 +23,7 @@ export class PasswordResetRepository extends BaseRepository implements IPassword
           userId: resetPassword.getUserId(),
           tokenHash: resetPassword.getTokenHash(),
           expiresAt: resetPassword.getExpiresAt(),
-          usedAt: resetPassword.getExpiresAt(),
+          usedAt: resetPassword.getUsedAt(),
           createdAt: resetPassword.getCreatedAt(),
           updatedAt: resetPassword.getUpdatedAt(),
         },
@@ -47,5 +47,22 @@ export class PasswordResetRepository extends BaseRepository implements IPassword
     }
 
     return PasswordResetMapper.toDomain(resetPassword);
+  }
+
+  async update(resetPassword: ResetPasswordEntity): Promise<ResetPasswordEntity> {
+    const updatedResetPassword = await this.execute(() =>
+      this.prisma.passwordReset.update({
+        where: {
+          id: resetPassword.getId(),
+        },
+        data: {
+          userId: resetPassword.getUserId(),
+          tokenHash: resetPassword.getTokenHash(),
+          expiresAt: resetPassword.getExpiresAt(),
+          usedAt: resetPassword.getUpdatedAt(),
+        },
+      }),
+    );
+    return PasswordResetMapper.toDomain(updatedResetPassword);
   }
 }
