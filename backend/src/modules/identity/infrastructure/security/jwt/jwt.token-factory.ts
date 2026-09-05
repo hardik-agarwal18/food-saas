@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import { SignJWT } from 'jose';
 
 import { TokenType } from '../../../domain/enums/index.js';
@@ -29,6 +30,7 @@ export class JwtTokenFactory {
         alg: 'HS256',
         typ: 'JWT',
       })
+      .setJti(randomUUID())
       .setSubject(payload.sub)
       .setIssuer(this.config.issuer)
       .setAudience(this.config.audience)
