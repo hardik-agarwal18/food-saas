@@ -8,20 +8,20 @@ export const IdentityTokens = {
   /**
    * Token used to resolve the user repository implementation.
    */
-  UserRepository: Symbol('Identity.UserRepository'),
+  UserRepository: Symbol.for('Identity.UserRepository'),
 
   /**
    * Token used to resolve the refresh-session repository implementation.
    */
-  RefreshSessionRepository: Symbol('Identity.RefreshSessionRepository'),
+  RefreshSessionRepository: Symbol.for('Identity.RefreshSessionRepository'),
 
   /**
    * Token used to resolve the password hasher implementation.
    */
-  PasswordHasher: Symbol('Identity.PasswordHasher'),
+  PasswordHasher: Symbol.for('Identity.PasswordHasher'),
 
   /**
    * Token used to resolve the JWT service implementation.
    */
-  JwtService: Symbol('Identity.JwtService'),
+  JwtService: Symbol.for('Identity.JwtService'),
 } as const;

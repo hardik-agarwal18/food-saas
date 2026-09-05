@@ -87,10 +87,8 @@ export const validate = (schema: ValidationSchema): RequestHandler => {
      * Validate query-string values when a query schema is provided.
      */
     if (schema.query) {
-      // IMPORTANT:
-      // The current implementation validates req.params here.
       // Query validation should normally validate req.query.
-      const result = schema.query.safeParse(req.params);
+      const result = schema.query.safeParse(req.query);
 
       if (!result.success) {
         return next(new ValidationError(ValidationFormatter.format(result.error)));
