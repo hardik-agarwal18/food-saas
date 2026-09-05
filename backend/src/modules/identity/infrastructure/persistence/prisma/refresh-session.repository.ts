@@ -1,10 +1,10 @@
 import { injectable, inject } from 'tsyringe';
 import { IRefreshSessionRepository } from '../../../domain/repositories/index.js';
 import { InfrastructureTokens } from '../../../../../infrastructure/container/tokens/infrastructure.tokens.js';
-import { PrismaClient } from '../../../../../generated/prisma/client.js';
 import { RefreshSession } from '../../../domain/entities/index.js';
 import { RefreshSessionMapper } from './mappers/refresh-session.mapper.js';
 import { BaseRepository } from '../../../../../infrastructure/database/base.repository.js';
+import type { PrismaExecutor } from '../../../../../infrastructure/database/prisma-client.type.js';
 
 /**
  * Marks this class as available for dependency injection.
@@ -19,7 +19,7 @@ export class RefreshSessionRepository extends BaseRepository implements IRefresh
    */
   constructor(
     @inject(InfrastructureTokens.PrismaClient)
-    prisma: PrismaClient,
+    prisma: PrismaExecutor,
   ) {
     /**
      * Pass the injected Prisma client to BaseRepository.

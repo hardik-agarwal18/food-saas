@@ -22,9 +22,9 @@
  */
 
 import { Prisma } from '../../generated/prisma/client.js';
-import type { PrismaClient } from '../../generated/prisma/client.js';
 
 import { translateDatabaseError } from './error.js';
+import type { PrismaExecutor } from './prisma-client.type.js';
 
 /**
  * Shared base class for Prisma repositories.
@@ -42,7 +42,7 @@ export abstract class BaseRepository {
    * `readonly` means the repository cannot replace the Prisma client
    * after construction.
    */
-  protected constructor(protected readonly prisma: PrismaClient) {}
+  protected constructor(protected readonly prisma: PrismaExecutor) {}
 
   /**
    * Executes a normal database operation.

@@ -3,9 +3,10 @@ import { IUserRepository } from '../../../domain/repositories/user.repository.js
 import { InfrastructureTokens } from '../../../../../infrastructure/container/tokens/infrastructure.tokens.js';
 import { User } from '../../../domain/entities/index.js';
 import { UserMapper } from './mappers/user.mapper.js';
-import { PrismaClient } from '../../../../../generated/prisma/client.js';
+// import { PrismaClient } from '../../../../../generated/prisma/client.js';
 import { Email } from '../../../domain/value-objects/email.vo.js';
 import { BaseRepository } from '../../../../../infrastructure/database/base.repository.js';
+import type { PrismaExecutor } from '../../../../../infrastructure/database/prisma-client.type.js';
 
 /**
  * Marks this repository as injectable by the DI container.
@@ -20,7 +21,7 @@ export class UserRepository extends BaseRepository implements IUserRepository {
    */
   constructor(
     @inject(InfrastructureTokens.PrismaClient)
-    prisma: PrismaClient,
+    prisma: PrismaExecutor,
   ) {
     /**
      * Give the Prisma client to BaseRepository.

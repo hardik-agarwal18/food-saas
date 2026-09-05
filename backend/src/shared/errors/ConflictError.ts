@@ -13,16 +13,9 @@ import { AppError } from './AppError.js';
  * 409 Conflict
  */
 export class ConflictError extends AppError {
-  constructor(message: string) {
+  constructor(message: string, code = 'CONFLICT') {
     // The conflict is expected and can be safely handled by
     // the API error middleware.
-    super(
-      // The current implementation replaces the supplied message
-      // with "Conflict".
-      (message = 'Conflict'),
-      409,
-      'CONFLICT',
-      true,
-    );
+    super(message, 409, code, true);
   }
 }
