@@ -3,8 +3,8 @@ import type { ErrorRequestHandler, NextFunction, Request, Response } from 'expre
 
 import { InfrastructureTokens } from '../../infrastructure/container/tokens/infrastructure.tokens.js';
 import type { ILogger } from '../../shared/logger/logger.interface.js';
-import { AppError } from '../../shared/errors/AppError.js';
 import { ErrorSerializer } from '../../shared/errors/error-serializer.js';
+import { mapError } from '../../shared/errors/error-mapper.js';
 import type { Env } from '../../config/env.schema.js';
 
 /**
@@ -61,73 +61,38 @@ export class ErrorHandlerMiddleware {
     }
 
     /**
-     * Handle errors created by our application.
-     *
-     * AppError contains a known HTTP status code, error code,
-     * and operational-error information.
+     * Map known domain errors to application errors.
      */
-    if (error instanceof AppError) {
-      this.logger.warn(error.message, {
+    const mappedError = mapError(
+      error instanceof Error ? error : new Error(String(error)),
+      this.env.NODE_ENV === 'production',
+    );
+
+    /**
+     * Log operational errors as warnings and unexpected errors as errors.
+     */
+    if (mappedError.isOperational) {
+      this.logger.warn(mappedError.message, {
         component: 'ErrorHandler',
         operation: 'handle',
-        errorCode: error.code,
-        statusCode: error.statusCode,
-        isOperational: error.isOperational,
-
-        /**
-         * Include basic request context for debugging.
-         *
-         * Avoid logging the complete URL if query parameters may
-         * contain sensitive information.
-         */
+        errorCode: mappedError.code,
+        statusCode: mappedError.statusCode,
+        isOperational: mappedError.isOperational,
         method: req.method,
         path: req.path,
       });
-
-      /**
-       * Convert the application error into the standard API response.
-       */
-      res.status(error.statusCode).json(ErrorSerializer.serialize(error));
-
-      return;
+    } else {
+      this.logger.error('Unhandled exception', error instanceof Error ? error : undefined, {
+        component: 'ErrorHandler',
+        operation: 'handle',
+        method: req.method,
+        path: req.path,
+      });
     }
 
     /**
-     * Unknown errors are unexpected and should be logged as errors.
-     *
-     * Passing the original error as the second argument allows the
-     * logger to preserve useful information such as the stack trace,
-     * depending on the logger implementation.
+     * Return the standardized error response.
      */
-    this.logger.error('Unhandled exception', error instanceof Error ? error : undefined, {
-      component: 'ErrorHandler',
-      operation: 'handle',
-      method: req.method,
-      path: req.path,
-    });
-
-    /**
-     * Never expose internal error details in production.
-     *
-     * During development, returning the original message makes
-     * debugging easier.
-     */
-    const message =
-      this.env.NODE_ENV === 'production'
-        ? 'An unexpected error occurred.'
-        : error instanceof Error
-          ? error.message
-          : 'Unknown error';
-
-    /**
-     * Return a generic 500 response for unexpected errors.
-     */
-    res.status(500).json({
-      success: false,
-      error: {
-        code: 'INTERNAL_SERVER_ERROR',
-        message,
-      },
-    });
+    res.status(mappedError.statusCode).json(ErrorSerializer.serialize(mappedError));
   };
 }
