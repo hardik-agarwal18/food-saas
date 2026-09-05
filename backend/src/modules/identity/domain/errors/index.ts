@@ -4,6 +4,7 @@ export * from './duplicate-permission.error.js';
 export * from './duplicate-role.error.js';
 export * from './role-not-assigned.error.js';
 export * from './email-already-verified.error.js';
+export * from './email-already-register.error.js';
 export * from './invalid-email.error.js';
 export * from './invalid-password-hash.error.js';
 export * from './refresh-session-expired.error.js';

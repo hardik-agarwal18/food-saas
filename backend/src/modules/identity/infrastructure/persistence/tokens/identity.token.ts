@@ -24,4 +24,19 @@ export const IdentityTokens = {
    * Token used to resolve the JWT service implementation.
    */
   JwtService: Symbol.for('Identity.JwtService'),
+
+  /**
+   * Token used to resolve the token hasher implementation.
+   */
+  TokenHasher: Symbol.for('Identity.TokenHasher'),
+
+  /**
+   * Token used to resolve the transaction implementation.
+   */
+  Transaction: Symbol.for('Identity.Transaction'),
+
+  /**
+   * Token used to resolve the register user use case implementation.
+   */
+  RegisterUserUseCase: Symbol.for('Identity.RegisterUserUseCase'),
 } as const;

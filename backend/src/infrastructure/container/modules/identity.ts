@@ -33,6 +33,9 @@ import { UserRepository } from '../../../modules/identity/infrastructure/persist
 import { RefreshSessionRepository } from '../../../modules/identity/infrastructure/persistence/prisma/refresh-session.repository.js';
 import { BcryptPasswordHasher } from '../../../modules/identity/infrastructure/security/bcrypt-password-hasher.js';
 import { JwtService } from '../../../modules/identity/infrastructure/security/jwt/jwt.service.js';
+import { Sha256TokenHasher } from '../../../modules/identity/infrastructure/security/sha256-token-hasher.js';
+import { IdentityTransaction } from '../../../modules/identity/infrastructure/persistence/prisma/identity.transcation.js';
+import { RegisterUserUseCaseImplementation } from '../../../modules/identity/application/use-cases/register-user.use-case.implementation.js';
 
 /**
  * Registers dependencies belonging to the Identity module.
@@ -76,4 +79,35 @@ export const registerIdentity = (): void => {
    * tsyringe provides JwtService.
    */
   container.registerSingleton(IdentityTokens.JwtService, JwtService);
+
+  /**
+   * Register the token hasher implementation.
+   *
+   * Whenever a class requests IdentityTokens.TokenHasher,
+   * tsyringe provides Sha256TokenHasher.
+   */
+  container.register(IdentityTokens.TokenHasher, {
+    useClass: Sha256TokenHasher,
+  });
+
+  /**
+   * Register the identity transaction implementation.
+   *
+   * Whenever a class requests IdentityTokens.Transaction,
+   * tsyringe provides IdentityTransaction.
+   */
+  container.register(IdentityTokens.Transaction, {
+    useClass: IdentityTransaction,
+  });
+
+  /**
+   * Register the register user use case implementation.
+   *
+   * Whenever a class requests IdentityTokens.RegisterUserUseCase,
+   * tsyringe provides RegisterUserUseCaseImplementation.
+   */
+  container.registerSingleton(
+    IdentityTokens.RegisterUserUseCase,
+    RegisterUserUseCaseImplementation,
+  );
 };

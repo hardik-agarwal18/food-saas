@@ -27,6 +27,7 @@
 import express from 'express';
 
 import healthRouter from './health.routes.js';
+import { registerRoutes } from './routes.js';
 import { container } from 'tsyringe';
 import { HttpLogger } from '../infrastructure/observability/logger/http.logger.js';
 import { RequestContextMiddleware } from '../infrastructure/observability/request-context/request-context.middleware.js';
@@ -84,11 +85,19 @@ app.use(httpLogger.middleware);
  *
  * The health router exposes:
  * - GET /live
- * - GET /health
+ * - GET /health  
  *
  * Additional routers can be registered here as the application grows.
  */
 app.use(healthRouter);
+
+/**
+ * Register all application module routes.
+ *
+ * Each module (identity, ordering, restaurant, etc.) mounts
+ * its own router under /api/v1/<module>.
+ */
+registerRoutes(app);
 
 /**
  * Register the global error handler.

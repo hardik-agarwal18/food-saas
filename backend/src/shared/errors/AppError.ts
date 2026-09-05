@@ -66,6 +66,9 @@ export class AppError extends Error {
     // new ValidationError(...) -> "ValidationError"
     this.name = this.constructor.name;
 
+    // It ensures that the error object correctly inherits from the Error class.
+    Object.setPrototypeOf(this, new.target.prototype);
+
     // Capture the stack trace while excluding the constructor itself.
     // This makes debugging easier because the stack starts at the
     // location where the application error was created.

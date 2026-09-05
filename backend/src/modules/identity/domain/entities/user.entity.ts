@@ -103,6 +103,40 @@ export class User {
   }
 
   /**
+   * Creates a new user.
+   *
+   * The constructor receives value objects and domain types rather than
+   * raw strings, which keeps business rules inside the domain layer.
+   */
+  public static create(params: { email: Email; passwordHash: PasswordHash }): User {
+    const now = new Date();
+
+    return new User({
+      id: crypto.randomUUID(),
+      email: params.email,
+      passwordHash: params.passwordHash,
+      roles: [Role.CUSTOMER],
+      status: UserStatus.ACTIVE,
+      emailVerified: false,
+      createdAt: now,
+      updatedAt: now,
+    });
+  }
+
+  public static rehydrate(params: {
+    id: string;
+    email: Email;
+    passwordHash: PasswordHash;
+    roles: Iterable<Role>;
+    status: UserStatus;
+    emailVerified: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+  }): User {
+    return new User(params);
+  }
+
+  /**
    * Returns the user's unique ID.
    */
   public getId(): string {
