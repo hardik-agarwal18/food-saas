@@ -112,4 +112,12 @@ export const InfrastructureTokens = {
    * Email job processor.
    */
   EmailJobProcessor: Symbol.for('Infrastructure.EmailJobProcessor'),
+
+  /**
+   * Rate limit service token.
+   *
+   * This token is currently associated with RateLimitService in the
+   * infrastructure registration file.
+   */
+  RateLimitService: Symbol.for('Infrastructure.RateLimitService'),
 } as const;

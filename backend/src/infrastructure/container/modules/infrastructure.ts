@@ -59,6 +59,8 @@ import { ErrorHandlerMiddleware } from '../../../app/middleware/error-handler.mi
 import { SmtpService } from '../../email/smtp.email.service.js';
 import { EmailJobProcessor } from '../../queue/jobs/email/email.job.processor.js';
 
+import { RateLimitService } from '../../security/rate-limit.service.js';
+
 /**
  * Registers all infrastructure dependencies.
  *
@@ -206,7 +208,15 @@ export const registerInfrastructure = (): void => {
     useClass: SmtpService,
   });
 
+  /**
+   * Register EmailJobProcessor.
+   */
   container.register(InfrastructureTokens.EmailJobProcessor, {
     useClass: EmailJobProcessor,
   });
+
+  /**
+   * Register RateLimitService.
+   */
+  container.registerSingleton(InfrastructureTokens.RateLimitService, RateLimitService);
 };

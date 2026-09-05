@@ -48,6 +48,7 @@ import { PasswordResetRepository } from '../../../modules/identity/infrastructur
 import { ForgotPasswordUseCaseImpl } from '../../../modules/identity/application/use-cases/forgot-password.use-case.impl.js';
 import { ResetPasswordUseCaseImpl } from '../../../modules/identity/application/use-cases/reset-password.use-case.impl.js';
 import { BullMQEmailJobQueue } from '../../queue/queues/bullmq-email-job.queue.js';
+import { IdentityRateLimitMiddleware } from '../../../modules/identity/presentation/middleware/identity-rate-limit.middleware.js';
 
 /**
  * Registers dependencies belonging to the Identity module.
@@ -218,4 +219,9 @@ export const registerIdentity = (): void => {
   container.register(IdentityTokens.EmailJobQueue, {
     useClass: BullMQEmailJobQueue,
   });
+
+  /**
+   * Register IdentityRateLimitMiddleware.
+   */
+  container.registerSingleton(IdentityRateLimitMiddleware, IdentityRateLimitMiddleware);
 };
