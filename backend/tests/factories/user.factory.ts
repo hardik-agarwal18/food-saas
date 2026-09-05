@@ -24,8 +24,8 @@ export type CreateTestUserOptions = Partial<{
 
 /**
  * Constructs an in-memory User domain entity populated with test data.
- * 
- * Use this factory when you need a domain model for tests but do not need 
+ *
+ * Use this factory when you need a domain model for tests but do not need
  * it to be saved to the PostgreSQL database (e.g., unit testing domain logic).
  */
 export const buildTestUser = (overrides: CreateTestUserOptions = {}): User => {
@@ -45,8 +45,8 @@ export const buildTestUser = (overrides: CreateTestUserOptions = {}): User => {
 
 /**
  * Constructs a User domain entity and persists it to the test database.
- * 
- * Use this factory in integration tests where the User record needs to exist 
+ *
+ * Use this factory in integration tests where the User record needs to exist
  * in PostgreSQL (e.g., repository testing, satisfying foreign key constraints).
  */
 export const createTestUser = async (

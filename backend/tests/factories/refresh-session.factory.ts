@@ -9,20 +9,22 @@ import { RefreshSession } from '../../src/modules/identity/domain/entities/index
  */
 export type CreateTestRefreshSessionOptions = Partial<{
   id: string;
+  familyId: string;
   tokenHash: string;
   expiresAt: Date;
   lastUsedAt: Date | null;
   revokedAt: Date | null;
   ipAddress: string | null;
   userAgent: string | null;
+  replacedBySessionId: string | null;
 }>;
 
 /**
  * Constructs an in-memory RefreshSession domain entity.
- * 
+ *
  * This is useful for unit testing logic that requires a session entity
  * without the overhead of hitting the database.
- * 
+ *
  * @param userId - The ID of the User that owns this session.
  * @param overrides - Optional overrides for session properties.
  */
@@ -34,6 +36,8 @@ export const buildTestRefreshSession = (
     {
       userId,
 
+      familyId: overrides.familyId ?? crypto.randomUUID(),
+
       tokenHash: overrides.tokenHash ?? `test-token-hash-${crypto.randomUUID()}`,
 
       expiresAt: overrides.expiresAt ?? new Date(Date.now() + 1000 * 60 * 60),
@@ -41,6 +45,8 @@ export const buildTestRefreshSession = (
       ipAddress: overrides.ipAddress ?? '127.0.0.1',
 
       userAgent: overrides.userAgent ?? 'vitest',
+
+      replacedBySessionId: overrides.replacedBySessionId ?? null,
     },
 
     overrides.id ?? crypto.randomUUID(),
@@ -71,10 +77,10 @@ export const buildTestRefreshSession = (
  *
  * This factory is typically used in repository or integration tests
  * to quickly seed the database with required state.
- * 
- * Note: The referenced User (userId) must already exist in the database 
+ *
+ * Note: The referenced User (userId) must already exist in the database
  * to satisfy foreign key constraints.
- * 
+ *
  * @param prisma - The PrismaClient instance connected to the test database.
  * @param userId - The ID of the User that owns this session.
  * @param overrides - Optional overrides for session properties.
@@ -92,6 +98,8 @@ export const createTestRefreshSession = async (
 
       userId: session.getUserId(),
 
+      familyId: session.getFamilyId(),
+
       tokenHash: session.getTokenHash(),
 
       expiresAt: session.getExpiresAt(),
@@ -103,6 +111,8 @@ export const createTestRefreshSession = async (
       ipAddress: session.getIpAddress(),
 
       userAgent: session.getUserAgent(),
+
+      replaceBySessionId: session.getReplacedBySessionId(),
 
       createdAt: session.getCreatedAt(),
 

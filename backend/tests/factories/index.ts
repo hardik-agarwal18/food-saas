@@ -1,6 +1,6 @@
 /**
  * Test Factories
- * 
+ *
  * This module exports factory functions designed to easily construct test data.
  * - `build*` functions create in-memory Domain Entities.
  * - `create*` functions create Domain Entities AND persist them to PostgreSQL.

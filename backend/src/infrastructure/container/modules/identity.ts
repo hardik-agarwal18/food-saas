@@ -42,7 +42,8 @@ import { AuthorizationService } from '../../../modules/identity/domain/authoriza
 import { RefreshTokenUseCaseImpl } from '../../../modules/identity/application/use-cases/refresh-token.use-case.impl.js';
 import { LogoutUserUseCaseImpl } from '../../../modules/identity/application/use-cases/logout.user.use-case.impl.js';
 import { ChangePasswordUseCaseImpl } from '../../../modules/identity/application/use-cases/change-password.use-case.impl.js';
-
+import { VerifyEmailUseCaseImpl } from '../../../modules/identity/application/use-cases/verify-email.use-case.impl.js';
+import { VerifyEmailRepository } from '../../../modules/identity/infrastructure/persistence/prisma/verify-email.repository.js';
 /**
  * Registers dependencies belonging to the Identity module.
  *
@@ -68,6 +69,16 @@ export const registerIdentity = (): void => {
    */
   container.register(IdentityTokens.RefreshSessionRepository, {
     useClass: RefreshSessionRepository,
+  });
+
+  /**
+   * Register the verify-email repository implementation.
+   *
+   * Whenever a class requests IdentityTokens.VerifyEmailRepository,
+   * tsyringe provides VerifyEmailRepository.
+   */
+  container.register(IdentityTokens.VerifyEmailRepository, {
+    useClass: VerifyEmailRepository,
   });
 
   /**
@@ -167,4 +178,12 @@ export const registerIdentity = (): void => {
    * tsyringe provides ChangePasswordUseCaseImpl.
    */
   container.registerSingleton(IdentityTokens.ChangePasswordUseCase, ChangePasswordUseCaseImpl);
+
+  /**
+   * Register the verify email use case implementation.
+   *
+   * Whenever a class requests IdentityTokens.VerifyEmailUseCase,
+   * tsyringe provides VerifyEmailUseCaseImpl.
+   */
+  container.registerSingleton(IdentityTokens.VerifyEmailUseCase, VerifyEmailUseCaseImpl);
 };

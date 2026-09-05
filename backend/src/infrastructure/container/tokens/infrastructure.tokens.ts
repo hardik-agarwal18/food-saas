@@ -99,4 +99,12 @@ export const InfrastructureTokens = {
    * asynchronous HTTP request.
    */
   RequestContextService: Symbol.for('Infrastructure.RequestContextService'),
+
+  /**
+   * Email service token.
+   *
+   * This token is currently associated with EmailService in the
+   * infrastructure registration file.
+   */
+  EmailService: Symbol.for('Infrastructure.EmailService'),
 } as const;

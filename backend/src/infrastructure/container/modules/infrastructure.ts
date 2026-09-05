@@ -56,6 +56,7 @@ import { RequestContextService } from '../../observability/request-context/reque
 import { RequestContextMiddleware } from '../../observability/request-context/request-context.middleware.js';
 
 import { ErrorHandlerMiddleware } from '../../../app/middleware/error-handler.middleware.js';
+import { SmtpService } from '../../email/smtp.email.service.js';
 
 /**
  * Registers all infrastructure dependencies.
@@ -192,4 +193,15 @@ export const registerInfrastructure = (): void => {
    * The middleware is also resolved directly by its class.
    */
   container.registerSingleton(ErrorHandlerMiddleware);
+
+  /**
+   * Register EmailService.
+   *
+   * NOTE:
+   * This is currently registered as a transient dependency.
+   * If you need a shared instance, change this to registerSingleton.
+   */
+  container.register(InfrastructureTokens.EmailService, {
+    useClass: SmtpService,
+  });
 };

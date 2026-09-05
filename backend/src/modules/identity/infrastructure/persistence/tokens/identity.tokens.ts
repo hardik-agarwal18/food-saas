@@ -69,4 +69,14 @@ export const IdentityTokens = {
    * Token used to resolve the change password use case implementation.
    */
   ChangePasswordUseCase: Symbol.for('Identity.ChangePasswordUseCase'),
+
+  /**
+   * Token used to resolve the verify email use case implementation.
+   */
+  VerifyEmailUseCase: Symbol.for('Identity.VerifyEmailUseCase'),
+
+  /**
+   * Token used to resolve the verify email repository implementation.
+   */
+  VerifyEmailRepository: Symbol.for('Identity.VerifyEmailRepository'),
 } as const;

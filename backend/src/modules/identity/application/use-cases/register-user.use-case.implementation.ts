@@ -13,10 +13,18 @@ import { env } from '../../../../config/env.config.js';
 import type { ITokenHasher } from '../../domain/services/token-hasher.js';
 import { RefreshSession } from '../../domain/entities/refresh-session.entity.js';
 import type { IIdentityTransaction } from '../transaction/identity.transaction.js';
+import crypto from 'node:crypto';
+import { VerifyEmail } from '../../domain/entities/verify-email.entity.js';
+import type { IVerifyEmailRepository } from '../../domain/repositories/verify-email.repository.js';
+import { InfrastructureTokens } from '../../../../infrastructure/container/index.js';
+import type { EmailService } from '../../../../infrastructure/email/email.service.js';
 
 @injectable()
 export class RegisterUserUseCaseImplementation implements RegisterUserUseCase {
   constructor(
+    @inject(IdentityTokens.VerifyEmailRepository)
+    private readonly verifyEmailRepo: IVerifyEmailRepository,
+
     @inject(IdentityTokens.PasswordHasher)
     private readonly passwordHasher: IPasswordHasher,
 
@@ -28,6 +36,9 @@ export class RegisterUserUseCaseImplementation implements RegisterUserUseCase {
 
     @inject(IdentityTokens.Transaction)
     private readonly transaction: IIdentityTransaction,
+
+    @inject(InfrastructureTokens.EmailService)
+    private readonly emailService: EmailService,
   ) {}
 
   async execute(input: RegisterUserInput): Promise<RegisterUserResult> {
@@ -98,6 +109,24 @@ export class RegisterUserUseCaseImplementation implements RegisterUserUseCase {
       },
     );
 
+    const rawEmailVerificationToken = crypto.randomBytes(32).toString('hex');
+    const emailVerificationTokenHash = this.tokenHasher.hash(rawEmailVerificationToken);
+    const verifyEmailTokenExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
+
+    const verifyEmail = VerifyEmail.create({
+      userId: newUser.getId(),
+      tokenHash: emailVerificationTokenHash,
+      expiresAt: verifyEmailTokenExpiresAt,
+    });
+
+    await this.verifyEmailRepo.create(verifyEmail);
+
+    const verificationUrl = `http://localhost:4000/api/v1/identity/verify-email/${rawEmailVerificationToken}`;
+
+    console.log({ verificationUrl });
+
+    // here we will implement background jobs later
+    await this.emailService.sendVerificationEmail(newUser.getEmail().getValue(), verificationUrl);
     return {
       user: {
         id: newUser.getId(),
