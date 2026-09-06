@@ -4,20 +4,25 @@ import { InfrastructureTokens } from '../../../../../infrastructure/container/to
 import type { PrismaExecutor } from '../../../../../infrastructure/database/prisma-client.type.js';
 import { Customer } from '../../../domain/entities/customer.entity.js';
 import { CustomerMapper } from './mappers/customer.mapper.js';
+import { BaseRepository } from '../../../../../infrastructure/database/base.repository.js';
 
 @injectable()
-export class CustomerRepository implements ICustomerRepository {
+export class CustomerRepository extends BaseRepository implements ICustomerRepository {
   constructor(
     @inject(InfrastructureTokens.PrismaClient)
-    private readonly prisma: PrismaExecutor,
-  ) {}
+    prisma: PrismaExecutor,
+  ) {
+    super(prisma);
+  }
 
   async findById(id: string): Promise<Customer | null> {
-    const customer = await this.prisma.customer.findUnique({
-      where: {
-        id,
-      },
-    });
+    const customer = await this.execute(() =>
+      this.prisma.customer.findUnique({
+        where: {
+          id,
+        },
+      }),
+    );
 
     if (!customer) {
       return null;
@@ -27,11 +32,13 @@ export class CustomerRepository implements ICustomerRepository {
   }
 
   async findByUserId(userId: string): Promise<Customer | null> {
-    const customer = await this.prisma.customer.findUnique({
-      where: {
-        userId,
-      },
-    });
+    const customer = await this.execute(() =>
+      this.prisma.customer.findUnique({
+        where: {
+          userId,
+        },
+      }),
+    );
 
     if (!customer) {
       return null;
@@ -43,9 +50,11 @@ export class CustomerRepository implements ICustomerRepository {
   async create(customer: Customer): Promise<Customer> {
     const data = CustomerMapper.toPersistence(customer);
 
-    const newCustomer = await this.prisma.customer.create({
-      data,
-    });
+    const newCustomer = await this.execute(() =>
+      this.prisma.customer.create({
+        data,
+      }),
+    );
 
     return CustomerMapper.toDomain(newCustomer);
   }
@@ -53,12 +62,14 @@ export class CustomerRepository implements ICustomerRepository {
   async update(customer: Customer): Promise<Customer> {
     const data = CustomerMapper.toUpdatePersistence(customer);
 
-    const updateCustomer = await this.prisma.customer.update({
-      where: {
-        id: customer.getId(),
-      },
-      data,
-    });
+    const updateCustomer = await this.execute(() =>
+      this.prisma.customer.update({
+        where: {
+          id: customer.getId(),
+        },
+        data,
+      }),
+    );
 
     return CustomerMapper.toDomain(updateCustomer);
   }
