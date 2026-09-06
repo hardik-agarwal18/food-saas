@@ -5,13 +5,17 @@ export const EmailJobName = {
 
 export type EmailJobName = (typeof EmailJobName)[keyof typeof EmailJobName];
 
-export interface SendVerificationEmailJob {
+export interface BaseEmailJob {
+  correlationId?: string;
+}
+
+export interface SendVerificationEmailJob extends BaseEmailJob {
   userId: string;
   email: string;
   verificationUrl: string;
 }
 
-export interface SendResetPasswordEmailJob {
+export interface SendResetPasswordEmailJob extends BaseEmailJob {
   userId: string;
   email: string;
   resetPasswordUrl: string;
