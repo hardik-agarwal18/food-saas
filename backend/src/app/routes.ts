@@ -1,5 +1,6 @@
 import type { Express } from 'express';
 import identityRouter from '../modules/identity/presentation/routes/identity.route.js';
+import customersRouter from '../modules/customer/presentation/routes/customer.route.js';
 
 /**
  * Registers all application routes.
@@ -8,4 +9,6 @@ import identityRouter from '../modules/identity/presentation/routes/identity.rou
  */
 export const registerRoutes = (app: Express): void => {
   app.use('/api/v1/identity', identityRouter);
+
+  app.use('/api/v1/customer', customersRouter);
 };

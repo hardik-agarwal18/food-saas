@@ -17,6 +17,8 @@ import crypto from 'node:crypto';
 import { VerifyEmail } from '../../domain/entities/verify-email.entity.js';
 import type { IVerifyEmailRepository } from '../../domain/repositories/verify-email.repository.js';
 import type { IEmailJobQueue } from '../services/email-job-queue.js';
+import { CustomerTokens } from '../../../customer/infrastructure/persistence/tokens/customer.tokens.js';
+import type { CustomerProfileCreationUseCase } from '../../../customer/application/use-cases/customer-profile-creation.use-case.js';
 
 @injectable()
 export class RegisterUserUseCaseImplementation implements RegisterUserUseCase {
@@ -38,6 +40,9 @@ export class RegisterUserUseCaseImplementation implements RegisterUserUseCase {
 
     @inject(IdentityTokens.EmailJobQueue)
     private readonly emailJobQueue: IEmailJobQueue,
+
+    @inject(CustomerTokens.CustomerProfileCreationUseCase)
+    private readonly customerProfileCreationUseCase: CustomerProfileCreationUseCase,
   ) {}
 
   async execute(input: RegisterUserInput): Promise<RegisterUserResult> {
@@ -81,7 +86,7 @@ export class RegisterUserUseCaseImplementation implements RegisterUserUseCase {
     const refreshSessionExpiresAt = new Date(Date.now() + env.JWT_REFRESH_EXPIRES_IN * 1000);
 
     const newUser = await this.transaction.execute(
-      async ({ userRepository, refreshSessionRepository }) => {
+      async ({ userRepository, refreshSessionRepository, customerRepository }) => {
         const existingUser = await userRepository.existsByEmail(email);
 
         if (existingUser) {
@@ -103,6 +108,15 @@ export class RegisterUserUseCaseImplementation implements RegisterUserUseCase {
         );
 
         await refreshSessionRepository.create(refreshSession);
+
+        const customerEntity = await this.customerProfileCreationUseCase.execute({
+          userId: createdUser.getId(),
+          firstName: input.firstName,
+          lastName: input.lastName,
+          phone: input.phone,
+        });
+
+        await customerRepository.create(customerEntity);
 
         return createdUser;
       },

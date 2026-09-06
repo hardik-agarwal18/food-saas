@@ -34,7 +34,7 @@ import { RefreshSessionRepository } from '../../../modules/identity/infrastructu
 import { BcryptPasswordHasher } from '../../../modules/identity/infrastructure/security/bcrypt-password-hasher.js';
 import { JwtService } from '../../../modules/identity/infrastructure/security/jwt/jwt.service.js';
 import { Sha256TokenHasher } from '../../../modules/identity/infrastructure/security/sha256-token-hasher.js';
-import { IdentityTransaction } from '../../../modules/identity/infrastructure/persistence/prisma/identity.transcation.js';
+import { IdentityTransaction } from '../../../modules/identity/infrastructure/persistence/prisma/identity.transaction.js';
 import { RegisterUserUseCaseImplementation } from '../../../modules/identity/application/use-cases/register-user.use-case.implementation.js';
 import { LoginUserUseCaseImplementation } from '../../../modules/identity/application/use-cases/login-user.use-case.implementation.js';
 import { GetCurrentUserUseCaseImplementation } from '../../../modules/identity/application/use-cases/get-current-user.use-case.implementation.js';

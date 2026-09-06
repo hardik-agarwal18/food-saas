@@ -1,16 +1,18 @@
 import { InvalidCustomerAvatarUrlError } from '../errors/invalid-customer-avatar-url.error.js';
 
 export class CustomerAvatarUrl {
-  private readonly value: string;
+  private readonly value: string | null;
 
-  constructor(value: string) {
+  constructor(value: string | null) {
     this.value = value;
   }
 
-  public static create(value: string): CustomerAvatarUrl {
-    const normalizedValue = CustomerAvatarUrl.normalize(value);
+  public static create(value: string | null): CustomerAvatarUrl {
+    if (value !== null) {
+      const normalizedValue = CustomerAvatarUrl.normalize(value);
 
-    CustomerAvatarUrl.validate(normalizedValue);
+      CustomerAvatarUrl.validate(normalizedValue);
+    }
 
     return new CustomerAvatarUrl(value);
   }
@@ -39,7 +41,7 @@ export class CustomerAvatarUrl {
     }
   }
 
-  public getValue(): string {
+  public getValue(): string | null {
     return this.value;
   }
 
@@ -47,7 +49,7 @@ export class CustomerAvatarUrl {
     return this.value === other.value;
   }
 
-  public toString(): string {
+  public toString(): string | null {
     return this.value;
   }
 }
