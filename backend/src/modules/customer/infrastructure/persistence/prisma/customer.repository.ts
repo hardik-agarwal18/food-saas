@@ -1,6 +1,6 @@
 import { injectable, inject } from 'tsyringe';
 import { ICustomerRepository } from '../../../domain/repositories/customer.repository.js';
-import { InfrastructureTokens } from '../../../../../infrastructure/container/index.js';
+import { InfrastructureTokens } from '../../../../../infrastructure/container/tokens/index.js';
 import type { PrismaExecutor } from '../../../../../infrastructure/database/prisma-client.type.js';
 import { Customer } from '../../../domain/entities/customer.entity.js';
 import { CustomerMapper } from './mappers/customer.mapper.js';

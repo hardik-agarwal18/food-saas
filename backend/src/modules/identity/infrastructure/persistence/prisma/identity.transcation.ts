@@ -3,7 +3,7 @@ import {
   IdentityTransactionContext,
   IIdentityTransaction,
 } from '../../../application/transaction/identity.transaction.js';
-import { InfrastructureTokens } from '../../../../../infrastructure/container/index.js';
+import { InfrastructureTokens } from '../../../../../infrastructure/container/tokens/index.js';
 import { UserRepository } from './user.repository.js';
 import { RefreshSessionRepository } from './refresh-session.repository.js';
 import type { PrismaExecutor } from '../../../../../infrastructure/database/prisma-client.type.js';

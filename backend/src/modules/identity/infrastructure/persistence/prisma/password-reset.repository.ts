@@ -1,6 +1,6 @@
 import { injectable, inject } from 'tsyringe';
 import { IPasswordResetRepository } from '../../../domain/repositories/password-reset.repository.js';
-import { InfrastructureTokens } from '../../../../../infrastructure/container/index.js';
+import { InfrastructureTokens } from '../../../../../infrastructure/container/tokens/index.js';
 import type { PrismaExecutor } from '../../../../../infrastructure/database/prisma-client.type.js';
 import { ResetPasswordEntity } from '../../../domain/entities/reset-password.entity.js';
 import { PasswordResetMapper } from './mappers/password-reset.mapper.js';

@@ -1,5 +1,5 @@
 import { injectable, inject } from 'tsyringe';
-import { InfrastructureTokens } from '../../../container/index.js';
+import { InfrastructureTokens } from '../../../container/tokens/index.js';
 import type { EmailService } from '../../../email/email.service.js';
 import { Job } from 'bullmq';
 import {

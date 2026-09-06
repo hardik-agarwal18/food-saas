@@ -1,7 +1,7 @@
 import { injectable, inject } from 'tsyringe';
 import { VerifyEmail } from '../../../domain/entities/verify-email.entity.js';
 import { IVerifyEmailRepository } from '../../../domain/repositories/verify-email.repository.js';
-import { InfrastructureTokens } from '../../../../../infrastructure/container/index.js';
+import { InfrastructureTokens } from '../../../../../infrastructure/container/tokens/index.js';
 import type { PrismaExecutor } from '../../../../../infrastructure/database/prisma-client.type.js';
 import { VerifyEmailMapper } from './mappers/verify-email.mapper.js';
 import { BaseRepository } from '../../../../../infrastructure/database/base.repository.js';
