@@ -11,6 +11,8 @@ import { env } from '../../../../config/env.config.js';
 import { ResetPasswordEntity } from '../../domain/entities/reset-password.entity.js';
 import type { IPasswordResetRepository } from '../../domain/repositories/password-reset.repository.js';
 import type { IEmailJobQueue } from '../services/email-job-queue.js';
+import { InfrastructureTokens } from '../../../../infrastructure/container/index.js';
+import type { ILogger } from '../../../../shared/logger/logger.interface.js';
 
 @injectable()
 export class ForgotPasswordUseCaseImpl implements ForgotPasswordUseCase {
@@ -23,13 +25,19 @@ export class ForgotPasswordUseCaseImpl implements ForgotPasswordUseCase {
     private readonly tokenHasher: ITokenHasher,
     @inject(IdentityTokens.EmailJobQueue)
     private readonly emailJobQueue: IEmailJobQueue,
+    @inject(InfrastructureTokens.Logger)
+    private readonly logger: ILogger,
   ) {}
 
   async execute(input: ForgotPasswordInput): Promise<void> {
-    const email = Email.create(input.email);
+    const rawEmail = input.email;
+    this.logger.info('Executing ForgotPasswordUseCase', { email: rawEmail });
+
+    const email = Email.create(rawEmail);
     const user = await this.userRepo.findByEmail(email);
 
     if (!user) {
+      this.logger.warn('Forgot password requested for non-existent email', { email: rawEmail });
       throw new AuthenticationError(
         'If the email is valid, we will send the password reset link there',
       );
@@ -48,17 +56,20 @@ export class ForgotPasswordUseCaseImpl implements ForgotPasswordUseCase {
     });
 
     await this.passwordResetRepo.create(resetPasswordEntity);
+    this.logger.debug('Reset password token created', {
+      userId: user.getId(),
+      resetPasswordId: resetPasswordEntity.getId(),
+    });
 
     const resetPasswordUrl = `http://localhost:4000/api/v1/identity/reset-password/${rawResetPasswordToken}`;
-
-    console.log({
-      resetPasswordUrl,
-    });
 
     await this.emailJobQueue.enqueResetPasswordEmail({
       userId: user.getId(),
       email: user.getEmail().getValue(),
       resetPasswordUrl,
     });
+    this.logger.debug('Reset password email enqueued', { userId: user.getId() });
+
+    this.logger.info('Forgot password flow completed successfully', { userId: user.getId() });
   }
 }

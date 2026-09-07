@@ -8,6 +8,7 @@ import { InfrastructureTokens } from '../../../../infrastructure/container/index
 import type { FileStorage } from '../../../../shared/contracts/storage/file-storage.js';
 import { AuthenticationError } from '../../../../shared/errors/AuthenticationError.js';
 import { CustomerNotFoundError } from '../../domain/errors/customer-not-found.error.js';
+import type { ILogger } from '../../../../shared/logger/logger.interface.js';
 
 @injectable()
 export class CustomerAvatarRemoveUseCaseImpl implements CustomerAvatarRemoveUseCase {
@@ -20,26 +21,34 @@ export class CustomerAvatarRemoveUseCaseImpl implements CustomerAvatarRemoveUseC
 
     @inject(InfrastructureTokens.FileStorage)
     private readonly fileStorage: FileStorage,
+
+    @inject(InfrastructureTokens.Logger)
+    private readonly logger: ILogger,
   ) {}
 
   async execute(input: { userId: string }): Promise<void> {
     const userId = input.userId;
 
+    this.logger.info('Executing CustomerAvatarRemoveUseCase', { userId });
+
     const user = await this.userRepo.findById(userId);
 
     if (!user) {
+      this.logger.warn('User not found during avatar removal', { userId });
       throw new AuthenticationError('User not found');
     }
 
     const customer = await this.customerRepo.findByUserId(userId);
 
     if (!customer) {
+      this.logger.warn('Customer not found during avatar removal', { userId });
       throw new CustomerNotFoundError();
     }
 
     const avatarUrl = customer.getAvatarUrl();
 
     if (!avatarUrl) {
+      this.logger.info('Customer has no avatar to remove', { userId });
       return;
     }
 
@@ -55,10 +64,15 @@ export class CustomerAvatarRemoveUseCaseImpl implements CustomerAvatarRemoveUseC
 
     await this.customerRepo.update(customer);
 
+    this.logger.info('Customer avatar removed from profile successfully', { userId });
+
     if (avatarKey) {
       try {
         await this.fileStorage.delete(avatarKey);
-      } catch {}
+        this.logger.info('Avatar file deleted from storage successfully', { userId, avatarKey });
+      } catch (err) {
+        this.logger.error('Failed to delete avatar from storage', err, { userId, avatarKey });
+      }
     }
   }
 

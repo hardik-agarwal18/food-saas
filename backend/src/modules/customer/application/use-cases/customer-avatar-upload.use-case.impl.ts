@@ -14,6 +14,7 @@ import { validateCustomerAvatar } from '../../validators/customer-avatar.validat
 import { AuthenticationError } from '../../../../shared/errors/AuthenticationError.js';
 import { CustomerNotFoundError } from '../../domain/errors/customer-not-found.error.js';
 import { CustomerAvatarUrl } from '../../domain/value-objects/customer-avatar.vo.js';
+import type { ILogger } from '../../../../shared/logger/logger.interface.js';
 
 const PART_SIZE = 2 * 1024 * 1024;
 
@@ -28,22 +29,29 @@ export class CustomerAvatarUploadUseCaseImpl implements CustomerAvatarUploadUseC
 
     @inject(InfrastructureTokens.FileStorage)
     private readonly fileStorage: FileStorage,
+
+    @inject(InfrastructureTokens.Logger)
+    private readonly logger: ILogger,
   ) {}
 
   async execute(input: CustomerAvatarUploadInput): Promise<void> {
     const userId = input.userId;
+
+    this.logger.info('Executing CustomerAvatarUploadUseCase (Multipart)', { userId });
 
     await validateCustomerAvatar(input.file);
 
     const user = await this.userRepo.findById(userId);
 
     if (!user) {
+      this.logger.warn('User not found during avatar upload', { userId });
       throw new AuthenticationError('User not found');
     }
 
     const customer = await this.customerRepo.findByUserId(userId);
 
     if (!customer) {
+      this.logger.warn('Customer not found during avatar upload', { userId });
       throw new CustomerNotFoundError();
     }
 
@@ -122,6 +130,8 @@ export class CustomerAvatarUploadUseCaseImpl implements CustomerAvatarUploadUseC
       // Persist customer
       await this.customerRepo.update(customer);
 
+      this.logger.info('Multipart avatar uploaded successfully', { userId, key });
+
       // delete the old avatar
       if (!oldAvatarUrl) {
         return;
@@ -145,7 +155,7 @@ export class CustomerAvatarUploadUseCaseImpl implements CustomerAvatarUploadUseC
         await this.safeAbort(key, uploadId);
       }
 
-      console.error(error);
+      this.logger.error('Failed to upload avatar via multipart', error, { userId });
 
       throw error;
     }
