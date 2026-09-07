@@ -9,3 +9,4 @@ export * from './ServiceUnavailableError.js';
 export * from './InternalServerError.js';
 export * from './CacheSerializationError.js';
 export * from './CredentialError.js';
+export * from './InvalidUrlError.js';
