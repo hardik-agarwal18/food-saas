@@ -53,6 +53,7 @@ export class DatabaseService {
     /**
      * LoggerFactory creates a child logger with component metadata.
      */
+    @inject(LoggerFactory)
     loggerFactory: LoggerFactory,
   ) {
     /**

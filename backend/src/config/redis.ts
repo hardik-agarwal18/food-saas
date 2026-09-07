@@ -1,5 +1,5 @@
 import { Redis } from 'ioredis';
-import { env } from '../../config/env.config.js';
+import { env } from './env.config.js';
 
 /**
  * Configuration for the shared Redis connection.

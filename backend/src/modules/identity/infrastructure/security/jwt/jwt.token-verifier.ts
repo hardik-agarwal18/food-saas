@@ -1,12 +1,10 @@
 import { JWTPayload, jwtVerify } from 'jose';
 import { ITokenPayload } from '../../../domain/services/token-payload.js';
 import { IJwtClaims, IJwtConfig } from './jwt.types.js';
-import {
-  JWTInvalidRolesClaimError,
-  JwtInvalidTokenTypeError,
-  JwtSubjectMissingError,
-} from '../../../domain/errors/index.js';
+
 import { TokenType } from '../../../domain/enums/token-type.enum.js';
+import { AuthenticationError } from '../../../../../shared/errors/AuthenticationError.js';
+import { JOSEError } from 'jose/errors';
 
 export class JWTTokenVerifier {
   constructor(private readonly config: IJwtConfig) {}
@@ -19,24 +17,27 @@ export class JWTTokenVerifier {
   }
 
   private validateClaims(payload: JWTPayload): IJwtClaims {
-    if (!payload.sub) throw new JwtSubjectMissingError();
+    if (!payload.sub) {
+      throw new AuthenticationError('JWT subject missing');
+    }
 
-    if (payload.type !== TokenType.ACCESS && payload.type !== TokenType.REFRESH)
-      throw new JwtInvalidTokenTypeError();
+    if (payload.type !== TokenType.ACCESS && payload.type !== TokenType.REFRESH) {
+      throw new AuthenticationError('Invalid JWT token type');
+    }
 
     const roles = payload.roles;
 
     if (
       roles !== undefined &&
       (!Array.isArray(roles) || !roles.every((role): role is string => typeof role === 'string'))
-    )
-      throw new JWTInvalidRolesClaimError();
+    ) {
+      throw new AuthenticationError('Invalid JWT roles claim');
+    }
 
     return {
       sub: payload.sub,
       roles,
       type: payload.type,
-
       iat: payload.iat,
       exp: payload.exp,
       iss: typeof payload.iss === 'string' ? payload.iss : undefined,
@@ -45,15 +46,27 @@ export class JWTTokenVerifier {
   }
 
   private async verify(token: string, expectedType: TokenType): Promise<IJwtClaims> {
-    const secret = this.getSecret(expectedType);
+    try {
+      const secret = this.getSecret(expectedType);
 
-    const { payload } = await jwtVerify(token, secret, {
-      issuer: this.config.issuer,
-      audience: this.config.audience,
-      algorithms: ['HS256'],
-    });
+      const { payload } = await jwtVerify(token, secret, {
+        issuer: this.config.issuer,
+        audience: this.config.audience,
+        algorithms: ['HS256'],
+      });
 
-    return this.validateClaims(payload);
+      return this.validateClaims(payload);
+    } catch (error) {
+      if (error instanceof JOSEError) {
+        throw new AuthenticationError('Invalid or expired access token');
+      }
+
+      if (error instanceof AuthenticationError) {
+        throw error;
+      }
+
+      throw error;
+    }
   }
 
   private toTokenPayload(payload: IJwtClaims): ITokenPayload {
@@ -68,11 +81,11 @@ export class JWTTokenVerifier {
     };
   }
 
-  async verifyAccessToken(accessToken: string): Promise<ITokenPayload> {
-    const payload = await this.verify(accessToken, TokenType.ACCESS);
+  async verifyAccessToken(token: string): Promise<ITokenPayload> {
+    const payload = await this.verify(token, TokenType.ACCESS);
 
     if (payload.type !== TokenType.ACCESS) {
-      throw new JwtInvalidTokenTypeError();
+      throw new AuthenticationError('Invalid JWT token type');
     }
 
     return this.toTokenPayload(payload);
@@ -82,7 +95,7 @@ export class JWTTokenVerifier {
     const payload = await this.verify(token, TokenType.REFRESH);
 
     if (payload.type !== TokenType.REFRESH) {
-      throw new JwtInvalidTokenTypeError();
+      throw new AuthenticationError('Invalid JWT token type');
     }
 
     return this.toTokenPayload(payload);

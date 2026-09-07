@@ -4,6 +4,10 @@ export enum Permission {
   USER_UPDATE = 'user:update',
   USER_DELETE = 'user:delete',
 
+  // Customer
+  CUSTOMER_PROFILE_READ = 'customer:read',
+  CUSTOMER_PROFILE_UPDATE = 'customer:update',
+
   // Restaurants
   RESTAURANT_CREATE = 'restaurant:create',
   RESTAURANT_READ = 'restaurant:read',

@@ -5,6 +5,8 @@ export interface IRefreshSessionRepository {
 
   findById(id: string): Promise<RefreshSession | null>;
 
+  findByFamilyId(familyId: string): Promise<RefreshSession[]>;
+
   findByTokenHash(tokenHash: string): Promise<RefreshSession | null>;
 
   findByUserId(userId: string): Promise<RefreshSession[]>;
@@ -12,4 +14,12 @@ export interface IRefreshSessionRepository {
   update(refreshSession: RefreshSession): Promise<RefreshSession>;
 
   revoke(id: string, revokedAt: Date): Promise<void>;
+
+  revokeFamily(familyId: string, revokedAt: Date): Promise<void>;
+
+  revokeByTokenHash(tokenHash: string, revokedAt: Date): Promise<void>;
+
+  revokeAllByUserId(userId: string, revokedAt: Date): Promise<void>;
+
+  rotate(sessionId: string, replacementSessionId: string, usedAt: Date): Promise<boolean>;
 }

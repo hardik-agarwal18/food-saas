@@ -42,10 +42,23 @@ export class RedisService {
     try {
       this.logger.info('Connecting to Redis...');
 
+      if (
+        this.redis.status === 'ready' ||
+        this.redis.status === 'connecting' ||
+        this.redis.status === 'connect'
+      ) {
+        this.logger.info(`Redis is already ${this.redis.status}`);
+        return;
+      }
+
       await this.redis.connect();
 
       this.logger.info('Connected to Redis successfully');
-    } catch (error) {
+    } catch (error: any) {
+      if (error && error.message && error.message.includes('already connect')) {
+        this.logger.info('Redis is already connecting/connected');
+        return;
+      }
       this.logger.fatal('Failed to connect to Redis', error);
 
       /**

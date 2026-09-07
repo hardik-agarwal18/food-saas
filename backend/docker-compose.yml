@@ -20,6 +20,17 @@ services:
 
     restart: unless-stopped
 
+  email-worker:
+    image: food-saas-backend:v1
+    command: ["node", "dist/workers/email.worker.main.js"]
+    env_file:
+      - .env
+    networks:
+      - food-saas-network
+    depends_on:
+      - redis
+    restart: unless-stopped
+    
   redis:
     image: redis:7.0.11-alpine
 

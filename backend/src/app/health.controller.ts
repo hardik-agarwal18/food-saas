@@ -54,8 +54,9 @@ export class HealthController {
 
     /**
      * LoggerFactory creates a child logger with controller-specific
-     * metadata.
+     * component and module tags.
      */
+    @inject(LoggerFactory)
     loggerFactory: LoggerFactory,
   ) {
     /**

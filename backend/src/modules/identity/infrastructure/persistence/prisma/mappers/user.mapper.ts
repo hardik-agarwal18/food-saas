@@ -14,7 +14,7 @@ export class UserMapper {
    * value objects and enum types.
    */
   public static toDomain(prismaUser: PrismaUser): User {
-    return new User({
+    return User.rehydrate({
       id: prismaUser.id,
 
       /**

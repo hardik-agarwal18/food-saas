@@ -1,0 +1,32 @@
+import { injectable, inject } from 'tsyringe';
+import {
+  IdentityTransactionContext,
+  IIdentityTransaction,
+} from '../../../application/transaction/identity.transaction.js';
+import { InfrastructureTokens } from '../../../../../infrastructure/container/tokens/index.js';
+import { UserRepository } from './user.repository.js';
+import { RefreshSessionRepository } from './refresh-session.repository.js';
+import type { PrismaExecutor } from '../../../../../infrastructure/database/prisma-client.type.js';
+import { CustomerRepository } from '../../../../customer/infrastructure/persistence/prisma/customer.repository.js';
+
+@injectable()
+export class IdentityTransaction implements IIdentityTransaction {
+  constructor(
+    @inject(InfrastructureTokens.PrismaClient)
+    private readonly prisma: PrismaExecutor,
+  ) {}
+
+  async execute<T>(operation: (context: IdentityTransactionContext) => Promise<T>): Promise<T> {
+    return this.prisma.$transaction(async (tx) => {
+      const userRepository = new UserRepository(tx);
+      const refreshSessionRepository = new RefreshSessionRepository(tx);
+      const customerRepository = new CustomerRepository(tx);
+
+      return operation({
+        userRepository,
+        refreshSessionRepository,
+        customerRepository,
+      });
+    });
+  }
+}

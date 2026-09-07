@@ -1,5 +1,5 @@
 import rateLimit, { type RateLimitRequestHandler } from 'express-rate-limit';
-import { env } from '../../config/env.config.js';
+import { RateLimitPolicies } from '../../config/rate-limit.config.js';
 
 /**
  * Shared options for rate limiters.
@@ -39,12 +39,12 @@ export const globalRateLimiter: RateLimitRequestHandler = rateLimit({
   /**
    * Converts the configured window from minutes to milliseconds.
    */
-  windowMs: env.GLOBAL_RATE_LIMIT_WINDOW * 60 * 1000,
+  windowMs: RateLimitPolicies.Global.windowMs,
 
   /**
    * Maximum requests allowed during the configured window.
    */
-  max: env.GLOBAL_RATE_LIMIT_MAX,
+  max: RateLimitPolicies.Global.max,
 
   /**
    * Structured response returned when the limit is exceeded.

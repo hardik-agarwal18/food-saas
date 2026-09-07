@@ -8,4 +8,4 @@ export * from './NotFoundError.js';
 export * from './ServiceUnavailableError.js';
 export * from './InternalServerError.js';
 export * from './CacheSerializationError.js';
-export * from './ValidationError.js';
+export * from './CredentialError.js';

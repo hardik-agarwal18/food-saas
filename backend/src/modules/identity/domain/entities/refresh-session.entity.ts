@@ -14,6 +14,11 @@ export interface RefreshSessionProps {
   userId: string;
 
   /**
+   * ID of the family that owns the session.
+   */
+  familyId: string;
+
+  /**
    * Hashed refresh token.
    *
    * The raw refresh token should not be stored in the database.
@@ -38,6 +43,13 @@ export interface RefreshSessionProps {
    * Null means the session has not been revoked.
    */
   revokedAt: Date | null;
+
+  /**
+   * ID of the session that replaced this session.
+   *
+   * Null means the session has not been replaced.
+   */
+  replacedBySessionId: string | null;
 
   /**
    * IP address from which the session was created or used.
@@ -71,6 +83,11 @@ export interface CreateRefreshSessionProps {
    * ID of the user who owns the session.
    */
   userId: string;
+
+  /**
+   * ID of the family that owns the session.
+   */
+  familyId: string;
 
   /**
    * Hashed refresh token.
@@ -132,6 +149,17 @@ export class RefreshSession {
     }
 
     /**
+     * A refresh session must belong to a token family.
+     */
+    if (!props.familyId) {
+      throw new AppError(
+        'Refresh session must belong to a token family',
+        400,
+        'TOKEN_FAMILY_ID_NOT_PROVIDED',
+      );
+    }
+
+    /**
      * A token hash is required to identify the session securely.
      */
     if (!props.tokenHash) {
@@ -156,10 +184,12 @@ export class RefreshSession {
      */
     return new RefreshSession(id, {
       userId: props.userId,
+      familyId: props.familyId,
       tokenHash: props.tokenHash,
       expiresAt: props.expiresAt,
       lastUsedAt: null,
       revokedAt: null,
+      replacedBySessionId: null,
       ipAddress: props.ipAddress ?? null,
       userAgent: props.userAgent ?? null,
       createdAt: now,
@@ -192,6 +222,13 @@ export class RefreshSession {
   }
 
   /**
+   * Returns the ID of the family that owns this session.
+   */
+  public getFamilyId(): string {
+    return this.props.familyId;
+  }
+
+  /**
    * Returns the hashed refresh token.
    */
   public getTokenHash(): string {
@@ -217,6 +254,13 @@ export class RefreshSession {
    */
   public getRevokedAt(): Date | null {
     return this.props.revokedAt;
+  }
+
+  /**
+   * Returns the ID of the session that replaced this session.
+   */
+  public getReplacedBySessionId(): string | null {
+    return this.props.replacedBySessionId;
   }
 
   /**
@@ -262,6 +306,13 @@ export class RefreshSession {
    */
   public isRevoked(): boolean {
     return this.props.revokedAt !== null;
+  }
+
+  /**
+   * Checks whether the session has been rotated.
+   */
+  public isRotated(): boolean {
+    return this.props.replacedBySessionId !== null;
   }
 
   /**
@@ -320,6 +371,24 @@ export class RefreshSession {
      * Mark the session as revoked and update its timestamp.
      */
     this.props.revokedAt = now;
+    this.props.updatedAt = now;
+  }
+
+  /**
+   * Replaces the current session with a new one.
+   */
+  public replaceWith(replacementSessionId: string, now: Date = new Date()): void {
+    if (this.isRevoked()) {
+      throw new RefreshSessionRevokedError();
+    }
+
+    if (this.isExpired(now)) {
+      throw new RefreshSessionExpiredError();
+    }
+
+    this.props.revokedAt = now;
+    this.props.replacedBySessionId = replacementSessionId;
+    this.props.lastUsedAt = now;
     this.props.updatedAt = now;
   }
 }

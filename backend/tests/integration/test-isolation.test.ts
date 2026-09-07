@@ -250,7 +250,7 @@ describe('Integration Test Isolation', () => {
 
   /**
    * Confirms that each test case runs entirely independently.
-   * Tests must not rely on the execution order or state mutations 
+   * Tests must not rely on the execution order or state mutations
    * caused by other test cases.
    */
   describe('independent tests', () => {
@@ -325,7 +325,7 @@ describe('Integration Test Isolation', () => {
 
   /**
    * Ensures that factories create uniquely identifiable data by default.
-   * This prevents constraint collisions (e.g. duplicate emails or IDs) 
+   * This prevents constraint collisions (e.g. duplicate emails or IDs)
    * when creating multiple domain entities in the same test.
    */
   describe('unique test data', () => {

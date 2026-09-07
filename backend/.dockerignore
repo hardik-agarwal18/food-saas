@@ -3,9 +3,7 @@ node_modules
 
 # Build Output
 dist
-
-test
-
+tests
 generated
 
 # Git
