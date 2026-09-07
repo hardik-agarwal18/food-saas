@@ -13,6 +13,8 @@ import { RefreshTokenReuseError } from '../../domain/errors/refresh-token-reuse.
 import type { IUserRepository } from '../../domain/repositories/user.repository.js';
 import { env } from '../../../../config/env.config.js';
 import { RefreshSession } from '../../domain/entities/refresh-session.entity.js';
+import { InfrastructureTokens } from '../../../../infrastructure/container/index.js';
+import type { ILogger } from '../../../../shared/logger/logger.interface.js';
 
 @injectable()
 export class RefreshTokenUseCaseImpl implements RefreshTokenUseCase {
@@ -31,12 +33,18 @@ export class RefreshTokenUseCaseImpl implements RefreshTokenUseCase {
 
     @inject(IdentityTokens.Transaction)
     private readonly transaction: IIdentityTransaction,
+
+    @inject(InfrastructureTokens.Logger)
+    private readonly logger: ILogger,
   ) {}
 
   async execute(input: RefreshTokenInput): Promise<RefreshTokenResult> {
+    this.logger.info('Executing RefreshTokenUseCase');
+
     const payload = await this.jwtService.verifyRefreshToken(input.refreshToken);
 
     if (!payload || payload.type !== TokenType.REFRESH || !payload.sub) {
+      this.logger.warn('Refresh token failed: Invalid JWT payload');
       throw new InvalidRefreshTokenError();
     }
 
@@ -45,18 +53,31 @@ export class RefreshTokenUseCaseImpl implements RefreshTokenUseCase {
     const session = await this.refreshSessionRepo.findByTokenHash(tokenHash);
 
     if (!session) {
+      this.logger.warn('Refresh token failed: Session not found', { userId: payload.sub });
       throw new InvalidRefreshTokenError();
     }
 
     if (session.getUserId() !== payload.sub) {
+      this.logger.warn('Refresh token failed: User ID mismatch', {
+        userId: payload.sub,
+        sessionUserId: session.getUserId(),
+      });
       throw new InvalidRefreshTokenError();
     }
 
     if (session.isExpired()) {
+      this.logger.warn('Refresh token failed: Session expired', {
+        userId: payload.sub,
+        sessionId: session.getId(),
+      });
       throw new InvalidRefreshTokenError();
     }
 
     if (session.isRevoked() || session.isRotated()) {
+      this.logger.warn(
+        'Refresh token failed: Session revoked or already rotated. Potential token reuse detected. Revoking entire family.',
+        { userId: payload.sub, sessionId: session.getId(), familyId: session.getFamilyId() },
+      );
       await this.refreshSessionRepo.revokeFamily(session.getFamilyId(), new Date());
 
       throw new RefreshTokenReuseError();
@@ -65,10 +86,15 @@ export class RefreshTokenUseCaseImpl implements RefreshTokenUseCase {
     const user = await this.userRepo.findById(session.getUserId());
 
     if (!user) {
+      this.logger.warn('Refresh token failed: User not found', { userId: session.getUserId() });
       throw new InvalidRefreshTokenError();
     }
 
     if (user.getStatus() !== 'ACTIVE') {
+      this.logger.warn('Refresh token failed: User is not active', {
+        userId: user.getId(),
+        status: user.getStatus(),
+      });
       throw new InvalidRefreshTokenError();
     }
 
@@ -112,27 +138,44 @@ export class RefreshTokenUseCaseImpl implements RefreshTokenUseCase {
       replacementSessionId,
     );
 
-    const rotated = await this.transaction.execute(async ({ refreshSessionRepository }) => {
-      const claimed = await refreshSessionRepository.rotate(
-        session.getId(),
-        replacementSessionId,
-        new Date(),
-      );
+    let rotated = false;
+    try {
+      rotated = await this.transaction.execute(async ({ refreshSessionRepository }) => {
+        const claimed = await refreshSessionRepository.rotate(
+          session.getId(),
+          replacementSessionId,
+          new Date(),
+        );
 
-      if (!claimed) {
-        await refreshSessionRepository.revokeFamily(session.getFamilyId(), new Date());
+        if (!claimed) {
+          this.logger.warn('Token rotation collision detected. Revoking entire family.', {
+            userId: user.getId(),
+            sessionId: session.getId(),
+            familyId: session.getFamilyId(),
+          });
+          await refreshSessionRepository.revokeFamily(session.getFamilyId(), new Date());
 
-        return false;
-      }
+          return false;
+        }
 
-      await refreshSessionRepository.create(replacementSession);
+        await refreshSessionRepository.create(replacementSession);
 
-      return true;
-    });
+        return true;
+      });
+    } catch (error) {
+      this.logger.error('Token rotation transaction failed', error, { userId: user.getId() });
+      throw error;
+    }
 
     if (!rotated) {
       throw new RefreshTokenReuseError();
     }
+
+    this.logger.info('Tokens refreshed successfully', {
+      userId: user.getId(),
+      sessionId: session.getId(),
+      replacementSessionId,
+    });
 
     return {
       user: {

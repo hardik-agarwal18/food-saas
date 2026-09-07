@@ -9,6 +9,10 @@ import { validate } from '../../../../shared/validation/validate.js';
 import { updateCustomerProfileSchema } from '../../validators/update-customer-profile.validator.js';
 import { updateCustomerPreferencesSchema } from '../../validators/update-customer-preference.validator.js';
 import { UpdateCustomerPreferencesController } from '../controllers/update-customer-preferences.controller.js';
+import { CustomerAvatarUploadController } from '../controllers/customer-avatar-upload.controller.js';
+import { CustomerAvatarRemoveController } from '../controllers/customer-avatar-remove.controller.js';
+import { customerAvatarUpload } from '../middleware/customer-avatar-upload.middleware.js';
+import { CustomerAvatarUploadWithoutStreamController } from '../controllers/customer-avatar-upload-without-stream.controller.js';
 
 const router = express.Router();
 
@@ -17,6 +21,11 @@ const authenticationMiddleware = container.resolve(AuthenticationMiddleware);
 const authorizationMiddleware = container.resolve(AuthorizationMiddleware);
 const updateCustomerProfileController = container.resolve(UpdateCustomerProfileController);
 const updateCustomerPreferencesController = container.resolve(UpdateCustomerPreferencesController);
+const customerAvatarUploadController = container.resolve(CustomerAvatarUploadController);
+const customerAvatarRemoveController = container.resolve(CustomerAvatarRemoveController);
+const customerAvatarUploadWithoutStreamController = container.resolve(
+  CustomerAvatarUploadWithoutStreamController,
+);
 
 router
   .route('/me')
@@ -41,6 +50,34 @@ router
     authorizationMiddleware.authorize(Permission.CUSTOMER_PROFILE_UPDATE),
     validate({ body: updateCustomerPreferencesSchema }),
     updateCustomerPreferencesController.handle.bind(updateCustomerPreferencesController),
+  );
+
+router
+  .route('/me/avatar')
+  .post(
+    authenticationMiddleware.authenticate,
+    authorizationMiddleware.authorize(Permission.CUSTOMER_AVATAR_UPLOAD),
+    customerAvatarUpload.single('avatar'),
+    customerAvatarUploadController.handle.bind(customerAvatarUploadController),
+  );
+
+router
+  .route('/me/avatar/no-stream')
+  .post(
+    authenticationMiddleware.authenticate,
+    authorizationMiddleware.authorize(Permission.CUSTOMER_AVATAR_UPLOAD),
+    customerAvatarUpload.single('avatar'),
+    customerAvatarUploadWithoutStreamController.handle.bind(
+      customerAvatarUploadWithoutStreamController,
+    ),
+  );
+
+router
+  .route('/me/avatar')
+  .delete(
+    authenticationMiddleware.authenticate,
+    authorizationMiddleware.authorize(Permission.CUSTOMER_AVATAR_REMOVE),
+    customerAvatarRemoveController.handle.bind(customerAvatarRemoveController),
   );
 
 export default router;

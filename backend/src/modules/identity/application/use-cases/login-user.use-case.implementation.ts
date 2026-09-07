@@ -13,6 +13,8 @@ import { env } from '../../../../config/env.config.js';
 import type { IRefreshSessionRepository } from '../../domain/repositories/refresh-session.repository.js';
 import type { ITokenHasher } from '../../domain/services/token-hasher.js';
 import { RefreshSession } from '../../domain/entities/refresh-session.entity.js';
+import { InfrastructureTokens } from '../../../../infrastructure/container/index.js';
+import type { ILogger } from '../../../../shared/logger/logger.interface.js';
 
 @injectable()
 export class LoginUserUseCaseImplementation implements LoginUserUseCase {
@@ -31,14 +33,22 @@ export class LoginUserUseCaseImplementation implements LoginUserUseCase {
 
     @inject(IdentityTokens.TokenHasher)
     private readonly tokenHasher: ITokenHasher,
+
+    @inject(InfrastructureTokens.Logger)
+    private readonly logger: ILogger,
   ) {}
 
   async execute(input: LoginUserInput): Promise<LoginUserResult> {
-    const email = Email.create(input.email);
+    const rawEmail = input.email;
+
+    this.logger.info('Executing LoginUserUseCase', { email: rawEmail });
+
+    const email = Email.create(rawEmail);
 
     const user = await this.userRepo.findByEmail(email);
 
     if (!user) {
+      this.logger.warn('Login failed: User not found', { email: rawEmail });
       throw new InvalidCredentialsError();
     }
 
@@ -48,6 +58,7 @@ export class LoginUserUseCaseImplementation implements LoginUserUseCase {
     );
 
     if (!isPasswordCorrect) {
+      this.logger.warn('Login failed: Invalid password', { email: rawEmail });
       throw new InvalidCredentialsError();
     }
 
@@ -92,6 +103,11 @@ export class LoginUserUseCaseImplementation implements LoginUserUseCase {
     );
 
     await this.refreshSessionRepo.create(refreshSession);
+
+    this.logger.info('User logged in successfully', {
+      userId: user.getId(),
+      refreshSessionId: refreshSession.getId(),
+    });
 
     return {
       user: {

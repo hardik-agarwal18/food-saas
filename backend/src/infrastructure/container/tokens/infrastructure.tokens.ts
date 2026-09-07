@@ -120,4 +120,6 @@ export const InfrastructureTokens = {
    * infrastructure registration file.
    */
   RateLimitService: Symbol.for('Infrastructure.RateLimitService'),
+
+  FileStorage: Symbol.for('Infrastructure.FileStorage'),
 } as const;

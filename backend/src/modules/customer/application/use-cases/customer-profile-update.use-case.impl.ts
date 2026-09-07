@@ -11,6 +11,8 @@ import { CustomerNotFoundError } from '../../domain/errors/customer-not-found.er
 import { CustomerFirstName } from '../../domain/value-objects/customer-first-name.vo.js';
 import { CustomerLastName } from '../../domain/value-objects/customer-last-name.vo.js';
 import { CustomerPhoneNumber } from '../../domain/value-objects/customer-phone.vo.js';
+import { InfrastructureTokens } from '../../../../infrastructure/container/index.js';
+import type { ILogger } from '../../../../shared/logger/logger.interface.js';
 
 @injectable()
 export class CustomerProfileUpdateUseCaseImpl implements CustomerProfileUpdateUseCase {
@@ -20,20 +22,27 @@ export class CustomerProfileUpdateUseCaseImpl implements CustomerProfileUpdateUs
 
     @inject(IdentityTokens.UserRepository)
     private readonly userRepo: IUserRepository,
+
+    @inject(InfrastructureTokens.Logger)
+    private readonly logger: ILogger,
   ) {}
 
   async execute(input: CustomerProfileUpdateInput): Promise<CustomerProfileUpdateResult> {
     const userId = input.userId;
 
+    this.logger.info('Executing CustomerProfileUpdateUseCase', { userId });
+
     const user = await this.userRepo.findById(userId);
 
     if (!user) {
+      this.logger.warn('User not found during profile update', { userId });
       throw new AuthenticationError('User not found');
     }
 
     const customer = await this.customerRepo.findByUserId(userId);
 
     if (!customer) {
+      this.logger.warn('Customer not found during profile update', { userId });
       throw new CustomerNotFoundError();
     }
 
@@ -56,6 +65,10 @@ export class CustomerProfileUpdateUseCaseImpl implements CustomerProfileUpdateUs
     }
 
     const updatedCustomerProfile = await this.customerRepo.update(customer);
+
+    this.logger.info('Customer profile updated successfully', {
+      customerId: updatedCustomerProfile.getId(),
+    });
 
     return {
       customerId: updatedCustomerProfile.getId(),

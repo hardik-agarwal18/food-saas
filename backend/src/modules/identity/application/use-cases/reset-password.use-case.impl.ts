@@ -7,6 +7,8 @@ import type { IPasswordResetRepository } from '../../domain/repositories/passwor
 import { AuthenticationError } from '../../../../shared/errors/AuthenticationError.js';
 import type { IUserRepository } from '../../domain/repositories/user.repository.js';
 import type { IPasswordHasher } from '../../domain/services/password-hasher.js';
+import { InfrastructureTokens } from '../../../../infrastructure/container/index.js';
+import type { ILogger } from '../../../../shared/logger/logger.interface.js';
 
 @injectable()
 export class ResetPasswordUseCaseImpl implements ResetPasswordUseCase {
@@ -19,29 +21,44 @@ export class ResetPasswordUseCaseImpl implements ResetPasswordUseCase {
     private readonly tokenHasher: ITokenHasher,
     @inject(IdentityTokens.PasswordHasher)
     private readonly passwordHasher: IPasswordHasher,
+    @inject(InfrastructureTokens.Logger)
+    private readonly logger: ILogger,
   ) {}
 
   async execute(input: ResetPasswordInput): Promise<void> {
+    this.logger.info('Executing ResetPasswordUseCase');
+
     const tokenHash = this.tokenHasher.hash(input.token);
     const resetPasswordEntity = await this.passwordResetRepo.findByTokenHash(tokenHash);
 
     if (!resetPasswordEntity) {
+      this.logger.warn('Reset password failed: Token not found');
       throw new AuthenticationError('Invalid token or token expired.');
     }
 
     const now = new Date();
 
     if (resetPasswordEntity.getUsedAt()) {
+      this.logger.warn('Reset password failed: Token already used', {
+        resetPasswordId: resetPasswordEntity.getId(),
+      });
       throw new AuthenticationError('Invalid token or token expired.');
     }
 
     if (resetPasswordEntity.getExpiresAt() < now) {
+      this.logger.warn('Reset password failed: Token expired', {
+        resetPasswordId: resetPasswordEntity.getId(),
+      });
       throw new AuthenticationError('Invalid token or token expired.');
     }
 
     const user = await this.userRepo.findById(resetPasswordEntity.getUserId());
 
     if (!user) {
+      this.logger.warn('Reset password failed: User not found', {
+        resetPasswordId: resetPasswordEntity.getId(),
+        userId: resetPasswordEntity.getUserId(),
+      });
       throw new AuthenticationError('Invalid token or token expired.');
     }
 
@@ -56,5 +73,8 @@ export class ResetPasswordUseCaseImpl implements ResetPasswordUseCase {
     await this.passwordResetRepo.update(resetPasswordEntity);
 
     await this.userRepo.update(user);
+    this.logger.debug('User password hash updated via reset', { userId: user.getId() });
+
+    this.logger.info('Password reset successfully', { userId: user.getId() });
   }
 }

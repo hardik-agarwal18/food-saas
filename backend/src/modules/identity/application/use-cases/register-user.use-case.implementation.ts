@@ -19,6 +19,8 @@ import type { IVerifyEmailRepository } from '../../domain/repositories/verify-em
 import type { IEmailJobQueue } from '../services/email-job-queue.js';
 import { CustomerTokens } from '../../../customer/infrastructure/persistence/tokens/customer.tokens.js';
 import type { CustomerProfileCreationUseCase } from '../../../customer/application/use-cases/customer-profile-creation.use-case.js';
+import { InfrastructureTokens } from '../../../../infrastructure/container/index.js';
+import type { ILogger } from '../../../../shared/logger/logger.interface.js';
 
 @injectable()
 export class RegisterUserUseCaseImplementation implements RegisterUserUseCase {
@@ -43,10 +45,17 @@ export class RegisterUserUseCaseImplementation implements RegisterUserUseCase {
 
     @inject(CustomerTokens.CustomerProfileCreationUseCase)
     private readonly customerProfileCreationUseCase: CustomerProfileCreationUseCase,
+
+    @inject(InfrastructureTokens.Logger)
+    private readonly logger: ILogger,
   ) {}
 
   async execute(input: RegisterUserInput): Promise<RegisterUserResult> {
-    const email = Email.create(input.email);
+    const rawEmail = input.email;
+
+    this.logger.info('Executing RegisterUserUseCase', { email: rawEmail });
+
+    const email = Email.create(rawEmail);
 
     const passwordHash = await this.passwordHasher.hashPassword(input.password);
 
@@ -85,42 +94,56 @@ export class RegisterUserUseCaseImplementation implements RegisterUserUseCase {
 
     const refreshSessionExpiresAt = new Date(Date.now() + env.JWT_REFRESH_EXPIRES_IN * 1000);
 
-    const newUser = await this.transaction.execute(
-      async ({ userRepository, refreshSessionRepository, customerRepository }) => {
-        const existingUser = await userRepository.existsByEmail(email);
+    let newUser;
 
-        if (existingUser) {
-          throw new EmailAlreadyRegisteredError();
-        }
+    try {
+      newUser = await this.transaction.execute(
+        async ({ userRepository, refreshSessionRepository, customerRepository }) => {
+          const existingUser = await userRepository.existsByEmail(email);
 
-        const createdUser = await userRepository.create(user);
+          if (existingUser) {
+            this.logger.warn('User registration failed: Email already registered', {
+              email: rawEmail,
+            });
+            throw new EmailAlreadyRegisteredError();
+          }
 
-        const refreshSession = RefreshSession.create(
-          {
+          const createdUser = await userRepository.create(user);
+
+          const refreshSession = RefreshSession.create(
+            {
+              userId: createdUser.getId(),
+              familyId: crypto.randomUUID(),
+              tokenHash: hashedRrefreshToken,
+              expiresAt: refreshSessionExpiresAt,
+              ipAddress: null,
+              userAgent: null,
+            },
+            crypto.randomUUID(),
+          );
+
+          await refreshSessionRepository.create(refreshSession);
+
+          const customerEntity = await this.customerProfileCreationUseCase.execute({
             userId: createdUser.getId(),
-            familyId: crypto.randomUUID(),
-            tokenHash: hashedRrefreshToken,
-            expiresAt: refreshSessionExpiresAt,
-            ipAddress: null,
-            userAgent: null,
-          },
-          crypto.randomUUID(),
-        );
+            firstName: input.firstName,
+            lastName: input.lastName,
+            phone: input.phone,
+          });
 
-        await refreshSessionRepository.create(refreshSession);
+          await customerRepository.create(customerEntity);
 
-        const customerEntity = await this.customerProfileCreationUseCase.execute({
-          userId: createdUser.getId(),
-          firstName: input.firstName,
-          lastName: input.lastName,
-          phone: input.phone,
-        });
+          return createdUser;
+        },
+      );
+    } catch (error) {
+      this.logger.error('User registration transaction failed', error, { email: rawEmail });
+      throw error;
+    }
 
-        await customerRepository.create(customerEntity);
-
-        return createdUser;
-      },
-    );
+    this.logger.info('User and customer profile registered successfully', {
+      userId: newUser.getId(),
+    });
 
     const rawEmailVerificationToken = crypto.randomBytes(32).toString('hex');
     const emailVerificationTokenHash = this.tokenHasher.hash(rawEmailVerificationToken);
@@ -136,13 +159,13 @@ export class RegisterUserUseCaseImplementation implements RegisterUserUseCase {
 
     const verificationUrl = `http://localhost:4000/api/v1/identity/verify-email/${rawEmailVerificationToken}`;
 
-    console.log({ verificationUrl });
-
     await this.emailJobQueue.enqueueVerificationEmail({
       userId: newUser.getId(),
       email: newUser.getEmail().getValue(),
       verificationUrl,
     });
+
+    this.logger.debug('Verification email enqueued', { userId: newUser.getId() });
 
     return {
       user: {

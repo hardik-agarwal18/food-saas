@@ -5,6 +5,9 @@ import { CustomerProfileCreationUseCaseImpl } from '../../../modules/customer/ap
 import { GetCustomerProfileUseCaseImpl } from '../../../modules/customer/application/use-cases/get-customer-profile.use-case.impl.js';
 import { CustomerProfileUpdateUseCaseImpl } from '../../../modules/customer/application/use-cases/customer-profile-update.use-case.impl.js';
 import { CustomerPreferencesUpdateUseCaseImpl } from '../../../modules/customer/application/use-cases/customer-preferences-update.use-case.impl.js';
+import { CustomerAvatarUploadUseCaseImpl } from '../../../modules/customer/application/use-cases/customer-avatar-upload.use-case.impl.js';
+import { CustomerAvatarRemoveUseCaseImpl } from '../../../modules/customer/application/use-cases/customer-avatar-remove.use-case.impl.js';
+import { CustomerAvatarUploadWithoutStreamUseCaseImpl } from '../../../modules/customer/application/use-cases/customer-avatar-upload-without-stream.use-case.impl.js';
 
 export const registerCustomer = (): void => {
   container.register(CustomerTokens.CustomerRepository, {
@@ -29,5 +32,20 @@ export const registerCustomer = (): void => {
   container.registerSingleton(
     CustomerTokens.CustomerPreferencesUpdateUseCase,
     CustomerPreferencesUpdateUseCaseImpl,
+  );
+
+  container.registerSingleton(
+    CustomerTokens.CustomerAvatarUploadUseCase,
+    CustomerAvatarUploadUseCaseImpl,
+  );
+
+  container.registerSingleton(
+    CustomerTokens.CustomerAvatarRemoveUseCase,
+    CustomerAvatarRemoveUseCaseImpl,
+  );
+
+  container.registerSingleton(
+    CustomerTokens.CustomerAvatarUploadWithoutStreamUseCase,
+    CustomerAvatarUploadWithoutStreamUseCaseImpl,
   );
 };
