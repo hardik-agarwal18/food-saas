@@ -5,6 +5,7 @@ import { IdentityTokens } from '../../infrastructure/persistence/tokens/identity
 import type { IUserRepository } from '../../domain/repositories/user.repository.js';
 import { Email } from '../../domain/value-objects/email.vo.js';
 import { AuthenticationError } from '../../../../shared/errors/AuthenticationError.js';
+import { InvalidUrlError } from '../../../../shared/errors/InvalidUrlError.js';
 import crypto from 'node:crypto';
 import type { ITokenHasher } from '../../domain/services/token-hasher.js';
 import { env } from '../../../../config/env.config.js';
@@ -61,9 +62,24 @@ export class ForgotPasswordUseCaseImpl implements ForgotPasswordUseCase {
       resetPasswordId: resetPasswordEntity.getId(),
     });
 
-    const resetPasswordUrl = `http://localhost:4000/api/v1/identity/reset-password/${rawResetPasswordToken}`;
+    const frontendUrl = new URL(env.FRONTEND_URL);
+    const resetPasswordUrl = new URL(
+      `/reset-password/${rawResetPasswordToken}`,
+      frontendUrl,
+    ).toString();
 
-    await this.emailJobQueue.enqueResetPasswordEmail({
+    // Validate the URL format
+    try {
+      new URL(resetPasswordUrl);
+    } catch (error) {
+      this.logger.error('Failed to construct valid reset password URL', error, {
+        frontendUrl: env.FRONTEND_URL,
+        userId: user.getId(),
+      });
+      throw new InvalidUrlError('Invalid reset URL');
+    }
+
+    await this.emailJobQueue.enqueueResetPasswordEmail({
       userId: user.getId(),
       email: user.getEmail().getValue(),
       resetPasswordUrl,

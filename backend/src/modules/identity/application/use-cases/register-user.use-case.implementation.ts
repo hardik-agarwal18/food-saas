@@ -4,6 +4,7 @@ import { RegisterUserInput } from '../dto/register-user.dto.js';
 import { RegisterUserResult } from '../dto/register-user-result.dto.js';
 import { Email } from '../../domain/value-objects/email.vo.js';
 import { EmailAlreadyRegisteredError } from '../../domain/errors/email-already-register.error.js';
+import { InvalidUrlError } from '../../../../shared/errors/InvalidUrlError.js';
 import { IdentityTokens } from '../../infrastructure/persistence/tokens/identity.tokens.js';
 import { User } from '../../domain/entities/user.entity.js';
 import type { IPasswordHasher } from '../../domain/services/password-hasher.js';
@@ -157,7 +158,21 @@ export class RegisterUserUseCaseImplementation implements RegisterUserUseCase {
 
     await this.verifyEmailRepo.create(verifyEmail);
 
-    const verificationUrl = `http://localhost:4000/api/v1/identity/verify-email/${rawEmailVerificationToken}`;
+    const baseUrl = env.EMAIL_VERIFICATION_URL.endsWith('/')
+      ? env.EMAIL_VERIFICATION_URL
+      : `${env.EMAIL_VERIFICATION_URL}/`;
+    const verificationUrl = new URL(rawEmailVerificationToken, baseUrl).toString();
+
+    // Validate the URL format
+    try {
+      new URL(verificationUrl);
+    } catch (error) {
+      this.logger.error('Failed to construct valid verification URL', error, {
+        emailVerificationUrl: env.EMAIL_VERIFICATION_URL,
+        userId: newUser.getId(),
+      });
+      throw new InvalidUrlError('Invalid verification URL');
+    }
 
     await this.emailJobQueue.enqueueVerificationEmail({
       userId: newUser.getId(),

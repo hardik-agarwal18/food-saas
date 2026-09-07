@@ -5,7 +5,7 @@ export interface IEmailJobQueue {
     verificationUrl: string;
   }): Promise<void>;
 
-  enqueResetPasswordEmail(data: {
+  enqueueResetPasswordEmail(data: {
     userId: string;
     email: string;
     resetPasswordUrl: string;

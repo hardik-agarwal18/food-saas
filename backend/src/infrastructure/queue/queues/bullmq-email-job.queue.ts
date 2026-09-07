@@ -15,7 +15,7 @@ export class BullMQEmailJobQueue implements IEmailJobQueue {
     await emailQueue.add(EmailJobName.SEND_VERIFICATION_EMAIL, { ...data, correlationId });
   }
 
-  async enqueResetPasswordEmail(data: {
+  async enqueueResetPasswordEmail(data: {
     userId: string;
     email: string;
     resetPasswordUrl: string;
