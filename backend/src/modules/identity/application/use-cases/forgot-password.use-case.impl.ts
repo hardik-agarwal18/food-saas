@@ -63,7 +63,7 @@ export class ForgotPasswordUseCaseImpl implements ForgotPasswordUseCase {
 
     const resetPasswordUrl = `http://localhost:4000/api/v1/identity/reset-password/${rawResetPasswordToken}`;
 
-    await this.emailJobQueue.enqueResetPasswordEmail({
+    await this.emailJobQueue.enqueueResetPasswordEmail({
       userId: user.getId(),
       email: user.getEmail().getValue(),
       resetPasswordUrl,

@@ -13,14 +13,30 @@ const { emailWorker } = await import('../infrastructure/queue/workers/email.work
 
 logger.info('Email worker started successfully');
 
+let isShuttingDown = false;
+
 const shutdown = async (signal: NodeJS.Signals): Promise<void> => {
+  if (isShuttingDown) {
+    logger.warn(`Received ${signal} but shutdown is already in progress. Ignoring.`);
+    return;
+  }
+  isShuttingDown = true;
+
   logger.info(`Received ${signal}. Shutting down email worker gracefully...`);
+
+  // Force exit if graceful shutdown takes too long (e.g. hung jobs)
+  const timeoutId = setTimeout(() => {
+    logger.error('Graceful shutdown timed out. Forcing exit.');
+    process.exit(1);
+  }, 30000);
 
   try {
     await emailWorker.close();
+    clearTimeout(timeoutId);
     logger.info('Email worker shutdown complete');
     process.exit(0);
   } catch (error) {
+    clearTimeout(timeoutId);
     logger.error('Error during email worker shutdown', error);
     process.exit(1);
   }
