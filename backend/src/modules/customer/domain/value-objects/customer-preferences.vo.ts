@@ -154,7 +154,7 @@ export class CustomerPreferences {
         ...this.notifications,
       },
       marketing: {
-        ...marketing,
+        enabled: marketing.enabled,
       },
     });
   }
