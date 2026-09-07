@@ -7,6 +7,8 @@ export enum Permission {
   // Customer
   CUSTOMER_PROFILE_READ = 'customer:read',
   CUSTOMER_PROFILE_UPDATE = 'customer:update',
+  CUSTOMER_AVATAR_UPLOAD = 'customer:avatar:upload',
+  CUSTOMER_AVATAR_REMOVE = 'customer:avatar:remove',
 
   // Restaurants
   RESTAURANT_CREATE = 'restaurant:create',

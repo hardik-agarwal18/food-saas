@@ -8,4 +8,12 @@ export const CustomerTokens = {
   CustomerProfileUpdateUseCase: Symbol.for('Customer.CustomerProfileUpdateUseCase'),
 
   CustomerPreferencesUpdateUseCase: Symbol.for('Customer.CustomerPreferencesUpdateUseCase'),
+
+  CustomerAvatarUploadUseCase: Symbol.for('Customer.CustomerAvatarUploadUseCase'),
+
+  CustomerAvatarRemoveUseCase: Symbol.for('Customer.CustomerAvatarRemoveUseCase'),
+
+  CustomerAvatarUploadWithoutStreamUseCase: Symbol.for(
+    'Customer.CustomerAvatarUploadWithoutStreamUseCase',
+  ),
 } as const;
