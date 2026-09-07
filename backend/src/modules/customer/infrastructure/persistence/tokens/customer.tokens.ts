@@ -4,4 +4,6 @@ export const CustomerTokens = {
   CustomerProfileCreationUseCase: Symbol.for('Customer.CustomerProfileCreationUseCase'),
 
   GetCustomerProfileUseCase: Symbol.for('Customer.GetCustomerProfileUseCase'),
+
+  CustomerProfileUpdateUseCase: Symbol.for('Customer.CustomerProfileUpdateUseCase'),
 } as const;

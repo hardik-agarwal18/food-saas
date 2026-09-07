@@ -6,6 +6,7 @@ export enum Permission {
 
   // Customer
   CUSTOMER_PROFILE_READ = 'customer:read',
+  CUSTOMER_PROFILE_UPDATE = 'customer:update',
 
   // Restaurants
   RESTAURANT_CREATE = 'restaurant:create',

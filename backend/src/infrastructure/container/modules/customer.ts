@@ -3,6 +3,7 @@ import { CustomerTokens } from '../../../modules/customer/infrastructure/persist
 import { CustomerRepository } from '../../../modules/customer/infrastructure/persistence/prisma/customer.repository.js';
 import { CustomerProfileCreationUseCaseImpl } from '../../../modules/customer/application/use-cases/customer-profile-creation.use-case.impl.js';
 import { GetCustomerProfileUseCaseImpl } from '../../../modules/customer/application/use-cases/get-customer-profile.use-case.impl.js';
+import { CustomerProfileUpdateUseCaseImpl } from '../../../modules/customer/application/use-cases/customer-profile-update.use-case.impl.js';
 
 export const registerCustomer = (): void => {
   container.register(CustomerTokens.CustomerRepository, {
@@ -17,5 +18,10 @@ export const registerCustomer = (): void => {
   container.registerSingleton(
     CustomerTokens.GetCustomerProfileUseCase,
     GetCustomerProfileUseCaseImpl,
+  );
+
+  container.registerSingleton(
+    CustomerTokens.CustomerProfileUpdateUseCase,
+    CustomerProfileUpdateUseCaseImpl,
   );
 };
