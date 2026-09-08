@@ -16,6 +16,7 @@ import {
   DeleteObjectCommand,
   PutObjectCommand,
   UploadPartCommand,
+  CopyObjectCommand,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { r2Config } from './r2.config.js';
@@ -121,6 +122,21 @@ export class R2FileStorage implements FileStorage {
     });
 
     await r2Client.send(command);
+  }
+
+  async copy(sourceKey: string, destinationKey: string): Promise<StoredFile> {
+    const command = new CopyObjectCommand({
+      Bucket: r2Config.bucketName,
+      CopySource: `${r2Config.bucketName}/${sourceKey}`,
+      Key: destinationKey,
+    });
+
+    await r2Client.send(command);
+
+    return {
+      key: destinationKey,
+      url: this.getUrl(destinationKey),
+    };
   }
 
   getUrl(key: string): string {

@@ -10,8 +10,8 @@ import { CustomerAvatarUploadWithoutStreamInput } from '../dto/customer-avatar-u
 import { AuthenticationError } from '../../../../shared/errors/AuthenticationError.js';
 import { CustomerNotFoundError } from '../../domain/errors/customer-not-found.error.js';
 import { validateCustomerAvatar } from '../../validators/customer-avatar.validator.js';
-import { CustomerAvatarUrl } from '../../domain/value-objects/customer-avatar.vo.js';
 import type { ILogger } from '../../../../shared/logger/logger.interface.js';
+import { addAvatarUploadJob } from '../../../../infrastructure/queue/queues/avatar.queue.js';
 
 @injectable()
 export class CustomerAvatarUploadWithoutStreamUseCaseImpl implements CustomerAvatarUploadWithoutStreamUseCase {
@@ -50,55 +50,31 @@ export class CustomerAvatarUploadWithoutStreamUseCaseImpl implements CustomerAva
       throw new CustomerNotFoundError();
     }
 
-    const oldAvatarUrl = customer.getAvatarUrl();
-
     const filename = input.file.originalname;
     const extension = this.getExtension(filename);
-
-    const key = `customers/${input.userId}/avatar/${crypto.randomUUID()}${extension}`;
+    const tempKey = `avatar-temp/${crypto.randomUUID()}${extension}`;
 
     try {
-      const response = await this.fileStorage.upload({
-        key,
+      // Upload temporary object
+      await this.fileStorage.upload({
+        key: tempKey,
         body: input.file.buffer,
         contentType: input.file.mimetype,
         contentLength: input.file.size,
       });
 
-      const avatarUrl = response.url;
+      // Enqueue job for background processing
+      await addAvatarUploadJob({
+        userId,
+        tempObjectKey: tempKey,
+        originalName: filename,
+        mimeType: input.file.mimetype,
+      });
 
-      customer.removeAvatarUrl();
-      customer.changeAvatarUrl(CustomerAvatarUrl.create(avatarUrl));
-
-      await this.customerRepo.update(customer);
-
-      this.logger.info('Avatar uploaded successfully without stream', { userId, key });
-
-      if (oldAvatarUrl) {
-        const oldAvatarUrlValue = oldAvatarUrl.getValue();
-        if (oldAvatarUrlValue) {
-          const oldAvatarKey = this.extractStorageKey(oldAvatarUrlValue);
-          if (oldAvatarKey) {
-            try {
-              await this.fileStorage.delete(oldAvatarKey);
-            } catch (err) {
-              this.logger.error('Failed to delete old avatar', err, { userId, oldAvatarKey });
-            }
-          }
-        }
-      }
+      this.logger.info('Temporary avatar uploaded and job enqueued', { userId, tempKey });
     } catch (error) {
-      this.logger.error('Failed to upload avatar without stream', error, { userId });
+      this.logger.error('Failed to upload temp avatar or enqueue job', error, { userId });
       throw error;
-    }
-  }
-
-  private extractStorageKey(url: string): string | null {
-    try {
-      const urlObj = new URL(url);
-      return urlObj.pathname.startsWith('/') ? urlObj.pathname.slice(1) : urlObj.pathname;
-    } catch {
-      return null;
     }
   }
 

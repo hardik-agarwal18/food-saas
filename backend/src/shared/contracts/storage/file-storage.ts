@@ -55,5 +55,7 @@ export interface FileStorage {
 
   delete(key: string): Promise<void>;
 
+  copy(sourceKey: string, destinationKey: string): Promise<StoredFile>;
+
   getUrl(key: string): string;
 }

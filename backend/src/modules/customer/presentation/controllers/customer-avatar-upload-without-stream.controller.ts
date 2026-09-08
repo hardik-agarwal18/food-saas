@@ -26,9 +26,9 @@ export class CustomerAvatarUploadWithoutStreamController {
       file: req.file,
     });
 
-    sendResponse(res, 200, {
+    sendResponse(res, 202, {
       success: true,
-      message: 'Customer avatar updated successfully',
+      message: 'Avatar upload queued for processing',
     });
   });
 }
