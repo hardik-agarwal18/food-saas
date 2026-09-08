@@ -27,21 +27,6 @@ import { CreateMenuModifierItemController } from '../../../modules/menu/presenta
 import { GetMenuModifierItemsController } from '../../../modules/menu/presentation/controllers/get-menu-modifier-items.controller.js';
 
 export function registerMenuModule(): void {
-  // Add Use Case tokens to MenuTokens object (TypeScript allows this dynamic assignment if we cast or we just define them as symbols)
-  (MenuTokens as any).CreateMenuCategoryUseCase = Symbol.for('Menu.CreateMenuCategoryUseCase');
-  (MenuTokens as any).GetMenuCategoriesUseCase = Symbol.for('Menu.GetMenuCategoriesUseCase');
-  (MenuTokens as any).CreateMenuItemUseCase = Symbol.for('Menu.CreateMenuItemUseCase');
-  (MenuTokens as any).GetMenuItemsUseCase = Symbol.for('Menu.GetMenuItemsUseCase');
-  (MenuTokens as any).CreateMenuModifierGroupUseCase = Symbol.for(
-    'Menu.CreateMenuModifierGroupUseCase',
-  );
-  (MenuTokens as any).GetMenuModifierGroupsUseCase = Symbol.for(
-    'Menu.GetMenuModifierGroupsUseCase',
-  );
-  (MenuTokens as any).CreateMenuModifierItemUseCase = Symbol.for(
-    'Menu.CreateMenuModifierItemUseCase',
-  );
-  (MenuTokens as any).GetMenuModifierItemsUseCase = Symbol.for('Menu.GetMenuModifierItemsUseCase');
 
   // Repositories
   container.registerSingleton(MenuTokens.MenuCategoryRepository, MenuCategoryRepositoryImpl);
@@ -50,29 +35,29 @@ export function registerMenuModule(): void {
 
   // Use Cases
   container.registerSingleton(
-    (MenuTokens as any).CreateMenuCategoryUseCase,
+    MenuTokens.CreateMenuCategoryUseCase,
     CreateMenuCategoryUseCaseImpl,
   );
   container.registerSingleton(
-    (MenuTokens as any).GetMenuCategoriesUseCase,
+    MenuTokens.GetMenuCategoriesUseCase,
     GetMenuCategoriesUseCaseImpl,
   );
-  container.registerSingleton((MenuTokens as any).CreateMenuItemUseCase, CreateMenuItemUseCaseImpl);
-  container.registerSingleton((MenuTokens as any).GetMenuItemsUseCase, GetMenuItemsUseCaseImpl);
+  container.registerSingleton(MenuTokens.CreateMenuItemUseCase, CreateMenuItemUseCaseImpl);
+  container.registerSingleton(MenuTokens.GetMenuItemsUseCase, GetMenuItemsUseCaseImpl);
   container.registerSingleton(
-    (MenuTokens as any).CreateMenuModifierGroupUseCase,
+    MenuTokens.CreateMenuModifierGroupUseCase,
     CreateMenuModifierGroupUseCaseImpl,
   );
   container.registerSingleton(
-    (MenuTokens as any).GetMenuModifierGroupsUseCase,
+    MenuTokens.GetMenuModifierGroupsUseCase,
     GetMenuModifierGroupsUseCaseImpl,
   );
   container.registerSingleton(
-    (MenuTokens as any).CreateMenuModifierItemUseCase,
+    MenuTokens.CreateMenuModifierItemUseCase,
     CreateMenuModifierItemUseCaseImpl,
   );
   container.registerSingleton(
-    (MenuTokens as any).GetMenuModifierItemsUseCase,
+    MenuTokens.GetMenuModifierItemsUseCase,
     GetMenuModifierItemsUseCaseImpl,
   );
 

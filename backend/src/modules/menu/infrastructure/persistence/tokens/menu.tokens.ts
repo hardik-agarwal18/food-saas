@@ -7,4 +7,8 @@ export const MenuTokens = {
   GetMenuCategoriesUseCase: Symbol.for('Menu.GetMenuCategoriesUseCase'),
   CreateMenuItemUseCase: Symbol.for('Menu.CreateMenuItemUseCase'),
   GetMenuItemsUseCase: Symbol.for('Menu.GetMenuItemsUseCase'),
+  CreateMenuModifierGroupUseCase: Symbol.for('Menu.CreateMenuModifierGroupUseCase'),
+  GetMenuModifierGroupsUseCase: Symbol.for('Menu.GetMenuModifierGroupsUseCase'),
+  CreateMenuModifierItemUseCase: Symbol.for('Menu.CreateMenuModifierItemUseCase'),
+  GetMenuModifierItemsUseCase: Symbol.for('Menu.GetMenuModifierItemsUseCase'),
 };
