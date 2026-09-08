@@ -216,9 +216,7 @@ export const registerIdentity = (): void => {
   /**
    * Register the email job queue implementation.
    */
-  container.register(IdentityTokens.EmailJobQueue, {
-    useClass: BullMQEmailJobQueue,
-  });
+  container.registerSingleton(IdentityTokens.EmailJobQueue, BullMQEmailJobQueue);
 
   /**
    * Register IdentityRateLimitMiddleware.

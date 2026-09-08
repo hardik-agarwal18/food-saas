@@ -66,6 +66,7 @@ export const cleanTestDatabase = async (): Promise<void> => {
     client.passwordReset.deleteMany(),
     client.emailVerification.deleteMany(),
     client.refreshSession.deleteMany(),
+    client.customer.deleteMany(),
     client.user.deleteMany(),
   ]);
 };

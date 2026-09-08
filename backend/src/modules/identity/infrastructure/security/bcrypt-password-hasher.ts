@@ -25,6 +25,10 @@ export class BcryptPasswordHasher implements IPasswordHasher {
    * @returns A promise containing the generated PasswordHash value object.
    */
   async hashPassword(password: string): Promise<PasswordHash> {
+    if (!password || password.trim() === '') {
+      throw new Error('Password cannot be empty');
+    }
+
     const hash = await bcrypt.hash(password, env.SALT_ROUNDS);
 
     return PasswordHash.create(hash);

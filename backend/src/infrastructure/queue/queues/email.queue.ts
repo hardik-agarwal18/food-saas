@@ -8,6 +8,7 @@ import {
 
 export const emailQueue = new Queue('email', {
   connection: redisConnection,
+  prefix: process.env.NODE_ENV === 'test' ? 'test-bull' : 'bull',
 
   defaultJobOptions: {
     attempts: 3,
