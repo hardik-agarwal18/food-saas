@@ -13,16 +13,7 @@ import { AppError } from './AppError.js';
  * 404 Not Found
  */
 export class NotFoundError extends AppError {
-  constructor(message: string) {
-    // The current implementation replaces the supplied message
-    // with the default "Resource Not Found" message.
-    super(
-      (message = 'Resource Not Found'),
-      404,
-
-      'NOT_FOUND',
-
-      true,
-    );
+  constructor(message: string = 'Resource Not Found', code: string = 'NOT_FOUND') {
+    super(message, 404, code, true);
   }
 }

@@ -28,6 +28,7 @@ export const emailWorker = new Worker(
   {
     connection: redisConnection,
     concurrency: 5,
+    prefix: process.env.NODE_ENV === 'test' ? 'test-bull' : 'bull',
   },
 );
 

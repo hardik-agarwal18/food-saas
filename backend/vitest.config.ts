@@ -25,7 +25,7 @@ export default defineConfig({
      * This file can contain environment setup, mocks, database
      * initialization, or common test utilities.
      */
-    setupFiles: ['./tests/setup.ts'],
+    setupFiles: ['./tests/env-setup.ts', './tests/setup.ts'],
 
     /**
      * Finds all test files inside the `tests` directory.
@@ -64,5 +64,15 @@ export default defineConfig({
      * `beforeEach`, `afterAll`, and `afterEach`.
      */
     hookTimeout: 30_000,
+
+    coverage: {
+      provider: 'v8',
+      thresholds: {
+        lines: 80,
+        functions: 80,
+        branches: 75,
+        statements: 80,
+      },
+    },
   },
 });

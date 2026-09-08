@@ -22,7 +22,10 @@ export const registerSecurity = (app: Express): void => {
    * Configures how Express determines the original client IP
    * when the application is behind a reverse proxy or load balancer.
    */
-  app.set('trust proxy', env.TRUST_PROXY);
+  const parsedTrustProxy = isNaN(Number(env.TRUST_PROXY))
+    ? env.TRUST_PROXY
+    : Number(env.TRUST_PROXY);
+  app.set('trust proxy', parsedTrustProxy);
 
   /**
    * Adds security-related response headers.

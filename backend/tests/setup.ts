@@ -6,9 +6,10 @@
  */
 
 import 'reflect-metadata';
-import dotenv from 'dotenv';
+import { registerDependencies } from '../src/infrastructure/container/index.js';
 
-dotenv.config({ path: '.env.test' });
+// Register all DI container dependencies
+registerDependencies();
 
 import { afterAll, beforeAll, beforeEach } from 'vitest';
 

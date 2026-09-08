@@ -5,6 +5,8 @@ import { AuthenticationError } from './AuthenticationError.js';
 import { ConflictError } from './ConflictError.js';
 import { CredentialError } from './CredentialError.js';
 import { InternalServerError } from './InternalServerError.js';
+import { NotFoundError } from './NotFoundError.js';
+import { CustomerNotFoundError } from '../../modules/customer/domain/errors/customer-not-found.error.js';
 
 export const mapError = (error: Error, isProduction: boolean): AppError => {
   if (error instanceof AppError) {
@@ -21,6 +23,10 @@ export const mapError = (error: Error, isProduction: boolean): AppError => {
 
   if (error instanceof AuthenticationError) {
     return new AuthenticationError(error.message);
+  }
+
+  if (error instanceof CustomerNotFoundError) {
+    return new NotFoundError(error.message, 'CUSTOMER_NOT_FOUND');
   }
 
   return new InternalServerError(isProduction ? 'An unexpected error occurred' : error.message);
