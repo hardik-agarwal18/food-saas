@@ -126,30 +126,33 @@ enum RestaurantStatus {
 }
 
 model Restaurant {
-  id              String           @id @default(uuid()) @db.Uuid
-  ownerId         String           @db.Uuid
-  name            String
-  description     String?
-  logoUrl         String?          @map("logo_url")
-  coverImageUrl   String?          @map("cover_image_url")
-  phoneNumber     String           @map("phone_number")
-  email           String
-  
-  streetAddress   String           @map("street_address")
-  city            String
-  state           String
-  zipCode         String           @map("zip_code")
-  country         String
-  
-  latitude        Decimal?
-  longitude       Decimal?
-  
-  status          RestaurantStatus @default(PENDING)
-  createdAt       DateTime         @default(now()) @map("created_at")
-  updatedAt       DateTime         @updatedAt @map("updated_at")
-  deletedAt       DateTime?        @map("deleted_at")
+  id            String  @id @default(uuid()) @db.Uuid
+  ownerId       String  @db.Uuid
+  name          String
+  description   String?
+  logoUrl       String? @map("logo_url")
+  coverImageUrl String? @map("cover_image_url")
+  phoneNumber   String  @map("phone_number")
+  email         String
 
-  owner           User             @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  streetAddress String @map("street_address")
+  city          String
+  state         String
+  zipCode       String @map("zip_code")
+  country       String
+
+  latitude  Decimal?
+  longitude Decimal?
+
+  status    RestaurantStatus @default(PENDING)
+  createdAt DateTime         @default(now()) @map("created_at")
+  updatedAt DateTime         @updatedAt @map("updated_at")
+  deletedAt DateTime?        @map("deleted_at")
+
+  owner              User                @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  menuCategories     MenuCategory[]
+  menuItems          MenuItem[]
+  menuModifierGroups MenuModifierGroup[]
 
   @@index([ownerId])
   @@index([status])
@@ -159,4 +162,98 @@ model Restaurant {
   @@index([status, city])
   @@index([createdAt])
   @@map("restaurants")
+}
+
+model MenuCategory {
+  id           String    @id @default(uuid()) @db.Uuid
+  restaurantId String    @map("restaurant_id") @db.Uuid
+  name         String
+  description  String?
+  sortOrder    Int       @default(0) @map("sort_order")
+  isActive     Boolean   @default(true) @map("is_active")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  deletedAt    DateTime? @map("deleted_at")
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  items      MenuItem[]
+
+  @@index([restaurantId])
+  @@index([isActive])
+  @@map("menu_categories")
+}
+
+model MenuItem {
+  id           String    @id @default(uuid()) @db.Uuid
+  restaurantId String    @map("restaurant_id") @db.Uuid
+  categoryId   String?   @map("category_id") @db.Uuid
+  name         String
+  description  String?
+  price        Decimal
+  imageUrl     String?   @map("image_url")
+  isAvailable  Boolean   @default(true) @map("is_available")
+  sortOrder    Int       @default(0) @map("sort_order")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  deletedAt    DateTime? @map("deleted_at")
+
+  restaurant     Restaurant                @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  category       MenuCategory?             @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  modifierGroups MenuItemToModifierGroup[]
+
+  @@index([restaurantId])
+  @@index([categoryId])
+  @@index([isAvailable])
+  @@map("menu_items")
+}
+
+model MenuModifierGroup {
+  id            String    @id @default(uuid()) @db.Uuid
+  restaurantId  String    @map("restaurant_id") @db.Uuid
+  name          String
+  description   String?
+  isRequired    Boolean   @default(false) @map("is_required")
+  minSelections Int       @default(0) @map("min_selections")
+  maxSelections Int?      @map("max_selections")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  deletedAt     DateTime? @map("deleted_at")
+
+  restaurant Restaurant                @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  options    MenuModifierItem[]
+  menuItems  MenuItemToModifierGroup[]
+
+  @@index([restaurantId])
+  @@map("menu_modifier_groups")
+}
+
+model MenuModifierItem {
+  id              String    @id @default(uuid()) @db.Uuid
+  modifierGroupId String    @map("modifier_group_id") @db.Uuid
+  name            String
+  priceAdjustment Decimal   @default(0) @map("price_adjustment")
+  isAvailable     Boolean   @default(true) @map("is_available")
+  sortOrder       Int       @default(0) @map("sort_order")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  deletedAt       DateTime? @map("deleted_at")
+
+  modifierGroup MenuModifierGroup @relation(fields: [modifierGroupId], references: [id], onDelete: Cascade)
+
+  @@index([modifierGroupId])
+  @@index([isAvailable])
+  @@map("menu_modifier_items")
+}
+
+// Join table for Many-to-Many relationship between MenuItem and MenuModifierGroup
+model MenuItemToModifierGroup {
+  menuItemId      String @map("menu_item_id") @db.Uuid
+  modifierGroupId String @map("modifier_group_id") @db.Uuid
+  sortOrder       Int    @default(0) @map("sort_order")
+
+  menuItem      MenuItem          @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  modifierGroup MenuModifierGroup @relation(fields: [modifierGroupId], references: [id], onDelete: Cascade)
+
+  @@id([menuItemId, modifierGroupId])
+  @@map("menu_item_modifier_groups")
 }

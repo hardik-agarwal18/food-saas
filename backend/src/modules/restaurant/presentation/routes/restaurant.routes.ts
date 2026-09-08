@@ -16,8 +16,12 @@ import { ActivateRestaurantController } from '../controllers/activate-restaurant
 import { DeactivateRestaurantController } from '../controllers/deactivate-restaurant.controller.js';
 import { SuspendRestaurantController } from '../controllers/suspend-restaurant.controller.js';
 import { ApproveRestaurantController } from '../controllers/approve-restaurant.controller.js';
+import menuRoutes from '../../../menu/presentation/routes/menu.routes.js';
 
 const router = express.Router();
+
+// Mount menu module as a sub-router
+router.use('/:restaurantId/menu', menuRoutes);
 
 const auth = container.resolve(AuthenticationMiddleware);
 const authz = container.resolve(AuthorizationMiddleware);
