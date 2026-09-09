@@ -1,6 +1,12 @@
 import { MenuDomainError } from '../errors/menu-domain.error.js';
 import { Money } from '../value-objects/money.vo.js';
 
+export enum DietaryPreference {
+  VEG = 'VEG',
+  NON_VEG = 'NON_VEG',
+  VEGAN = 'VEGAN',
+}
+
 export type MenuItemProps = {
   id: string;
   restaurantId: string;
@@ -11,6 +17,7 @@ export type MenuItemProps = {
   imageUrl: string | null;
   isAvailable: boolean;
   sortOrder: number;
+  dietaryPreference: DietaryPreference;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;
@@ -27,6 +34,7 @@ export class MenuItem {
   private imageUrl: string | null;
   private isAvailable: boolean;
   private sortOrder: number;
+  private dietaryPreference: DietaryPreference;
   private readonly createdAt: Date;
   private updatedAt: Date;
   private deletedAt: Date | null;
@@ -42,6 +50,7 @@ export class MenuItem {
     this.imageUrl = props.imageUrl;
     this.isAvailable = props.isAvailable;
     this.sortOrder = props.sortOrder;
+    this.dietaryPreference = props.dietaryPreference;
     this.createdAt = props.createdAt;
     this.updatedAt = props.updatedAt;
     this.deletedAt = props.deletedAt;
@@ -55,6 +64,7 @@ export class MenuItem {
     description: string | null;
     price: Money;
     sortOrder?: number;
+    dietaryPreference?: DietaryPreference;
     modifierGroupIds?: string[];
   }): MenuItem {
     const now = new Date();
@@ -68,6 +78,7 @@ export class MenuItem {
       imageUrl: null,
       isAvailable: true,
       sortOrder: params.sortOrder ?? 0,
+      dietaryPreference: params.dietaryPreference ?? DietaryPreference.VEG,
       createdAt: now,
       updatedAt: now,
       deletedAt: null,
@@ -107,6 +118,9 @@ export class MenuItem {
   public getSortOrder(): number {
     return this.sortOrder;
   }
+  public getDietaryPreference(): DietaryPreference {
+    return this.dietaryPreference;
+  }
   public getCreatedAt(): Date {
     return this.createdAt;
   }
@@ -130,6 +144,7 @@ export class MenuItem {
     description?: string | null;
     price?: Money;
     sortOrder?: number;
+    dietaryPreference?: DietaryPreference;
   }): void {
     if (this.isDeleted()) throw new MenuDomainError('Cannot update deleted item');
 
@@ -138,6 +153,7 @@ export class MenuItem {
     if (params.description !== undefined) this.description = params.description;
     if (params.price) this.price = params.price;
     if (params.sortOrder !== undefined) this.sortOrder = params.sortOrder;
+    if (params.dietaryPreference) this.dietaryPreference = params.dietaryPreference;
 
     this.touch();
   }

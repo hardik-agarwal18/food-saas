@@ -40,6 +40,7 @@ model User {
   passwordResets     PasswordReset[]
   customer           Customer?
   restaurants        Restaurant[]
+  driver             Driver?
 
   @@map("users")
 }
@@ -55,7 +56,8 @@ model Customer {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  orders Order[]
 
   @@index([userId])
   @@map("customers")
@@ -153,6 +155,7 @@ model Restaurant {
   menuCategories     MenuCategory[]
   menuItems          MenuItem[]
   menuModifierGroups MenuModifierGroup[]
+  orders             Order[]
 
   @@index([ownerId])
   @@index([status])
@@ -183,23 +186,31 @@ model MenuCategory {
   @@map("menu_categories")
 }
 
+enum DietaryPreference {
+  VEG
+  NON_VEG
+  VEGAN
+}
+
 model MenuItem {
-  id           String    @id @default(uuid()) @db.Uuid
-  restaurantId String    @map("restaurant_id") @db.Uuid
-  categoryId   String?   @map("category_id") @db.Uuid
-  name         String
-  description  String?
-  price        Decimal
-  imageUrl     String?   @map("image_url")
-  isAvailable  Boolean   @default(true) @map("is_available")
-  sortOrder    Int       @default(0) @map("sort_order")
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
-  deletedAt    DateTime? @map("deleted_at")
+  id                String            @id @default(uuid()) @db.Uuid
+  restaurantId      String            @map("restaurant_id") @db.Uuid
+  categoryId        String?           @map("category_id") @db.Uuid
+  name              String
+  description       String?
+  price             Decimal
+  imageUrl          String?           @map("image_url")
+  isAvailable       Boolean           @default(true) @map("is_available")
+  sortOrder         Int               @default(0) @map("sort_order")
+  dietaryPreference DietaryPreference @default(VEG) @map("dietary_preference")
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
+  deletedAt         DateTime?         @map("deleted_at")
 
   restaurant     Restaurant                @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   category       MenuCategory?             @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   modifierGroups MenuItemToModifierGroup[]
+  orderItems     OrderItem[]
 
   @@index([restaurantId])
   @@index([categoryId])
@@ -238,7 +249,8 @@ model MenuModifierItem {
   updatedAt       DateTime  @updatedAt @map("updated_at")
   deletedAt       DateTime? @map("deleted_at")
 
-  modifierGroup MenuModifierGroup @relation(fields: [modifierGroupId], references: [id], onDelete: Cascade)
+  modifierGroup      MenuModifierGroup   @relation(fields: [modifierGroupId], references: [id], onDelete: Cascade)
+  orderItemModifiers OrderItemModifier[]
 
   @@index([modifierGroupId])
   @@index([isAvailable])
@@ -256,4 +268,200 @@ model MenuItemToModifierGroup {
 
   @@id([menuItemId, modifierGroupId])
   @@map("menu_item_modifier_groups")
+}
+
+// ─── ORDERING MODULE ────────────────────────────────────────────────────────
+
+enum OrderStatus {
+  PENDING
+  ACCEPTED
+  PREPARING
+  READY
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum OrderType {
+  DELIVERY
+  PICKUP
+}
+
+model Order {
+  id           String @id @default(uuid()) @db.Uuid
+  customerId   String @db.Uuid
+  restaurantId String @db.Uuid
+
+  status        OrderStatus   @default(PENDING)
+  paymentStatus PaymentStatus @default(PENDING)
+  orderType     OrderType
+
+  subtotal       Decimal @db.Decimal(10, 2)
+  deliveryFee    Decimal @db.Decimal(10, 2)
+  taxAmount      Decimal @db.Decimal(10, 2)
+  discountAmount Decimal @default(0) @db.Decimal(10, 2)
+  totalAmount    Decimal @db.Decimal(10, 2)
+
+  restaurantName String @map("restaurant_name")
+
+  deliveryAddress     Json?   @map("delivery_address")
+  specialInstructions String? @map("special_instructions")
+
+  acceptedAt  DateTime? @map("accepted_at")
+  preparingAt DateTime? @map("preparing_at")
+  readyAt     DateTime? @map("ready_at")
+  deliveredAt DateTime? @map("delivered_at")
+  cancelledAt DateTime? @map("cancelled_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  customer            Customer             @relation(fields: [customerId], references: [id])
+  restaurant          Restaurant           @relation(fields: [restaurantId], references: [id])
+  items               OrderItem[]
+  statusHistory       OrderStatusHistory[]
+  deliveryAssignments DeliveryAssignment[]
+
+  @@index([customerId, createdAt])
+  @@index([restaurantId, createdAt])
+  @@index([status])
+  @@map("orders")
+}
+
+model OrderItem {
+  id         String @id @default(uuid()) @db.Uuid
+  orderId    String @db.Uuid
+  menuItemId String @db.Uuid
+
+  name                String
+  unitPrice           Decimal @map("unit_price") @db.Decimal(10, 2)
+  quantity            Int
+  specialInstructions String? @map("special_instructions")
+
+  order     Order               @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItem  MenuItem            @relation(fields: [menuItemId], references: [id])
+  modifiers OrderItemModifier[]
+
+  @@index([orderId])
+  @@map("order_items")
+}
+
+model OrderItemModifier {
+  id                 String @id @default(uuid()) @db.Uuid
+  orderItemId        String @db.Uuid
+  menuModifierItemId String @db.Uuid
+
+  name  String
+  price Decimal @db.Decimal(10, 2)
+
+  orderItem        OrderItem        @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  menuModifierItem MenuModifierItem @relation(fields: [menuModifierItemId], references: [id])
+
+  @@index([orderItemId])
+  @@map("order_item_modifiers")
+}
+
+model OrderStatusHistory {
+  id      String @id @default(uuid()) @db.Uuid
+  orderId String @db.Uuid
+
+  fromStatus OrderStatus?
+  toStatus   OrderStatus
+
+  changedById String? @db.Uuid
+  reason      String?
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId, createdAt])
+  @@map("order_status_history")
+}
+
+// ─── DELIVERY MODULE ────────────────────────────────────────────────────────
+
+enum DriverStatus {
+  OFFLINE
+  AVAILABLE
+  BUSY
+  SUSPENDED
+}
+
+enum VehicleType {
+  BICYCLE
+  MOTORCYCLE
+  CAR
+  VAN
+}
+
+model Driver {
+  id     String @id @default(uuid()) @db.Uuid
+  userId String @unique @db.Uuid
+
+  firstName          String      @map("first_name")
+  lastName           String      @map("last_name")
+  phone              String
+  vehicleType        VehicleType @map("vehicle_type")
+  vehiclePlateNumber String?     @map("vehicle_plate_number")
+
+  status DriverStatus @default(OFFLINE)
+
+  currentLatitude  Decimal?  @map("current_latitude")
+  currentLongitude Decimal?  @map("current_longitude")
+  lastLocationAt   DateTime? @map("last_location_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deliveryAssignments DeliveryAssignment[]
+
+  @@index([status])
+  @@index([currentLatitude, currentLongitude])
+  @@map("drivers")
+}
+
+enum DeliveryAssignmentStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  PICKED_UP
+  DELIVERED
+  FAILED
+}
+
+model DeliveryAssignment {
+  id       String  @id @default(uuid()) @db.Uuid
+  orderId  String  @db.Uuid
+  driverId String? @db.Uuid
+
+  status DeliveryAssignmentStatus @default(PENDING)
+
+  estimatedDistance Decimal? @map("estimated_distance")
+  estimatedDuration Int?     @map("estimated_duration")
+  deliveryFee       Decimal  @map("delivery_fee") @db.Decimal(10, 2)
+
+  acceptedAt  DateTime? @map("accepted_at")
+  pickedUpAt  DateTime? @map("picked_up_at")
+  deliveredAt DateTime? @map("delivered_at")
+  cancelledAt DateTime? @map("cancelled_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  order  Order   @relation(fields: [orderId], references: [id])
+  driver Driver? @relation(fields: [driverId], references: [id])
+
+  @@index([orderId])
+  @@index([driverId])
+  @@index([status])
+  @@map("delivery_assignments")
 }

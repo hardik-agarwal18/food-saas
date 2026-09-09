@@ -1,3 +1,5 @@
+import { DietaryPreference } from '../../domain/entities/menu-item.entity.js';
+
 export interface MenuItemResponseDto {
   id: string;
   restaurantId: string;
@@ -8,6 +10,7 @@ export interface MenuItemResponseDto {
   imageUrl: string | null;
   isAvailable: boolean;
   sortOrder: number;
+  dietaryPreference: DietaryPreference;
   modifierGroupIds: string[];
   createdAt: Date;
   updatedAt: Date;
@@ -19,6 +22,7 @@ export interface CreateMenuItemDto {
   description?: string;
   price: number;
   sortOrder?: number;
+  dietaryPreference: DietaryPreference;
   modifierGroupIds?: string[];
 }
 
@@ -28,5 +32,6 @@ export interface UpdateMenuItemDto {
   description?: string;
   price?: number;
   sortOrder?: number;
+  dietaryPreference?: DietaryPreference;
   modifierGroupIds?: string[]; // to completely replace
 }

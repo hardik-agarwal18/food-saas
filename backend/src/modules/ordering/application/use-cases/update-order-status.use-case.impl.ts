@@ -39,29 +39,27 @@ export class UpdateOrderStatusUseCaseImpl implements IUpdateOrderStatusUseCase {
     }
 
     // Role-specific transition logic owned by aggregate
-    switch (status) {
-      case OrderStatus.ACCEPTED:
-        order.accept();
-        break;
-      case OrderStatus.PREPARING:
-        order.startPreparing();
-        break;
-      case OrderStatus.READY:
-        order.markReady();
-        break;
-      case OrderStatus.CANCELLED:
-        order.cancel();
-        break;
-      default:
-        // Restaurant owner cannot mark as OUT_FOR_DELIVERY or DELIVERED (handled by driver, unless pickup)
-        if (order.getOrderType() === 'PICKUP' && status === OrderStatus.DELIVERED) {
-          order.markDelivered();
-        } else {
-          throw new OrderingDomainError(`Restaurant cannot directly set status to ${status}`);
-        }
-    }
+    if (status === OrderStatus.ACCEPTED) order.accept();
+    else if (status === OrderStatus.PREPARING) order.startPreparing();
+    else if (status === OrderStatus.READY) order.markReady();
+    else if (status === OrderStatus.DELIVERED) order.markDelivered();
+    else if (status === OrderStatus.CANCELLED) order.cancel();
+    else throw new OrderingDomainError('Invalid target status or unsupported by restaurant owner.');
 
     await this.orderRepo.update(order);
+
+    if (status === OrderStatus.READY) {
+      const { EventDispatcher } = await import('../../../../shared/events/event-dispatcher.js');
+      const { OrderReadyEvent } = await import('../../domain/events/order-ready.event.js');
+      await EventDispatcher.getInstance().dispatch(
+        new OrderReadyEvent(
+          order.getId(),
+          order.getRestaurantId(),
+          order.getOrderType(),
+          order.getDeliveryFee().getValue(),
+        ),
+      );
+    }
 
     return OrderDtoMapper.toResponse(order);
   }

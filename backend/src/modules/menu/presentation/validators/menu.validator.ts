@@ -18,6 +18,7 @@ export const createMenuItemSchema = z.object({
   description: z.string().max(1000).optional(),
   price: z.number().min(0, 'Price cannot be negative'),
   sortOrder: z.number().int().min(0).optional(),
+  dietaryPreference: z.enum(['VEG', 'NON_VEG', 'VEGAN']).optional(),
   modifierGroupIds: z.array(z.string().uuid()).optional(),
 });
 

@@ -52,6 +52,7 @@ export class CreateMenuItemUseCaseImpl implements ICreateMenuItemUseCase {
       description: dto.description ?? null,
       price,
       sortOrder: dto.sortOrder,
+      dietaryPreference: dto.dietaryPreference,
       modifierGroupIds: dto.modifierGroupIds,
     });
 

@@ -1,5 +1,5 @@
 import { Prisma } from '../../../../../../generated/prisma/client.js';
-import { MenuItem } from '../../../../domain/entities/menu-item.entity.js';
+import { MenuItem, DietaryPreference } from '../../../../domain/entities/menu-item.entity.js';
 import { Money } from '../../../../domain/value-objects/money.vo.js';
 
 type PrismaMenuItemWithRelations = Prisma.MenuItemGetPayload<{
@@ -22,6 +22,7 @@ export class MenuItemMapper {
       imageUrl: raw.imageUrl,
       isAvailable: raw.isAvailable,
       sortOrder: raw.sortOrder,
+      dietaryPreference: raw.dietaryPreference as DietaryPreference,
       createdAt: raw.createdAt,
       updatedAt: raw.updatedAt,
       deletedAt: raw.deletedAt,
@@ -40,6 +41,7 @@ export class MenuItemMapper {
       imageUrl: domain.getImageUrl(),
       isAvailable: domain.getIsAvailable(),
       sortOrder: domain.getSortOrder(),
+      dietaryPreference: domain.getDietaryPreference(),
       createdAt: domain.getCreatedAt(),
       updatedAt: domain.getUpdatedAt(),
       deletedAt: domain.getDeletedAt() ?? undefined,
@@ -62,6 +64,7 @@ export class MenuItemMapper {
       imageUrl: domain.getImageUrl(),
       isAvailable: domain.getIsAvailable(),
       sortOrder: domain.getSortOrder(),
+      dietaryPreference: domain.getDietaryPreference(),
       updatedAt: domain.getUpdatedAt(),
       deletedAt: domain.getDeletedAt() ?? undefined,
       modifierGroups: {

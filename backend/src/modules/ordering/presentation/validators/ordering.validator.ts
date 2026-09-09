@@ -21,6 +21,14 @@ export const updateOrderStatusSchema = z.object({
 });
 
 export const paginationQuerySchema = z.object({
-  page: z.string().regex(/^\d+$/).transform(val => Number(val)).optional(),
-  limit: z.string().regex(/^\d+$/).transform(val => Number(val)).optional(),
+  page: z
+    .string()
+    .regex(/^\d+$/)
+    .transform((val) => Number(val))
+    .optional(),
+  limit: z
+    .string()
+    .regex(/^\d+$/)
+    .transform((val) => Number(val))
+    .optional(),
 });

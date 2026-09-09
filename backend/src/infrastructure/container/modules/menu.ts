@@ -27,21 +27,14 @@ import { CreateMenuModifierItemController } from '../../../modules/menu/presenta
 import { GetMenuModifierItemsController } from '../../../modules/menu/presentation/controllers/get-menu-modifier-items.controller.js';
 
 export function registerMenuModule(): void {
-
   // Repositories
   container.registerSingleton(MenuTokens.MenuCategoryRepository, MenuCategoryRepositoryImpl);
   container.registerSingleton(MenuTokens.MenuItemRepository, MenuItemRepositoryImpl);
   container.registerSingleton(MenuTokens.MenuModifierRepository, MenuModifierRepositoryImpl);
 
   // Use Cases
-  container.registerSingleton(
-    MenuTokens.CreateMenuCategoryUseCase,
-    CreateMenuCategoryUseCaseImpl,
-  );
-  container.registerSingleton(
-    MenuTokens.GetMenuCategoriesUseCase,
-    GetMenuCategoriesUseCaseImpl,
-  );
+  container.registerSingleton(MenuTokens.CreateMenuCategoryUseCase, CreateMenuCategoryUseCaseImpl);
+  container.registerSingleton(MenuTokens.GetMenuCategoriesUseCase, GetMenuCategoriesUseCaseImpl);
   container.registerSingleton(MenuTokens.CreateMenuItemUseCase, CreateMenuItemUseCaseImpl);
   container.registerSingleton(MenuTokens.GetMenuItemsUseCase, GetMenuItemsUseCaseImpl);
   container.registerSingleton(

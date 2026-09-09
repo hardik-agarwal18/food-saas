@@ -16,7 +16,13 @@ export class PlaceOrderController {
       const userId = req.user!.id;
       const { restaurantId, orderType, deliveryAddress, specialInstructions, items } = req.body;
 
-      const result = await this.placeOrderUseCase.execute(userId, { restaurantId, orderType, deliveryAddress, specialInstructions, items });
+      const result = await this.placeOrderUseCase.execute(userId, {
+        restaurantId,
+        orderType,
+        deliveryAddress,
+        specialInstructions,
+        items,
+      });
 
       sendResponse(res, 201, {
         success: true,

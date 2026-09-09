@@ -8,7 +8,11 @@ import { PlaceOrderController } from '../controllers/place-order.controller.js';
 import { GetCustomerOrdersController } from '../controllers/get-customer-orders.controller.js';
 import { GetRestaurantOrdersController } from '../controllers/get-restaurant-orders.controller.js';
 import { UpdateOrderStatusController } from '../controllers/update-order-status.controller.js';
-import { placeOrderSchema, updateOrderStatusSchema, paginationQuerySchema } from '../validators/ordering.validator.js';
+import {
+  placeOrderSchema,
+  updateOrderStatusSchema,
+  paginationQuerySchema,
+} from '../validators/ordering.validator.js';
 
 const router = Router();
 
@@ -26,7 +30,7 @@ router.post(
   auth.authenticate,
   authz.authorize(Permission.ORDER_CREATE),
   validate({ body: placeOrderSchema }),
-  placeOrderController.handle.bind(placeOrderController)
+  placeOrderController.handle.bind(placeOrderController),
 );
 
 router.get(
@@ -34,7 +38,7 @@ router.get(
   auth.authenticate,
   authz.authorize(Permission.ORDER_READ),
   validate({ query: paginationQuerySchema }),
-  getCustomerOrdersController.handle.bind(getCustomerOrdersController)
+  getCustomerOrdersController.handle.bind(getCustomerOrdersController),
 );
 
 // Restaurant Routes
@@ -43,7 +47,7 @@ router.get(
   auth.authenticate,
   authz.authorize(Permission.ORDER_READ),
   validate({ query: paginationQuerySchema }),
-  getRestaurantOrdersController.handle.bind(getRestaurantOrdersController)
+  getRestaurantOrdersController.handle.bind(getRestaurantOrdersController),
 );
 
 router.patch(
@@ -51,7 +55,7 @@ router.patch(
   auth.authenticate,
   authz.authorize(Permission.ORDER_UPDATE),
   validate({ body: updateOrderStatusSchema }),
-  updateOrderStatusController.handle.bind(updateOrderStatusController)
+  updateOrderStatusController.handle.bind(updateOrderStatusController),
 );
 
 export { router as orderingRoutes };

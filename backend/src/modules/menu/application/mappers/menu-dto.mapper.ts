@@ -34,6 +34,7 @@ export class MenuDtoMapper {
       imageUrl: domain.getImageUrl(),
       isAvailable: domain.getIsAvailable(),
       sortOrder: domain.getSortOrder(),
+      dietaryPreference: domain.getDietaryPreference(),
       modifierGroupIds: domain.getModifierGroupIds(),
       createdAt: domain.getCreatedAt(),
       updatedAt: domain.getUpdatedAt(),
