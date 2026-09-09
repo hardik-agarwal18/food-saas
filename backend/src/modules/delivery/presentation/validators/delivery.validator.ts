@@ -15,3 +15,8 @@ export const toggleDriverAvailabilitySchema = z.object({
 export const updateDeliveryStatusSchema = z.object({
   status: z.enum(['PICKED_UP', 'DELIVERED']),
 });
+
+export const updateDriverLocationSchema = z.object({
+  latitude: z.number().min(-90).max(90),
+  longitude: z.number().min(-180).max(180),
+});

@@ -3,6 +3,8 @@ import { DeliveryAssignment } from '../entities/delivery-assignment.entity.js';
 export interface IDeliveryAssignmentRepository {
   findById(id: string): Promise<DeliveryAssignment | null>;
   findByOrderId(orderId: string): Promise<DeliveryAssignment[]>;
+  findByDriverId(driverId: string): Promise<DeliveryAssignment[]>;
+  findAvailableAssignments(): Promise<DeliveryAssignment[]>;
   save(assignment: DeliveryAssignment): Promise<void>;
 
   /**

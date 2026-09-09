@@ -22,6 +22,22 @@ export class DeliveryAssignmentRepositoryImpl implements IDeliveryAssignmentRepo
     return records.map((r: any) => this.mapToDomain(r));
   }
 
+  async findByDriverId(driverId: string): Promise<DeliveryAssignment[]> {
+    const records = await this.prisma.deliveryAssignment.findMany({
+      where: { driverId },
+      orderBy: { createdAt: 'desc' },
+    });
+    return records.map((r: any) => this.mapToDomain(r));
+  }
+
+  async findAvailableAssignments(): Promise<DeliveryAssignment[]> {
+    const records = await this.prisma.deliveryAssignment.findMany({
+      where: { status: 'PENDING' },
+      orderBy: { createdAt: 'desc' },
+    });
+    return records.map((r: any) => this.mapToDomain(r));
+  }
+
   async save(assignment: DeliveryAssignment): Promise<void> {
     await this.prisma.deliveryAssignment.upsert({
       where: { id: assignment.id },

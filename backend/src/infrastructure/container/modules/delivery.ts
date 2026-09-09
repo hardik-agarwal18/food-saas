@@ -7,6 +7,9 @@ import { ToggleDriverAvailabilityUseCaseImpl } from '../../../modules/delivery/a
 import { CreateDeliveryAssignmentUseCaseImpl } from '../../../modules/delivery/application/use-cases/create-delivery-assignment.use-case.impl.js';
 import { ClaimDeliveryAssignmentUseCaseImpl } from '../../../modules/delivery/application/use-cases/claim-delivery-assignment.use-case.impl.js';
 import { UpdateDeliveryStatusUseCaseImpl } from '../../../modules/delivery/application/use-cases/update-delivery-status.use-case.impl.js';
+import { GetAvailableDeliveriesUseCaseImpl } from '../../../modules/delivery/application/use-cases/get-available-deliveries.use-case.impl.js';
+import { GetDriverAssignmentsUseCaseImpl } from '../../../modules/delivery/application/use-cases/get-driver-assignments.use-case.impl.js';
+import { UpdateDriverLocationUseCaseImpl } from '../../../modules/delivery/application/use-cases/update-driver-location.use-case.impl.js';
 import { OnOrderReadyHandler } from '../../../modules/delivery/application/event-handlers/on-order-ready.handler.js';
 import { OnDeliveryPickedUpHandler } from '../../../modules/ordering/application/event-handlers/on-delivery-picked-up.handler.js';
 import { OnDeliveryDeliveredHandler } from '../../../modules/ordering/application/event-handlers/on-delivery-delivered.handler.js';
@@ -34,6 +37,18 @@ export function registerDeliveryModule() {
   container.registerSingleton(
     DeliveryTokens.UpdateDeliveryStatusUseCase,
     UpdateDeliveryStatusUseCaseImpl,
+  );
+  container.registerSingleton(
+    DeliveryTokens.GetAvailableDeliveriesUseCase,
+    GetAvailableDeliveriesUseCaseImpl,
+  );
+  container.registerSingleton(
+    DeliveryTokens.GetDriverAssignmentsUseCase,
+    GetDriverAssignmentsUseCaseImpl,
+  );
+  container.registerSingleton(
+    DeliveryTokens.UpdateDriverLocationUseCase,
+    UpdateDriverLocationUseCaseImpl,
   );
 
   const onOrderReadyHandler = container.resolve(OnOrderReadyHandler);

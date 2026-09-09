@@ -6,4 +6,7 @@ export const DeliveryTokens = {
   CreateDeliveryAssignmentUseCase: Symbol('ICreateDeliveryAssignmentUseCase'),
   ClaimDeliveryAssignmentUseCase: Symbol('IClaimDeliveryAssignmentUseCase'),
   UpdateDeliveryStatusUseCase: Symbol('IUpdateDeliveryStatusUseCase'),
+  GetAvailableDeliveriesUseCase: Symbol('IGetAvailableDeliveriesUseCase'),
+  GetDriverAssignmentsUseCase: Symbol('IGetDriverAssignmentsUseCase'),
+  UpdateDriverLocationUseCase: Symbol('IUpdateDriverLocationUseCase'),
 };
