@@ -48,6 +48,7 @@ import { registerRestaurant } from './modules/restaurant.js';
 import { registerMenuModule } from './modules/menu.js';
 import { registerOrdering } from './modules/ordering.js';
 import { registerDeliveryModule } from './modules/delivery.js';
+import { registerAdminModule } from './modules/admin.js';
 
 /**
  * Registers dependencies for every application module.
@@ -67,6 +68,7 @@ export const registerDependencies = (): void => {
   registerMenuModule();
   registerOrdering();
   registerDeliveryModule();
+  registerAdminModule();
 
   //Future dependency registrations can be added here
 };

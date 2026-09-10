@@ -14,9 +14,9 @@ export class UpdateDriverLocationController {
     try {
       const userId = req.user!.id;
       const { latitude, longitude } = req.body;
-      
+
       await this.updateDriverLocationUseCase.execute(userId, latitude, longitude);
-      
+
       res.status(200).json({ success: true, message: 'Location updated successfully' });
     } catch (error) {
       next(error);
