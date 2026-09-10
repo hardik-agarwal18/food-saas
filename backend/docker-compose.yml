@@ -42,6 +42,18 @@ services:
       - redis
     restart: unless-stopped
     
+  outbox-worker:
+    image: food-saas-backend:v1
+    command: ["node", "dist/workers/outbox.worker.main.js"]
+    env_file:
+      - .env
+    networks:
+      - food-saas-network
+    depends_on:
+      - redis
+      - backend
+    restart: unless-stopped
+    
   redis:
     image: redis:7.0.11-alpine
 

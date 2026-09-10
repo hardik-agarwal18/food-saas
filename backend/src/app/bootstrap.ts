@@ -28,8 +28,6 @@ import { DatabaseService } from '../infrastructure/database/database.service.js'
 import { RedisService } from '../infrastructure/cache/redis.service.js';
 import { ILogger } from '../shared/logger/logger.interface.js';
 import { InfrastructureTokens } from '../infrastructure/container/tokens/infrastructure.tokens.js';
-import { PrismaClient } from '../generated/prisma/client.js';
-import { startOutboxWorker } from '../workers/outbox.worker.js';
 
 /**
  * Initializes the infrastructure required by the application.
@@ -73,12 +71,6 @@ export const bootstrap = async (): Promise<void> => {
    * queues, or other infrastructure features.
    */
   await redisService.connectToRedis();
-
-  /**
-   * Start background workers
-   */
-  const prisma = container.resolve<PrismaClient>(InfrastructureTokens.PrismaClient);
-  startOutboxWorker(prisma, logger);
 
   logger.info('Application bootstrapped successfully');
 };

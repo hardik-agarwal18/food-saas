@@ -1,12 +1,12 @@
-import { PrismaClient } from '../generated/prisma/client.js';
-import { EventDispatcher } from '../shared/events/event-dispatcher.js';
-import { ILogger } from '../shared/logger/logger.interface.js';
+import { PrismaClient } from '../../../generated/prisma/client.js';
+import { EventDispatcher } from '../../../shared/events/event-dispatcher.js';
+import { ILogger } from '../../../shared/logger/logger.interface.js';
 
 // Domain Events
-import { OrderReadyEvent } from '../modules/ordering/domain/events/order-ready.event.js';
-import { DeliveryPickedUpEvent } from '../modules/delivery/domain/events/delivery-picked-up.event.js';
-import { DeliveryDeliveredEvent } from '../modules/delivery/domain/events/delivery-delivered.event.js';
-import { DomainEvent } from '../shared/events/domain-event.js';
+import { OrderReadyEvent } from '../../../modules/ordering/domain/events/order-ready.event.js';
+import { DeliveryPickedUpEvent } from '../../../modules/delivery/domain/events/delivery-picked-up.event.js';
+import { DeliveryDeliveredEvent } from '../../../modules/delivery/domain/events/delivery-delivered.event.js';
+import { DomainEvent } from '../../../shared/events/domain-event.js';
 
 /**
  * Reconstructs a DomainEvent instance from its JSON payload.
@@ -41,11 +41,9 @@ function deserializeEvent(eventName: string, payload: any): DomainEvent | null {
  * Starts the Outbox Worker to process pending domain events.
  */
 export function startOutboxWorker(prisma: PrismaClient, logger: ILogger) {
-  const POLLING_INTERVAL_MS = 5000;
-
   logger.info('Outbox Worker started', { component: 'OutboxWorker' });
 
-  setInterval(async () => {
+  const pollOutbox = async () => {
     try {
       const pendingEvents = await prisma.outboxEvent.findMany({
         where: { processedAt: null },
@@ -93,5 +91,11 @@ export function startOutboxWorker(prisma: PrismaClient, logger: ILogger) {
     } catch (error) {
       logger.error('Outbox polling error', error, { component: 'OutboxWorker' });
     }
-  }, POLLING_INTERVAL_MS);
+  };
+
+  const intervalId = setInterval(pollOutbox, 5000);
+
+  return {
+    stopOutboxWorker: () => clearInterval(intervalId),
+  };
 }

@@ -93,4 +93,52 @@ export class SmtpService implements EmailService {
       `,
     });
   }
+
+  async sendOrderReadyEmail(email: string, orderId: string, restaurantName: string): Promise<void> {
+    await this.transporter.sendMail({
+      from: smtpConfig.from,
+      to: email,
+      subject: `FoodFlow - Your order from ${restaurantName} is Ready!`,
+      text: `Good news! Your order #${orderId.substring(0, 8)} from ${restaurantName} is ready for pickup or delivery.`,
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+          <h2>Your order is ready! 🍔</h2>
+          <p>Your order <strong>#${orderId.substring(0, 8)}</strong> from <strong>${restaurantName}</strong> is prepared and ready to go.</p>
+          <p>Thank you for using FoodFlow.</p>
+        </div>
+      `,
+    });
+  }
+
+  async sendOrderPickedUpEmail(email: string, orderId: string, driverName: string): Promise<void> {
+    await this.transporter.sendMail({
+      from: smtpConfig.from,
+      to: email,
+      subject: `FoodFlow - Your order is on the way!`,
+      text: `Your driver, ${driverName}, has picked up your order #${orderId.substring(0, 8)} and is heading your way.`,
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+          <h2>Out for delivery 🚗</h2>
+          <p>Your order <strong>#${orderId.substring(0, 8)}</strong> has been picked up by your driver, <strong>${driverName}</strong>.</p>
+          <p>They are currently en route to your location.</p>
+        </div>
+      `,
+    });
+  }
+
+  async sendOrderDeliveredEmail(email: string, orderId: string): Promise<void> {
+    await this.transporter.sendMail({
+      from: smtpConfig.from,
+      to: email,
+      subject: `FoodFlow - Order Delivered!`,
+      text: `Your order #${orderId.substring(0, 8)} has been delivered. Enjoy your meal!`,
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+          <h2>Enjoy your meal! 🍽️</h2>
+          <p>Your order <strong>#${orderId.substring(0, 8)}</strong> has been successfully delivered.</p>
+          <p>Thank you for choosing FoodFlow!</p>
+        </div>
+      `,
+    });
+  }
 }
