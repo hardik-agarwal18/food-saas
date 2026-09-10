@@ -39,8 +39,8 @@ export class DeliveryAssignmentRepositoryImpl implements IDeliveryAssignmentRepo
       const records = await this.prisma.$queryRaw<any[]>`
         SELECT 
           da.id,
-          da.order_id as "orderId",
-          da.driver_id as "driverId",
+          da."orderId",
+          da."driverId",
           da.status,
           da.estimated_distance as "estimatedDistance",
           da.estimated_duration as "estimatedDuration",
@@ -52,8 +52,8 @@ export class DeliveryAssignmentRepositoryImpl implements IDeliveryAssignmentRepo
           da.created_at as "createdAt",
           da.updated_at as "updatedAt"
         FROM delivery_assignments da
-        JOIN orders o ON da.order_id = o.id
-        JOIN restaurants r ON o.restaurant_id = r.id
+        JOIN orders o ON da."orderId" = o.id
+        JOIN restaurants r ON o."restaurantId" = r.id
         WHERE da.status = 'PENDING'
         ORDER BY (
           6371 * acos(
@@ -82,19 +82,23 @@ export class DeliveryAssignmentRepositoryImpl implements IDeliveryAssignmentRepo
         where: { id: assignment.id },
         create: {
           id: assignment.id,
-          orderId: assignment.orderId,
-          driverId: assignment.driverId,
+          order: { connect: { id: assignment.orderId } },
+          ...(assignment.driverId ? { driver: { connect: { id: assignment.driverId } } } : {}),
           status: assignment.status,
           estimatedDistance: assignment.estimatedDistance,
           estimatedDuration: assignment.estimatedDuration,
-          deliveryFee: assignment.deliveryFee.getValue(),
+          deliveryFee: isNaN(assignment.deliveryFee.getValue())
+            ? 0
+            : assignment.deliveryFee.getValue(),
           acceptedAt: assignment.acceptedAt,
           pickedUpAt: assignment.pickedUpAt,
           deliveredAt: assignment.deliveredAt,
           cancelledAt: assignment.cancelledAt,
         },
         update: {
-          driverId: assignment.driverId,
+          ...(assignment.driverId
+            ? { driver: { connect: { id: assignment.driverId } } }
+            : { driver: { disconnect: true } }),
           status: assignment.status,
           acceptedAt: assignment.acceptedAt,
           pickedUpAt: assignment.pickedUpAt,
@@ -121,7 +125,7 @@ export class DeliveryAssignmentRepositoryImpl implements IDeliveryAssignmentRepo
     return await this.prisma.$transaction(async (tx) => {
       const result = await tx.$executeRaw`
         UPDATE "delivery_assignments"
-        SET "status" = 'ACCEPTED', "driver_id" = ${driverId}::uuid, "accepted_at" = NOW(), "updated_at" = NOW()
+        SET "status" = 'ACCEPTED', "driverId" = ${driverId}::uuid, "accepted_at" = NOW(), "updated_at" = NOW()
         WHERE "id" = ${assignmentId}::uuid AND "status" = 'PENDING'
       `;
       if (result === 0) return false;

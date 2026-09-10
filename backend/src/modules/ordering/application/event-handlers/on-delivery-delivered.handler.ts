@@ -15,7 +15,7 @@ export class OnDeliveryDeliveredHandler implements EventHandler<DeliveryDelivere
     const order = await this.orderRepository.findById(event.orderId);
     if (order) {
       order.markDelivered();
-      await this.orderRepository.save(order);
+      await this.orderRepository.update(order);
     }
   }
 }

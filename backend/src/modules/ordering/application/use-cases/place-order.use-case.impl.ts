@@ -19,6 +19,9 @@ import type { IMenuModifierRepository } from '../../../menu/domain/repositories/
 import { OrderingTokens } from '../../infrastructure/tokens/ordering.tokens.js';
 import type { IOrderRepository } from '../../domain/repositories/order.repository.js';
 
+import { CustomerTokens } from '../../../customer/infrastructure/persistence/tokens/customer.tokens.js';
+import type { ICustomerRepository } from '../../../customer/domain/repositories/customer.repository.js';
+
 @injectable()
 export class PlaceOrderUseCaseImpl implements IPlaceOrderUseCase {
   constructor(
@@ -30,9 +33,17 @@ export class PlaceOrderUseCaseImpl implements IPlaceOrderUseCase {
     private readonly menuItemRepo: IMenuItemRepository,
     @inject(MenuTokens.MenuModifierRepository)
     private readonly menuModifierRepo: IMenuModifierRepository,
+    @inject(CustomerTokens.CustomerRepository)
+    private readonly customerRepo: ICustomerRepository,
   ) {}
 
-  async execute(customerId: string, dto: PlaceOrderDto): Promise<OrderResponseDto> {
+  async execute(userId: string, dto: PlaceOrderDto): Promise<OrderResponseDto> {
+    // 0. Validate Customer
+    const customer = await this.customerRepo.findByUserId(userId);
+    if (!customer) {
+      throw new OrderingDomainError('Customer profile not found');
+    }
+
     // 1. Validate Restaurant
     const restaurant = await this.restaurantRepo.findById(dto.restaurantId);
     if (!restaurant) {
@@ -108,7 +119,7 @@ export class PlaceOrderUseCaseImpl implements IPlaceOrderUseCase {
     const taxAmount = Money.fromNumber(0); // Calculate properly based on subtotal
 
     const order = Order.create({
-      customerId,
+      customerId: customer.getId(),
       restaurantId: restaurant.getId(),
       restaurantName: restaurant.getName().getValue(),
       orderType: dto.orderType,

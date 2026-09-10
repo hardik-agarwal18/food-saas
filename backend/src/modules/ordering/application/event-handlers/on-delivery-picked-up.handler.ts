@@ -15,7 +15,7 @@ export class OnDeliveryPickedUpHandler implements EventHandler<DeliveryPickedUpE
     const order = await this.orderRepository.findById(event.orderId);
     if (order) {
       order.markOutForDelivery();
-      await this.orderRepository.save(order);
+      await this.orderRepository.update(order);
     }
   }
 }

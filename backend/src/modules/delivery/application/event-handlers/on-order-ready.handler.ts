@@ -15,7 +15,7 @@ export class OnOrderReadyHandler implements EventHandler<OrderReadyEvent> {
   async handle(event: OrderReadyEvent): Promise<void> {
     // We only create assignments for DELIVERY orders!
     if (event.orderType === OrderType.DELIVERY) {
-      await this.createAssignmentUseCase.execute(event.orderId, event.deliveryFeeAmount);
+      await this.createAssignmentUseCase.execute(event.orderId, event.deliveryFeeAmount ?? 0);
     }
   }
 }
