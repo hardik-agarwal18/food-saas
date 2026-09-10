@@ -2,6 +2,8 @@ import { Money } from '../../../menu/domain/value-objects/money.vo.js';
 import { OrderItem } from './order-item.entity.js';
 import { OrderingDomainError } from '../errors/ordering-domain.error.js';
 import { OrderStatus, PaymentStatus, OrderType } from '../../../../generated/prisma/client.js';
+import { AggregateRoot } from '../../../../shared/domain/aggregate-root.js';
+import { OrderReadyEvent } from '../events/order-ready.event.js';
 
 export type OrderProps = {
   id: string;
@@ -33,10 +35,11 @@ export type OrderProps = {
   items: OrderItem[];
 };
 
-export class Order {
+export class Order extends AggregateRoot {
   private props: OrderProps;
 
   constructor(props: OrderProps) {
+    super();
     this.props = props;
   }
 
@@ -133,6 +136,15 @@ export class Order {
     this.props.status = OrderStatus.READY;
     this.props.readyAt = new Date();
     this.touch();
+
+    this.addDomainEvent(
+      new OrderReadyEvent(
+        this.getId(),
+        this.getRestaurantId(),
+        this.getOrderType(),
+        this.getDeliveryFee().getValue(),
+      ),
+    );
   }
 
   public markOutForDelivery(): void {

@@ -465,3 +465,17 @@ model DeliveryAssignment {
   @@index([status])
   @@map("delivery_assignments")
 }
+
+// ─── OUTBOX (DOMAIN EVENTS) ─────────────────────────────────────────────────
+
+model OutboxEvent {
+  id          String    @id @default(uuid()) @db.Uuid
+  eventName   String    @map("event_name")
+  payload     Json
+  createdAt   DateTime  @default(now()) @map("created_at")
+  processedAt DateTime? @map("processed_at")
+  error       String?
+
+  @@index([processedAt, createdAt])
+  @@map("outbox_events")
+}

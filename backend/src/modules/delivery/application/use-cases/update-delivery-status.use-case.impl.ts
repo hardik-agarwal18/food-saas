@@ -3,9 +3,7 @@ import type { IUpdateDeliveryStatusUseCase } from './update-delivery-status.use-
 import type { IDeliveryAssignmentRepository } from '../../domain/repositories/delivery-assignment.repository.js';
 import type { IDriverRepository } from '../../domain/repositories/driver.repository.js';
 import { DeliveryDomainError } from '../../domain/errors/delivery-domain.error.js';
-import { EventDispatcher } from '../../../../shared/events/event-dispatcher.js';
-import { DeliveryPickedUpEvent } from '../../domain/events/delivery-picked-up.event.js';
-import { DeliveryDeliveredEvent } from '../../domain/events/delivery-delivered.event.js';
+
 import { DeliveryTokens } from '../../infrastructure/tokens/delivery.tokens.js';
 
 @injectable()
@@ -35,9 +33,6 @@ export class UpdateDeliveryStatusUseCaseImpl implements IUpdateDeliveryStatusUse
     if (newStatus === 'PICKED_UP') {
       assignment.pickUp(driver.id);
       await this.assignmentRepository.save(assignment);
-      await EventDispatcher.getInstance().dispatch(
-        new DeliveryPickedUpEvent(assignment.id, assignment.orderId, driver.id),
-      );
     } else if (newStatus === 'DELIVERED') {
       assignment.deliver(driver.id);
       await this.assignmentRepository.save(assignment);
@@ -45,10 +40,6 @@ export class UpdateDeliveryStatusUseCaseImpl implements IUpdateDeliveryStatusUse
       // Driver becomes available again
       driver.markAvailable();
       await this.driverRepository.save(driver);
-
-      await EventDispatcher.getInstance().dispatch(
-        new DeliveryDeliveredEvent(assignment.id, assignment.orderId, driver.id),
-      );
     } else {
       throw new DeliveryDomainError('Invalid target status for update.', 'INVALID_STATUS');
     }

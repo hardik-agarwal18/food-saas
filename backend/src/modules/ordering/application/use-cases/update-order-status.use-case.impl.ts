@@ -48,19 +48,6 @@ export class UpdateOrderStatusUseCaseImpl implements IUpdateOrderStatusUseCase {
 
     await this.orderRepo.update(order);
 
-    if (status === OrderStatus.READY) {
-      const { EventDispatcher } = await import('../../../../shared/events/event-dispatcher.js');
-      const { OrderReadyEvent } = await import('../../domain/events/order-ready.event.js');
-      await EventDispatcher.getInstance().dispatch(
-        new OrderReadyEvent(
-          order.getId(),
-          order.getRestaurantId(),
-          order.getOrderType(),
-          order.getDeliveryFee().getValue(),
-        ),
-      );
-    }
-
     return OrderDtoMapper.toResponse(order);
   }
 }

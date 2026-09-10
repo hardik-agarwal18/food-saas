@@ -22,7 +22,10 @@ export class GetAvailableDeliveriesUseCaseImpl implements IGetAvailableDeliverie
       throw new DeliveryDomainError('Driver profile not found.', 'DRIVER_NOT_FOUND');
     }
 
-    const assignments = await this.assignmentRepository.findAvailableAssignments();
+    const lat = driver.currentLocation?.latitude;
+    const lng = driver.currentLocation?.longitude;
+
+    const assignments = await this.assignmentRepository.findAvailableAssignments(lat, lng);
     return DeliveryDtoMapper.toResponseList(assignments);
   }
 }

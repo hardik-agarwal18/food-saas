@@ -1,5 +1,8 @@
 import { DeliveryDomainError } from '../errors/delivery-domain.error.js';
 import { Money } from '../../../menu/domain/value-objects/money.vo.js';
+import { AggregateRoot } from '../../../../shared/domain/aggregate-root.js';
+import { DeliveryPickedUpEvent } from '../events/delivery-picked-up.event.js';
+import { DeliveryDeliveredEvent } from '../events/delivery-delivered.event.js';
 
 export enum DeliveryAssignmentStatus {
   PENDING = 'PENDING',
@@ -26,8 +29,10 @@ export interface DeliveryAssignmentProps {
   updatedAt: Date;
 }
 
-export class DeliveryAssignment {
-  private constructor(private readonly props: DeliveryAssignmentProps) {}
+export class DeliveryAssignment extends AggregateRoot {
+  private constructor(private readonly props: DeliveryAssignmentProps) {
+    super();
+  }
 
   static create(props: DeliveryAssignmentProps): DeliveryAssignment {
     return new DeliveryAssignment(props);
@@ -118,6 +123,7 @@ export class DeliveryAssignment {
     this.checkDriverAuth(driverId);
     this.props.status = DeliveryAssignmentStatus.PICKED_UP;
     this.props.pickedUpAt = new Date();
+    this.addDomainEvent(new DeliveryPickedUpEvent(this.id, this.orderId, this.driverId!));
   }
 
   public deliver(driverId: string): void {
@@ -130,6 +136,7 @@ export class DeliveryAssignment {
     this.checkDriverAuth(driverId);
     this.props.status = DeliveryAssignmentStatus.DELIVERED;
     this.props.deliveredAt = new Date();
+    this.addDomainEvent(new DeliveryDeliveredEvent(this.id, this.orderId, this.driverId!));
   }
 
   public fail(driverId: string): void {

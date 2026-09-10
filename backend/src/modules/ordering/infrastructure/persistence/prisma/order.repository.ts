@@ -21,26 +21,52 @@ export class OrderRepositoryImpl extends BaseRepository implements IOrderReposit
 
   async save(order: Order): Promise<void> {
     const data = OrderMapper.toCreateInput(order);
-    await this.execute(() => this.prisma.order.create({ data }));
+    await this.execute(() =>
+      this.prisma.$transaction(async (tx: any) => {
+        await tx.order.create({ data });
+        const events = order.getDomainEvents();
+        if (events.length > 0) {
+          await tx.outboxEvent.createMany({
+            data: events.map((event: any) => ({
+              eventName: event.eventName,
+              payload: event,
+            })),
+          });
+        }
+      }),
+    );
+    order.clearDomainEvents();
   }
 
   async update(order: Order): Promise<void> {
     // Only updating fields that can change (status, paymentStatus, timestamps)
     await this.execute(() =>
-      this.prisma.order.update({
-        where: { id: order.getId() },
-        data: {
-          status: order.getStatus(),
-          paymentStatus: order.getPaymentStatus(),
-          acceptedAt: order.getAcceptedAt(),
-          preparingAt: order.getPreparingAt(),
-          readyAt: order.getReadyAt(),
-          deliveredAt: order.getDeliveredAt(),
-          cancelledAt: order.getCancelledAt(),
-          updatedAt: order.getUpdatedAt(),
-        },
+      this.prisma.$transaction(async (tx: any) => {
+        await tx.order.update({
+          where: { id: order.getId() },
+          data: {
+            status: order.getStatus(),
+            paymentStatus: order.getPaymentStatus(),
+            acceptedAt: order.getAcceptedAt(),
+            preparingAt: order.getPreparingAt(),
+            readyAt: order.getReadyAt(),
+            deliveredAt: order.getDeliveredAt(),
+            cancelledAt: order.getCancelledAt(),
+            updatedAt: order.getUpdatedAt(),
+          },
+        });
+        const events = order.getDomainEvents();
+        if (events.length > 0) {
+          await tx.outboxEvent.createMany({
+            data: events.map((event: any) => ({
+              eventName: event.eventName,
+              payload: event,
+            })),
+          });
+        }
       }),
     );
+    order.clearDomainEvents();
   }
 
   async findById(id: string): Promise<Order | null> {
