@@ -50,6 +50,12 @@ export const envSchema = z.object({
   MQTT_URL: z.string().url().optional(),
   MQTT_USERNAME: z.string().optional(),
   MQTT_PASSWORD: z.string().optional(),
+
+  // Location/H3 Configuration
+  GEO_H3_RESOLUTION: z.coerce.number().min(0).max(15).default(8),
+  DISPATCH_INITIAL_SEARCH_RADIUS: z.coerce.number().min(0).default(1),
+  DISPATCH_MAX_SEARCH_RADIUS: z.coerce.number().min(1).default(5),
+  DRIVER_LOCATION_MAX_AGE_SECONDS: z.coerce.number().min(1).default(60),
 });
 
 export type Env = z.infer<typeof envSchema>;

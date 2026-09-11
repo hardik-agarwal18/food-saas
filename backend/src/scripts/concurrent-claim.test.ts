@@ -22,6 +22,7 @@ async function cleanup() {
   await prisma.driver.deleteMany({});
   await prisma.customer.deleteMany({});
   await prisma.restaurant.deleteMany({});
+  await prisma.user.deleteMany({});
 }
 
 async function runTests() {
@@ -44,29 +45,40 @@ async function runTests() {
     const orderId = crypto.randomUUID();
     const customerId = crypto.randomUUID();
     const restaurantId = crypto.randomUUID();
+    const userId = crypto.randomUUID();
+
+    await prisma.user.create({
+      data: {
+        id: userId,
+        email: 'test@test.com',
+        roles: ['CUSTOMER'],
+        passwordHash: 'dummy',
+      },
+    });
 
     await prisma.customer.create({
       data: {
         id: customerId,
-        authId: crypto.randomUUID(),
-        email: 'test@test.com',
         firstName: 'Test',
         lastName: 'Customer',
         phone: '1234567890',
+        userId: userId,
       },
     });
 
     await prisma.restaurant.create({
       data: {
         id: restaurantId,
-        ownerId: crypto.randomUUID(),
+        ownerId: userId,
         name: 'Test Restaurant',
-        slug: 'test-restaurant',
         description: 'Test',
-        phone: '1234567890',
+        phoneNumber: '1234567890',
         email: 'test@restaurant.com',
-        rating: 4.5,
-        addressId: crypto.randomUUID(),
+        streetAddress: '123 Main St',
+        city: 'City',
+        state: 'State',
+        zipCode: '12345',
+        country: 'US',
       },
     });
 

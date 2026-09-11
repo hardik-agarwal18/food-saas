@@ -56,25 +56,35 @@ export class DispatchOrderUseCase implements EventHandler<OrderPlacedEvent> {
       const pickupLat = Number(restaurant.latitude);
       const pickupLng = Number(restaurant.longitude);
 
-      // 2. Find Nearby Drivers
-      // Let's search within 5km
-      const nearbyDrivers = await this.locationService.getNearbyDrivers(pickupLat, pickupLng, 5);
+      // 2. Find Nearby Drivers with expanding H3 rings
+      const initialRadius = Number(process.env.DISPATCH_INITIAL_SEARCH_RADIUS || 1);
+      const maxRadius = Number(process.env.DISPATCH_MAX_SEARCH_RADIUS || 5);
+
+      let nearbyDrivers: Array<{ driverId: string }> = [];
+      let currentRadius = initialRadius;
+
+      while (currentRadius <= maxRadius && nearbyDrivers.length === 0) {
+        this.logger.debug({ currentRadius }, 'Searching for drivers in H3 ring');
+        nearbyDrivers = await this.locationService.getNearbyDrivers(
+          pickupLat,
+          pickupLng,
+          currentRadius,
+        );
+        currentRadius++;
+      }
 
       if (!nearbyDrivers || nearbyDrivers.length === 0) {
-        this.logger.warn({ orderId: event.orderId }, 'No nearby drivers found for dispatch');
+        this.logger.warn(
+          { orderId: event.orderId, maxRadius },
+          'No nearby drivers found for dispatch after expanding search',
+        );
         return;
       }
 
-      // 3. Filter AVAILABLE drivers
-      // In production we'd do a batch query, but for now we query Prisma
-      const driverIds = nearbyDrivers.map((d: any) => d.driverId);
-      const availableDrivers = await this.prisma.driver.findMany({
-        where: {
-          id: { in: driverIds },
-          status: 'AVAILABLE',
-        },
-        select: { id: true },
-      });
+      // 3. (Filtering is already handled by DriverLocationService)
+      // The DriverLocationService already filters by ACTIVE TTL and AVAILABLE status.
+      // We can just use the returned drivers.
+      const availableDrivers = nearbyDrivers.map((d) => ({ id: d.driverId }));
 
       if (availableDrivers.length === 0) {
         this.logger.warn({ orderId: event.orderId }, 'No AVAILABLE drivers found for dispatch');
