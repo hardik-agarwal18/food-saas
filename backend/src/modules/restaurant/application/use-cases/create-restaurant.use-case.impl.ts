@@ -49,6 +49,8 @@ export class CreateRestaurantUseCaseImpl implements ICreateRestaurantUseCase {
       phoneNumber: new CustomerPhoneNumber(dto.phoneNumber),
       email: new Email(dto.email),
       address: new Address(dto.address),
+      latitude: dto.latitude,
+      longitude: dto.longitude,
     });
 
     await this.restaurantRepo.save(restaurant);

@@ -13,6 +13,12 @@ export class DriverRepositoryImpl implements IDriverRepository {
     return record ? this.mapToDomain(record) : null;
   }
 
+  async findByIds(ids: string[]): Promise<Driver[]> {
+    if (ids.length === 0) return [];
+    const records = await this.prisma.driver.findMany({ where: { id: { in: ids } } });
+    return records.map((record) => this.mapToDomain(record));
+  }
+
   async findByUserId(userId: string): Promise<Driver | null> {
     const record = await this.prisma.driver.findUnique({ where: { userId } });
     return record ? this.mapToDomain(record) : null;

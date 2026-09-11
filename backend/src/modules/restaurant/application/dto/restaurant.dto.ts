@@ -10,6 +10,8 @@ export interface CreateRestaurantDto {
     zipCode: string;
     country: string;
   };
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface UpdateRestaurantDto {

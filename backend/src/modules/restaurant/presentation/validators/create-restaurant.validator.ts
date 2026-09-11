@@ -12,4 +12,6 @@ export const createRestaurantSchema = z.object({
     zipCode: z.string().min(1),
     country: z.string().min(1),
   }),
+  latitude: z.number().min(-90).max(90).optional(),
+  longitude: z.number().min(-180).max(180).optional(),
 });

@@ -70,6 +70,8 @@ export class Restaurant {
     phoneNumber: CustomerPhoneNumber;
     email: Email;
     address: Address;
+    latitude?: number | null;
+    longitude?: number | null;
   }): Restaurant {
     const now = new Date();
 
@@ -83,8 +85,8 @@ export class Restaurant {
       phoneNumber: params.phoneNumber,
       email: params.email,
       address: params.address,
-      latitude: null,
-      longitude: null,
+      latitude: params.latitude ?? null,
+      longitude: params.longitude ?? null,
       status: RestaurantStatus.PENDING,
       createdAt: now,
       updatedAt: now,
