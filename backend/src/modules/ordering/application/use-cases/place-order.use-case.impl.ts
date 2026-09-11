@@ -17,7 +17,6 @@ import type { IMenuItemRepository } from '../../../menu/domain/repositories/menu
 import type { IMenuModifierRepository } from '../../../menu/domain/repositories/menu-modifier.repository.js';
 
 import { OrderingTokens } from '../../infrastructure/tokens/ordering.tokens.js';
-import { EventDispatcher } from '../../../../shared/events/event-dispatcher.js';
 import type { IOrderRepository } from '../../domain/repositories/order.repository.js';
 
 import { CustomerTokens } from '../../../customer/infrastructure/persistence/tokens/customer.tokens.js';
@@ -140,11 +139,6 @@ export class PlaceOrderUseCaseImpl implements IPlaceOrderUseCase {
     }
 
     await this.orderRepo.save(order);
-
-    for (const event of order.getDomainEvents()) {
-      EventDispatcher.getInstance().dispatch(event);
-    }
-    order.clearDomainEvents();
 
     return OrderDtoMapper.toResponse(order);
   }

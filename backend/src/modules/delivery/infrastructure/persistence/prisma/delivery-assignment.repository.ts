@@ -54,7 +54,7 @@ export class DeliveryAssignmentRepositoryImpl implements IDeliveryAssignmentRepo
         FROM delivery_assignments da
         JOIN orders o ON da."orderId" = o.id
         JOIN restaurants r ON o."restaurantId" = r.id
-        WHERE da.status = 'PENDING'
+        WHERE da.status = 'OFFERED'
         ORDER BY (
           6371 * acos(
             cos(radians(${driverLat})) * 
@@ -70,7 +70,7 @@ export class DeliveryAssignmentRepositoryImpl implements IDeliveryAssignmentRepo
 
     // Fallback if driver location is unknown
     const records = await this.prisma.deliveryAssignment.findMany({
-      where: { status: 'PENDING' },
+      where: { status: 'OFFERED' },
       orderBy: { createdAt: 'desc' },
     });
     return records.map((r: any) => this.mapToDomain(r));
@@ -130,7 +130,7 @@ export class DeliveryAssignmentRepositoryImpl implements IDeliveryAssignmentRepo
         UPDATE "delivery_assignments"
         SET "status" = 'ACCEPTED', "driverId" = ${driverId}::uuid, "accepted_at" = NOW(), "updated_at" = NOW()
         WHERE "id" = ${assignmentId}::uuid 
-          AND "status" = 'PENDING' 
+          AND "status" = 'OFFERED' 
           AND ("expires_at" IS NULL OR "expires_at" > NOW())
       `;
       if (result === 0) return false;

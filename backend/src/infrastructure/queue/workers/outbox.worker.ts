@@ -6,6 +6,7 @@ import { ILogger } from '../../../shared/logger/logger.interface.js';
 import { OrderReadyEvent } from '../../../modules/ordering/domain/events/order-ready.event.js';
 import { DeliveryPickedUpEvent } from '../../../modules/delivery/domain/events/delivery-picked-up.event.js';
 import { DeliveryDeliveredEvent } from '../../../modules/delivery/domain/events/delivery-delivered.event.js';
+import { OrderPlacedEvent } from '../../../modules/ordering/domain/events/order-placed.event.js';
 import { DomainEvent } from '../../../shared/events/domain-event.js';
 
 /**
@@ -19,6 +20,13 @@ function deserializeEvent(eventName: string, payload: any): DomainEvent | null {
         payload.restaurantId,
         payload.orderType,
         payload.deliveryFee,
+      );
+    case 'OrderPlacedEvent':
+      return new OrderPlacedEvent(
+        payload.orderId,
+        payload.restaurantId,
+        payload.orderType,
+        payload.deliveryFeeAmount,
       );
     case 'DeliveryPickedUpEvent':
       return new DeliveryPickedUpEvent(

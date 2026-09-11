@@ -4,6 +4,7 @@ import { OrderPlacedEvent } from '../../../ordering/domain/events/order-placed.e
 import { logger } from '../../../../infrastructure/observability/logger/pino.js';
 import { DeliveryTokens } from '../../infrastructure/tokens/delivery.tokens.js';
 import type { ICreateDeliveryAssignmentUseCase } from './create-delivery-assignment.use-case.js';
+import type { IDeliveryAssignmentRepository } from '../../domain/repositories/delivery-assignment.repository.js';
 import type { DriverLocationService } from '../services/driver-location.service.js';
 import type { IMqttBroadcasterService } from '../../infrastructure/mqtt/mqtt-broadcaster.service.js';
 import { prisma } from '../../../../infrastructure/database/prisma.js';
@@ -16,6 +17,8 @@ export class DispatchOrderUseCase implements EventHandler<OrderPlacedEvent> {
   constructor(
     @inject(DeliveryTokens.CreateDeliveryAssignmentUseCase)
     private readonly createAssignment: ICreateDeliveryAssignmentUseCase,
+    @inject(DeliveryTokens.DeliveryAssignmentRepository)
+    private readonly assignmentRepository: IDeliveryAssignmentRepository,
     @inject(DeliveryTokens.DriverLocationService)
     private readonly locationService: DriverLocationService,
     @inject(DeliveryTokens.MqttBroadcasterService)
@@ -26,6 +29,16 @@ export class DispatchOrderUseCase implements EventHandler<OrderPlacedEvent> {
     this.logger.info({ orderId: event.orderId }, 'Dispatching new order to nearby drivers');
 
     try {
+      // 0. Idempotency Check
+      const existingAssignments = await this.assignmentRepository.findByOrderId(event.orderId);
+      if (existingAssignments.length > 0) {
+        this.logger.info(
+          { orderId: event.orderId },
+          'Delivery assignment already exists. Skipping dispatch to ensure idempotency.',
+        );
+        return;
+      }
+
       // 1. Get Restaurant Coordinates
       const restaurant = await this.prisma.restaurant.findUnique({
         where: { id: event.restaurantId },
@@ -75,6 +88,10 @@ export class DispatchOrderUseCase implements EventHandler<OrderPlacedEvent> {
         event.deliveryFeeAmount,
         expiresAt,
       );
+
+      // Transition state to OFFERED and save
+      assignment.markOffered();
+      await this.assignmentRepository.save(assignment);
 
       // 5. Broadcast Offer
       for (const driver of availableDrivers) {

@@ -431,11 +431,13 @@ model Driver {
 
 enum DeliveryAssignmentStatus {
   PENDING
+  OFFERED
   ACCEPTED
-  REJECTED
+  DRIVER_ARRIVING
   PICKED_UP
   DELIVERED
-  FAILED
+  EXPIRED
+  CANCELLED
 }
 
 model DeliveryAssignment {

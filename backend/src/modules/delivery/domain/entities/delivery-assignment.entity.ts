@@ -6,11 +6,13 @@ import { DeliveryDeliveredEvent } from '../events/delivery-delivered.event.js';
 
 export enum DeliveryAssignmentStatus {
   PENDING = 'PENDING',
+  OFFERED = 'OFFERED',
   ACCEPTED = 'ACCEPTED',
-  REJECTED = 'REJECTED',
+  DRIVER_ARRIVING = 'DRIVER_ARRIVING',
   PICKED_UP = 'PICKED_UP',
   DELIVERED = 'DELIVERED',
-  FAILED = 'FAILED',
+  EXPIRED = 'EXPIRED',
+  CANCELLED = 'CANCELLED',
 }
 
 export interface DeliveryAssignmentProps {
@@ -93,8 +95,18 @@ export class DeliveryAssignment extends AggregateRoot {
     }
   }
 
-  public accept(driverId: string): void {
+  public markOffered(): void {
     if (this.status !== DeliveryAssignmentStatus.PENDING) {
+      throw DeliveryDomainError.invalidStatusTransition(
+        this.status,
+        DeliveryAssignmentStatus.OFFERED,
+      );
+    }
+    this.props.status = DeliveryAssignmentStatus.OFFERED;
+  }
+
+  public accept(driverId: string): void {
+    if (this.status !== DeliveryAssignmentStatus.OFFERED) {
       throw DeliveryDomainError.invalidStatusTransition(
         this.status,
         DeliveryAssignmentStatus.ACCEPTED,
@@ -106,19 +118,44 @@ export class DeliveryAssignment extends AggregateRoot {
     this.props.acceptedAt = new Date();
   }
 
-  public reject(): void {
-    if (this.status !== DeliveryAssignmentStatus.PENDING) {
+  public expire(): void {
+    if (this.status !== DeliveryAssignmentStatus.OFFERED) {
       throw DeliveryDomainError.invalidStatusTransition(
         this.status,
-        DeliveryAssignmentStatus.REJECTED,
+        DeliveryAssignmentStatus.EXPIRED,
       );
     }
-    this.props.status = DeliveryAssignmentStatus.REJECTED;
+    this.props.status = DeliveryAssignmentStatus.EXPIRED;
+  }
+
+  public cancel(): void {
+    if (
+      this.status !== DeliveryAssignmentStatus.PENDING &&
+      this.status !== DeliveryAssignmentStatus.OFFERED &&
+      this.status !== DeliveryAssignmentStatus.ACCEPTED
+    ) {
+      throw DeliveryDomainError.invalidStatusTransition(
+        this.status,
+        DeliveryAssignmentStatus.CANCELLED,
+      );
+    }
+    this.props.status = DeliveryAssignmentStatus.CANCELLED;
     this.props.cancelledAt = new Date();
   }
 
-  public pickUp(driverId: string): void {
+  public driverArriving(driverId: string): void {
     if (this.status !== DeliveryAssignmentStatus.ACCEPTED) {
+      throw DeliveryDomainError.invalidStatusTransition(
+        this.status,
+        DeliveryAssignmentStatus.DRIVER_ARRIVING,
+      );
+    }
+    this.checkDriverAuth(driverId);
+    this.props.status = DeliveryAssignmentStatus.DRIVER_ARRIVING;
+  }
+
+  public pickUp(driverId: string): void {
+    if (this.status !== DeliveryAssignmentStatus.DRIVER_ARRIVING) {
       throw DeliveryDomainError.invalidStatusTransition(
         this.status,
         DeliveryAssignmentStatus.PICKED_UP,
@@ -141,20 +178,5 @@ export class DeliveryAssignment extends AggregateRoot {
     this.props.status = DeliveryAssignmentStatus.DELIVERED;
     this.props.deliveredAt = new Date();
     this.addDomainEvent(new DeliveryDeliveredEvent(this.id, this.orderId, this.driverId!));
-  }
-
-  public fail(driverId: string): void {
-    if (
-      this.status !== DeliveryAssignmentStatus.PICKED_UP &&
-      this.status !== DeliveryAssignmentStatus.ACCEPTED
-    ) {
-      throw DeliveryDomainError.invalidStatusTransition(
-        this.status,
-        DeliveryAssignmentStatus.FAILED,
-      );
-    }
-    this.checkDriverAuth(driverId);
-    this.props.status = DeliveryAssignmentStatus.FAILED;
-    this.props.cancelledAt = new Date();
   }
 }
