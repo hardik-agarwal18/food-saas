@@ -15,7 +15,11 @@ export const registerUserSchema = z.strictObject({
     .max(100, 'Last name cannot be more than 100 characters')
     .trim()
     .toLowerCase(),
-  phone: z.string().min(1, 'Phone number cannot be empty').max(20, 'Phone number cannot contain more than 20 digits').trim(),
+  phone: z
+    .string()
+    .min(1, 'Phone number cannot be empty')
+    .max(20, 'Phone number cannot contain more than 20 digits')
+    .trim(),
 });
 
 export type RegisterUserRequest = z.infer<typeof registerUserSchema>;

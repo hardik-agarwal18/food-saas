@@ -122,4 +122,9 @@ export const InfrastructureTokens = {
   RateLimitService: Symbol.for('Infrastructure.RateLimitService'),
 
   FileStorage: Symbol.for('Infrastructure.FileStorage'),
+
+  /**
+   * Avatar job processor.
+   */
+  AvatarJobProcessor: Symbol.for('Infrastructure.AvatarJobProcessor'),
 } as const;

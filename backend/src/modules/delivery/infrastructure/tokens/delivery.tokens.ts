@@ -1,0 +1,15 @@
+export const DeliveryTokens = {
+  DriverRepository: Symbol('IDriverRepository'),
+  DeliveryAssignmentRepository: Symbol('IDeliveryAssignmentRepository'),
+  RegisterDriverUseCase: Symbol('IRegisterDriverUseCase'),
+  ToggleDriverAvailabilityUseCase: Symbol('IToggleDriverAvailabilityUseCase'),
+  CreateDeliveryAssignmentUseCase: Symbol('ICreateDeliveryAssignmentUseCase'),
+  ClaimDeliveryAssignmentUseCase: Symbol('IClaimDeliveryAssignmentUseCase'),
+  UpdateDeliveryStatusUseCase: Symbol('IUpdateDeliveryStatusUseCase'),
+  GetAvailableDeliveriesUseCase: Symbol('IGetAvailableDeliveriesUseCase'),
+  GetDriverAssignmentsUseCase: Symbol('IGetDriverAssignmentsUseCase'),
+  UpdateDriverLocationUseCase: Symbol('IUpdateDriverLocationUseCase'),
+  DriverLocationService: Symbol('IDriverLocationService'),
+  MqttBroadcasterService: Symbol('IMqttBroadcasterService'),
+  DispatchOrderUseCase: Symbol('IDispatchOrderUseCase'),
+};

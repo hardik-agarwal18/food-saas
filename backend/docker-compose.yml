@@ -15,6 +15,9 @@ services:
     networks:
       - food-saas-network
 
+    volumes:
+      - ./mosquitto/certs:/app/mosquitto/certs:ro
+
     depends_on:
       - redis
 
@@ -27,10 +30,66 @@ services:
       - .env
     networks:
       - food-saas-network
+    volumes:
+      - ./mosquitto/certs:/app/mosquitto/certs:ro
     depends_on:
       - redis
     restart: unless-stopped
     
+  avatar-worker:
+    image: food-saas-backend:v1
+    command: ["node", "dist/workers/avatar.worker.main.js"]
+    env_file:
+      - .env
+    networks:
+      - food-saas-network
+    volumes:
+      - ./mosquitto/certs:/app/mosquitto/certs:ro
+    depends_on:
+      - redis
+    restart: unless-stopped
+    
+  outbox-worker:
+    image: food-saas-backend:v1
+    command: ["node", "dist/workers/outbox.worker.main.js"]
+    env_file:
+      - .env
+    networks:
+      - food-saas-network
+    volumes:
+      - ./mosquitto/certs:/app/mosquitto/certs:ro
+    depends_on:
+      - redis
+      - backend
+    restart: unless-stopped
+    
+  location-worker:
+    image: food-saas-backend:v1
+    command: ["node", "dist/workers/location.worker.main.js"]
+    env_file:
+      - .env
+    networks:
+      - food-saas-network
+    volumes:
+      - ./mosquitto/certs:/app/mosquitto/certs:ro
+    depends_on:
+      - mosquitto
+      - redis
+    restart: unless-stopped
+    
+  mosquitto:
+    image: eclipse-mosquitto:2
+    ports:
+      - "1883:1883"
+      - "8883:8883"
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - ./mosquitto/pwfile:/mosquitto/config/pwfile:ro
+      - ./mosquitto/certs:/mosquitto/config/certs:ro
+    networks:
+      - food-saas-network
+    restart: unless-stopped
+
   redis:
     image: redis:7.0.11-alpine
 

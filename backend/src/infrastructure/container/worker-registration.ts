@@ -1,5 +1,5 @@
-import { registerInfrastructure } from './modules/infrastructure.js';
+import './container.js';
 
 export const registerWorkerDependencies = (): void => {
-  registerInfrastructure();
+  // Dependencies are automatically registered when container.js is imported.
 };

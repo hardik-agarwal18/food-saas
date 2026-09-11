@@ -94,8 +94,9 @@ export const validate = (schema: ValidationSchema): RequestHandler => {
         return next(new ValidationError(ValidationFormatter.format(result.error)));
       }
 
-      // Store the validated query values back on the request.
-      req.query = result.data as Request['query'];
+      // Merge validated query values into the existing req.query object.
+      // req.query is getter-only in Express — direct assignment throws a TypeError.
+      Object.assign(req.query, result.data);
     }
 
     // All configured validation checks passed.

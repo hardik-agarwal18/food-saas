@@ -4,3 +4,5 @@ backend/.env.*
 backend/dist
 
 coverage/
+
+postman_collection.json
