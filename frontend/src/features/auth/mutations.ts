@@ -13,11 +13,13 @@ export const useLoginMutation = () => {
       localStorage.setItem('accessToken', data.accessToken);
       queryClient.setQueryData(['currentUser'], data.user);
       
-      // Navigate based on roles. Default to customer for now.
-      if (data.user.roles.includes('RESTAURANT_OWNER')) {
-        router.push('/dashboard');
-      } else if (data.user.roles.includes('DRIVER')) {
-        router.push('/deliveries');
+      // Navigate based on roles
+      if (data.user.roles.includes('ADMIN')) {
+        router.push('/admin/dashboard');
+      } else if (data.user.roles.includes('RESTAURANT_OWNER')) {
+        router.push('/restaurant/dashboard');
+      } else if (data.user.roles.includes('DELIVERY_DRIVER')) {
+        router.push('/driver/dashboard');
       } else {
         router.push('/');
       }
