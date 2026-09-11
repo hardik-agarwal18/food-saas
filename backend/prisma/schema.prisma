@@ -453,6 +453,7 @@ model DeliveryAssignment {
   pickedUpAt  DateTime? @map("picked_up_at")
   deliveredAt DateTime? @map("delivered_at")
   cancelledAt DateTime? @map("cancelled_at")
+  expiresAt   DateTime? @map("expires_at")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")

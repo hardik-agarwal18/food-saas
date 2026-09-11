@@ -4,6 +4,7 @@ import { OrderingDomainError } from '../errors/ordering-domain.error.js';
 import { OrderStatus, PaymentStatus, OrderType } from '../../../../generated/prisma/client.js';
 import { AggregateRoot } from '../../../../shared/domain/aggregate-root.js';
 import { OrderReadyEvent } from '../events/order-ready.event.js';
+import { OrderPlacedEvent } from '../events/order-placed.event.js';
 
 export type OrderProps = {
   id: string;
@@ -77,7 +78,7 @@ export class Order extends AggregateRoot {
       .subtract(discountAmount);
 
     const now = new Date();
-    return new Order({
+    const props: OrderProps = {
       id: crypto.randomUUID(),
       customerId: params.customerId,
       restaurantId: params.restaurantId,
@@ -100,7 +101,17 @@ export class Order extends AggregateRoot {
       createdAt: now,
       updatedAt: now,
       items: params.items,
-    });
+    };
+    const order = new Order(props);
+    order.addDomainEvent(
+      new OrderPlacedEvent(
+        props.id,
+        props.restaurantId,
+        props.orderType,
+        props.deliveryFee.getValue(),
+      ),
+    );
+    return order;
   }
 
   public static rehydrate(props: OrderProps): Order {

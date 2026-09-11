@@ -16,7 +16,11 @@ export class CreateDeliveryAssignmentUseCaseImpl implements ICreateDeliveryAssig
     private readonly assignmentRepository: IDeliveryAssignmentRepository,
   ) {}
 
-  async execute(orderId: string, deliveryFeeAmount: number): Promise<void> {
+  async execute(
+    orderId: string,
+    deliveryFeeAmount: number,
+    expiresAt?: Date,
+  ): Promise<DeliveryAssignment> {
     const assignment = DeliveryAssignment.create({
       id: crypto.randomUUID(),
       orderId,
@@ -29,10 +33,12 @@ export class CreateDeliveryAssignmentUseCaseImpl implements ICreateDeliveryAssig
       pickedUpAt: null,
       deliveredAt: null,
       cancelledAt: null,
+      expiresAt: expiresAt || null,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
 
     await this.assignmentRepository.save(assignment);
+    return assignment;
   }
 }

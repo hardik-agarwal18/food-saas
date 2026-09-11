@@ -25,6 +25,7 @@ export interface DeliveryAssignmentProps {
   pickedUpAt: Date | null;
   deliveredAt: Date | null;
   cancelledAt: Date | null;
+  expiresAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -75,6 +76,9 @@ export class DeliveryAssignment extends AggregateRoot {
   }
   get cancelledAt(): Date | null {
     return this.props.cancelledAt;
+  }
+  get expiresAt(): Date | null {
+    return this.props.expiresAt;
   }
   get createdAt(): Date {
     return this.props.createdAt;

@@ -11,6 +11,9 @@ import { GetAvailableDeliveriesUseCaseImpl } from '../../../modules/delivery/app
 import { GetDriverAssignmentsUseCaseImpl } from '../../../modules/delivery/application/use-cases/get-driver-assignments.use-case.impl.js';
 import { UpdateDriverLocationUseCaseImpl } from '../../../modules/delivery/application/use-cases/update-driver-location.use-case.impl.js';
 import { OnOrderReadyHandler } from '../../../modules/delivery/application/event-handlers/on-order-ready.handler.js';
+import { DispatchOrderUseCase } from '../../../modules/delivery/application/use-cases/dispatch-order.use-case.js';
+import { MqttBroadcasterService } from '../../../modules/delivery/infrastructure/mqtt/mqtt-broadcaster.service.js';
+import { DriverLocationService } from '../../../modules/delivery/application/services/driver-location.service.js';
 import { OnDeliveryPickedUpHandler } from '../../../modules/ordering/application/event-handlers/on-delivery-picked-up.handler.js';
 import { OnDeliveryDeliveredHandler } from '../../../modules/ordering/application/event-handlers/on-delivery-delivered.handler.js';
 import { EventDispatcher } from '../../../shared/events/event-dispatcher.js';
@@ -50,13 +53,18 @@ export function registerDeliveryModule() {
     DeliveryTokens.UpdateDriverLocationUseCase,
     UpdateDriverLocationUseCaseImpl,
   );
+  container.registerSingleton(DeliveryTokens.DriverLocationService, DriverLocationService);
+  container.registerSingleton(DeliveryTokens.MqttBroadcasterService, MqttBroadcasterService);
+  container.registerSingleton(DeliveryTokens.DispatchOrderUseCase, DispatchOrderUseCase);
 
   const onOrderReadyHandler = container.resolve(OnOrderReadyHandler);
+  const dispatchOrderUseCase = container.resolve(DispatchOrderUseCase);
   const onDeliveryPickedUpHandler = container.resolve(OnDeliveryPickedUpHandler);
   const onDeliveryDeliveredHandler = container.resolve(OnDeliveryDeliveredHandler);
 
   const dispatcher = EventDispatcher.getInstance();
   dispatcher.register('OrderReadyEvent', onOrderReadyHandler);
+  dispatcher.register('OrderPlacedEvent', dispatchOrderUseCase);
   dispatcher.register('DeliveryPickedUpEvent', onDeliveryPickedUpHandler);
   dispatcher.register('DeliveryDeliveredEvent', onDeliveryDeliveredHandler);
 }

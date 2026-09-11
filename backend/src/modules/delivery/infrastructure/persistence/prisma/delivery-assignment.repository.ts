@@ -94,6 +94,7 @@ export class DeliveryAssignmentRepositoryImpl implements IDeliveryAssignmentRepo
           pickedUpAt: assignment.pickedUpAt,
           deliveredAt: assignment.deliveredAt,
           cancelledAt: assignment.cancelledAt,
+          expiresAt: assignment.expiresAt,
         },
         update: {
           ...(assignment.driverId
@@ -104,6 +105,8 @@ export class DeliveryAssignmentRepositoryImpl implements IDeliveryAssignmentRepo
           pickedUpAt: assignment.pickedUpAt,
           deliveredAt: assignment.deliveredAt,
           cancelledAt: assignment.cancelledAt,
+          expiresAt: assignment.expiresAt,
+          updatedAt: assignment.updatedAt,
         },
       });
 
@@ -126,14 +129,25 @@ export class DeliveryAssignmentRepositoryImpl implements IDeliveryAssignmentRepo
       const result = await tx.$executeRaw`
         UPDATE "delivery_assignments"
         SET "status" = 'ACCEPTED', "driverId" = ${driverId}::uuid, "accepted_at" = NOW(), "updated_at" = NOW()
-        WHERE "id" = ${assignmentId}::uuid AND "status" = 'PENDING'
+        WHERE "id" = ${assignmentId}::uuid 
+          AND "status" = 'PENDING' 
+          AND ("expires_at" IS NULL OR "expires_at" > NOW())
       `;
       if (result === 0) return false;
+
       // Atomically mark driver as busy so there's no window where assignment is ACCEPTED but driver is still AVAILABLE
-      await tx.driver.update({
-        where: { id: driverId },
-        data: { status: 'BUSY', updatedAt: new Date() },
-      });
+      // We must ensure the driver is STILL available at this exact moment in the transaction!
+      const driverUpdateResult = await tx.$executeRaw`
+        UPDATE "drivers"
+        SET "status" = 'BUSY', "updated_at" = NOW()
+        WHERE "id" = ${driverId}::uuid AND "status" = 'AVAILABLE'
+      `;
+
+      if (driverUpdateResult === 0) {
+        // Driver was no longer available, we must rollback the entire transaction!
+        throw new Error('Driver is no longer available');
+      }
+
       return true;
     });
   }
@@ -151,6 +165,7 @@ export class DeliveryAssignmentRepositoryImpl implements IDeliveryAssignmentRepo
       pickedUpAt: record.pickedUpAt,
       deliveredAt: record.deliveredAt,
       cancelledAt: record.cancelledAt,
+      expiresAt: record.expiresAt,
       createdAt: record.createdAt,
       updatedAt: record.updatedAt,
     });

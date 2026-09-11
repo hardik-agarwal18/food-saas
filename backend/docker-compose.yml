@@ -15,6 +15,9 @@ services:
     networks:
       - food-saas-network
 
+    volumes:
+      - ./mosquitto/certs:/app/mosquitto/certs:ro
+
     depends_on:
       - redis
 
@@ -27,6 +30,8 @@ services:
       - .env
     networks:
       - food-saas-network
+    volumes:
+      - ./mosquitto/certs:/app/mosquitto/certs:ro
     depends_on:
       - redis
     restart: unless-stopped
@@ -38,6 +43,8 @@ services:
       - .env
     networks:
       - food-saas-network
+    volumes:
+      - ./mosquitto/certs:/app/mosquitto/certs:ro
     depends_on:
       - redis
     restart: unless-stopped
@@ -49,6 +56,8 @@ services:
       - .env
     networks:
       - food-saas-network
+    volumes:
+      - ./mosquitto/certs:/app/mosquitto/certs:ro
     depends_on:
       - redis
       - backend
@@ -61,6 +70,8 @@ services:
       - .env
     networks:
       - food-saas-network
+    volumes:
+      - ./mosquitto/certs:/app/mosquitto/certs:ro
     depends_on:
       - mosquitto
       - redis

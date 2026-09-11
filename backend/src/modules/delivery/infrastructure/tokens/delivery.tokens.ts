@@ -9,4 +9,7 @@ export const DeliveryTokens = {
   GetAvailableDeliveriesUseCase: Symbol('IGetAvailableDeliveriesUseCase'),
   GetDriverAssignmentsUseCase: Symbol('IGetDriverAssignmentsUseCase'),
   UpdateDriverLocationUseCase: Symbol('IUpdateDriverLocationUseCase'),
+  DriverLocationService: Symbol('IDriverLocationService'),
+  MqttBroadcasterService: Symbol('IMqttBroadcasterService'),
+  DispatchOrderUseCase: Symbol('IDispatchOrderUseCase'),
 };
