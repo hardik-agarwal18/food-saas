@@ -6,7 +6,7 @@ export const envSchema = z.object({
   APP_NAME: z.string(),
   FRONTEND_URL: z.url(),
   DATABASE_URL: z.url(),
-  TEST_DATABASE_URL: z.url(),
+  TEST_DATABASE_URL: z.string().url().optional(),
   REDIS_HOST: z.string(),
   REDIS_PORT: z.coerce.number(),
   CACHE_PREFIX: z.string(),
@@ -47,6 +47,9 @@ export const envSchema = z.object({
   S3_API: z.string(),
   R2_BUCKET_NAME: z.string(),
   R2_PUBLIC_URL: z.string(),
+  MQTT_URL: z.string().url().optional(),
+  MQTT_USERNAME: z.string().optional(),
+  MQTT_PASSWORD: z.string().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;
