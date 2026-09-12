@@ -228,6 +228,7 @@ export interface Order {
   totalAmount: string | number;
 
   restaurantName: string;
+  restaurant?: Restaurant;
 
   deliveryAddress?: Record<string, any>;
   specialInstructions?: string;
@@ -293,6 +294,7 @@ export interface DeliveryAssignment {
   id: string;
   orderId: string;
   driverId?: string;
+  order?: Order;
 
   status: DeliveryAssignmentStatus;
 

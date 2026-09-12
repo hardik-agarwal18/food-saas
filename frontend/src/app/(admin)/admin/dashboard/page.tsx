@@ -28,7 +28,7 @@ export default function AdminDashboard() {
         <TabsList className="mb-4">
           <TabsTrigger value="pending">
             Pending Approvals 
-            {pendingData?.data.length ? <Badge variant="destructive" className="ml-2">{pendingData.data.length}</Badge> : null}
+            {pendingData?.items?.length ? <Badge variant="destructive" className="ml-2">{pendingData.items.length}</Badge> : null}
           </TabsTrigger>
           <TabsTrigger value="active">Active Restaurants</TabsTrigger>
         </TabsList>
@@ -36,13 +36,13 @@ export default function AdminDashboard() {
         <TabsContent value="pending" className="space-y-4">
           {isLoadingPending ? (
             <div className="h-32 bg-slate-200 animate-pulse rounded-xl" />
-          ) : pendingData?.data.length === 0 ? (
+          ) : pendingData?.items?.length === 0 ? (
             <div className="p-8 text-center text-muted-foreground bg-white border rounded-xl">
               No pending restaurant applications.
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {pendingData?.data.map(restaurant => (
+              {pendingData?.items?.map((restaurant: any) => (
                 <Card key={restaurant.id} className="border-l-4 border-l-yellow-500">
                   <CardHeader>
                     <div className="flex justify-between items-start">
@@ -78,13 +78,13 @@ export default function AdminDashboard() {
         <TabsContent value="active" className="space-y-4">
           {isLoadingActive ? (
             <div className="h-32 bg-slate-200 animate-pulse rounded-xl" />
-          ) : activeData?.data.length === 0 ? (
+          ) : activeData?.items?.length === 0 ? (
             <div className="p-8 text-center text-muted-foreground bg-white border rounded-xl">
               No active restaurants.
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {activeData?.data.map(restaurant => (
+              {activeData?.items?.map((restaurant: any) => (
                 <Card key={restaurant.id}>
                   <CardHeader>
                     <div className="flex justify-between items-start">

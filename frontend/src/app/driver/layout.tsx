@@ -9,7 +9,7 @@ export default function DriverLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ProtectedRoute allowedRoles={[Role.DELIVERY_DRIVER, Role.ADMIN]}>
+    <ProtectedRoute allowedRoles={[Role.DRIVER, Role.ADMIN]}>
       <div className="min-h-screen flex flex-col bg-slate-50">
         <header className="bg-primary text-primary-foreground py-4 px-6 shadow-md flex items-center justify-between">
           <div className="flex items-center gap-2">
