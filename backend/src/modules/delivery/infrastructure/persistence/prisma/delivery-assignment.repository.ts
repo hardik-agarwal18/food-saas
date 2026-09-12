@@ -130,8 +130,8 @@ export class DeliveryAssignmentRepositoryImpl implements IDeliveryAssignmentRepo
         UPDATE "delivery_assignments"
         SET "status" = 'ACCEPTED', "driverId" = ${driverId}::uuid, "accepted_at" = NOW(), "updated_at" = NOW()
         WHERE "id" = ${assignmentId}::uuid 
-          AND "status" = 'OFFERED' 
-          AND ("expires_at" IS NULL OR "expires_at" > NOW())
+          AND "status" = 'OFFERED'::"DeliveryAssignmentStatus"
+          AND ("expires_at" IS NULL OR "expires_at" > (NOW() AT TIME ZONE 'UTC'))
       `;
       if (result === 0) return false;
 

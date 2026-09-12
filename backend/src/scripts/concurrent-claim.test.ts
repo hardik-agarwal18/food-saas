@@ -4,6 +4,8 @@ import { container } from 'tsyringe';
 import { registerDeliveryModule } from '../infrastructure/container/modules/delivery.js';
 import { registerOrdering } from '../infrastructure/container/modules/ordering.js';
 import { InfrastructureTokens } from '../infrastructure/container/tokens/infrastructure.tokens.js';
+import { registerLocationModule } from '../infrastructure/container/modules/location.js';
+import { registerInfrastructure } from '../infrastructure/container/modules/infrastructure.js';
 import { DeliveryTokens } from '../modules/delivery/infrastructure/tokens/delivery.tokens.js';
 import type { IClaimDeliveryAssignmentUseCase } from '../modules/delivery/application/use-cases/claim-delivery-assignment.use-case.js';
 import { DeliveryAssignmentStatus } from '../modules/delivery/domain/entities/delivery-assignment.entity.js';
@@ -30,6 +32,8 @@ async function runTests() {
 
   // Register DI
   container.registerInstance(InfrastructureTokens.PrismaClient, prisma);
+  registerInfrastructure();
+  registerLocationModule();
   registerOrdering();
   registerDeliveryModule();
 
@@ -158,7 +162,7 @@ async function runTests() {
       } else {
         if (
           result.reason instanceof DeliveryDomainError &&
-          result.reason.code === 'ALREADY_CLAIMED'
+          result.reason.code === 'DELIVERY_ALREADY_CLAIMED'
         ) {
           console.log(`Driver ${idx} -> 409 CONFLICT`);
           conflictCount++;
@@ -229,6 +233,11 @@ async function runTests() {
     });
 
     console.log('Simulating Driver D claiming Assignment 2 and Assignment 3 simultaneously...');
+
+    const a2 = await prisma.deliveryAssignment.findUnique({ where: { id: assignment2Id } });
+    const a3 = await prisma.deliveryAssignment.findUnique({ where: { id: assignment3Id } });
+    console.log('BEFORE RACE 2 - A2:', a2);
+    console.log('BEFORE RACE 2 - A3:', a3);
 
     const race2Results = await Promise.allSettled([
       claimUseCase.execute(assignment2Id, userD_id),
