@@ -11,3 +11,10 @@ export class InvalidGeoCellError extends Error {
     this.name = 'InvalidGeoCellError';
   }
 }
+
+export class LocationIndexUnavailableError extends Error {
+  constructor(message: string = 'Location index is currently unavailable') {
+    super(message);
+    this.name = 'LocationIndexUnavailableError';
+  }
+}

@@ -69,10 +69,10 @@ export const registerDependencies = (): void => {
   registerRestaurant();
   registerMenuModule();
   registerOrdering();
+  registerLocationModule();
   registerDeliveryModule();
   registerAdminModule();
   registerNotificationsDependencies();
-  registerLocationModule();
 
   //Future dependency registrations can be added here
 };

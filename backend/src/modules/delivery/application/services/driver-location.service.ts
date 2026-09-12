@@ -8,6 +8,7 @@ import type { IGeoGridService } from '../../../location/domain/services/geo-grid
 import type { IDriverGeoIndex } from '../../../location/domain/services/driver-geo-index.interface.js';
 import { Coordinates } from '../../../location/domain/value-objects/coordinates.vo.js';
 import { GeoCell } from '../../../location/domain/value-objects/geo-cell.vo.js';
+import { LocationIndexUnavailableError } from '../../../location/domain/errors/location.errors.js';
 
 @injectable()
 export class DriverLocationService {
@@ -115,36 +116,54 @@ export class DriverLocationService {
     lat: number,
     lng: number,
     radiusRings: number,
-  ): Promise<Array<{ driverId: string }>> {
+  ): Promise<Array<{ driverId: string; lat: number; lng: number }>> {
     const coords = Coordinates.create({ latitude: lat, longitude: lng });
     const centerCell = this.geoGridService.cellFromCoordinates(coords, this.H3_RESOLUTION);
 
     // 1. Determine target cells using H3
     const cellsToSearch = this.geoGridService.getNeighbors(centerCell, radiusRings);
 
-    // 2. Query DriverGeoIndex for candidates
-    const candidateIds = await this.driverGeoIndex.findDrivers(cellsToSearch);
+    try {
+      // 2. Query DriverGeoIndex for candidates
+      const candidateIds = await this.driverGeoIndex.findDrivers(cellsToSearch);
 
-    if (candidateIds.length === 0) {
-      return [];
+      if (candidateIds.length === 0) {
+        return [];
+      }
+
+      // 3. Filter stale drivers (check active TTL)
+      const activeKeys = candidateIds.map((id) => `driver:location:active:${id}`);
+      const activeStatus = await redis.mget(...activeKeys);
+
+      const activeCandidateIds = candidateIds.filter((_, index) => activeStatus[index] !== null);
+
+      if (activeCandidateIds.length === 0) {
+        return [];
+      }
+
+      // 4. Fetch coordinates for active drivers
+      const coordKeys = activeCandidateIds.map((id) => `driver:location:coords:${id}`);
+      const rawCoords = await redis.mget(...coordKeys);
+
+      // 5. Filter by DriverStatus.AVAILABLE from the domain
+      const drivers = await this.driverRepository.findByIds(activeCandidateIds);
+      const availableDrivers = drivers.filter((d) => d.status === DriverStatus.AVAILABLE);
+
+      const result: Array<{ driverId: string; lat: number; lng: number }> = [];
+
+      for (const driver of availableDrivers) {
+        const index = activeCandidateIds.indexOf(driver.id);
+        const coordsStr = rawCoords[index];
+        if (coordsStr) {
+          const { lat, lng } = JSON.parse(coordsStr);
+          result.push({ driverId: driver.id, lat, lng });
+        }
+      }
+
+      return result;
+    } catch (error) {
+      // Explicitly throw a domain error if Redis fails, so Dispatch knows it's an operational failure
+      throw new LocationIndexUnavailableError('Failed to query driver locations from Redis index');
     }
-
-    // 3. Filter stale drivers (check active TTL)
-    const activeKeys = candidateIds.map((id) => `driver:location:active:${id}`);
-    const activeStatus = await redis.mget(...activeKeys);
-
-    const activeCandidateIds = candidateIds.filter((_, index) => activeStatus[index] !== null);
-
-    if (activeCandidateIds.length === 0) {
-      return [];
-    }
-
-    // 4. Filter by DriverStatus.AVAILABLE from the domain
-    const drivers = await this.driverRepository.findByIds(activeCandidateIds);
-    const availableDrivers = drivers.filter((d) => d.status === DriverStatus.AVAILABLE);
-
-    return availableDrivers.map((driver) => ({
-      driverId: driver.id,
-    }));
   }
 }

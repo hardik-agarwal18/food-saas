@@ -18,6 +18,7 @@ import { GetAvailableDeliveriesController } from '../controllers/get-available-d
 import { GetDriverAssignmentsController } from '../controllers/get-driver-assignments.controller.js';
 import { UpdateDriverLocationController } from '../controllers/update-driver-location.controller.js';
 import { GetNearbyDriversController } from '../controllers/get-nearby-drivers.controller.js';
+import { GetDeliveryLocationController } from '../controllers/get-delivery-location.controller.js';
 
 const router = express.Router();
 
@@ -31,6 +32,7 @@ const getAvailableDeliveriesController = container.resolve(GetAvailableDeliverie
 const getDriverAssignmentsController = container.resolve(GetDriverAssignmentsController);
 const updateDriverLocationController = container.resolve(UpdateDriverLocationController);
 const getNearbyDriversController = container.resolve(GetNearbyDriversController);
+const getDeliveryLocationController = container.resolve(GetDeliveryLocationController);
 
 router.use(authenticationMiddleware.authenticate.bind(authenticationMiddleware));
 
@@ -78,6 +80,16 @@ router.patch(
   '/deliveries/:assignmentId/status',
   validate({ body: updateDeliveryStatusSchema }),
   updateDeliveryStatusController.handle.bind(updateDeliveryStatusController),
+);
+
+router.get(
+  '/deliveries/:assignmentId/location',
+  getDeliveryLocationController.handle.bind(getDeliveryLocationController),
+);
+
+router.get(
+  '/deliveries/order/:orderId/location',
+  getDeliveryLocationController.handleByOrderId.bind(getDeliveryLocationController),
 );
 
 export default router;
