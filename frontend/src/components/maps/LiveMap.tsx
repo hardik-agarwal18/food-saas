@@ -1,7 +1,7 @@
 'use client';
 
-import { GoogleMap, useJsApiLoader, Marker, Polyline } from '@react-google-maps/api';
-import { useMemo } from 'react';
+import { GoogleMap, useJsApiLoader, Marker, DirectionsRenderer } from '@react-google-maps/api';
+import { useMemo, useState, useEffect } from 'react';
 
 const containerStyle = {
   width: '100%',
@@ -16,16 +16,41 @@ const defaultCenter = {
 
 export interface LiveMapProps {
   markers?: Array<{ lat: number; lng: number; type: 'DRIVER' | 'RESTAURANT' | 'CUSTOMER'; id: string }>;
-  routePath?: Array<{ lat: number; lng: number }>;
+  directionsOrigin?: { lat: number; lng: number };
+  directionsDestination?: { lat: number; lng: number };
+  directionsWaypoints?: Array<{ location: { lat: number; lng: number }, stopover: boolean }>;
   center?: { lat: number; lng: number };
   zoom?: number;
 }
 
-export function LiveMap({ markers = [], routePath, center, zoom = 14 }: LiveMapProps) {
+export function LiveMap({ markers = [], directionsOrigin, directionsDestination, directionsWaypoints, center, zoom = 14 }: LiveMapProps) {
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''
   });
+
+  const [directionsResponse, setDirectionsResponse] = useState<google.maps.DirectionsResult | null>(null);
+
+  useEffect(() => {
+    if (!isLoaded || !directionsOrigin || !directionsDestination || !window.google) {
+      setDirectionsResponse(null);
+      return;
+    }
+    const directionsService = new window.google.maps.DirectionsService();
+    directionsService.route(
+      {
+        origin: directionsOrigin,
+        destination: directionsDestination,
+        waypoints: directionsWaypoints,
+        travelMode: window.google.maps.TravelMode.DRIVING,
+      },
+      (result, status) => {
+        if (status === window.google.maps.DirectionsStatus.OK) {
+          setDirectionsResponse(result);
+        }
+      }
+    );
+  }, [isLoaded, directionsOrigin, directionsDestination, directionsWaypoints]);
 
   const mapCenter = useMemo(() => {
     if (center) return center;
@@ -67,13 +92,16 @@ export function LiveMap({ markers = [], routePath, center, zoom = 14 }: LiveMapP
           />
         ))}
         
-        {routePath && routePath.length > 1 && (
-          <Polyline
-            path={routePath}
+        {directionsResponse && (
+          <DirectionsRenderer
+            directions={directionsResponse}
             options={{
-              strokeColor: '#3b82f6',
-              strokeOpacity: 0.8,
-              strokeWeight: 4,
+              suppressMarkers: true,
+              polylineOptions: {
+                strokeColor: '#3b82f6',
+                strokeOpacity: 0.8,
+                strokeWeight: 4,
+              }
             }}
           />
         )}
