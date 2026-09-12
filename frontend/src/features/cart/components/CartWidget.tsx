@@ -113,8 +113,8 @@ export function CartWidget() {
                   <span>Subtotal</span>
                   <span>${getCartTotal().toFixed(2)}</span>
                 </div>
-                <Button className="w-full" size="lg" asChild onClick={() => setIsOpen(false)}>
-                  <Link href="/checkout">
+                <Button className="w-full" size="lg" onClick={() => setIsOpen(false)}>
+                  <Link href="/checkout" className="w-full h-full flex items-center justify-center">
                     Proceed to Checkout
                   </Link>
                 </Button>

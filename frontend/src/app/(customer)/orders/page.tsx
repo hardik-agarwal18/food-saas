@@ -36,7 +36,7 @@ export default function OrdersPage() {
                   <CardHeader className="py-4">
                     <div className="flex justify-between items-center">
                       <CardTitle className="text-lg">Order #{order.id.slice(-8)}</CardTitle>
-                      <Badge variant={order.status === 'COMPLETED' ? 'default' : 'secondary'}>
+                      <Badge variant={order.status === 'DELIVERED' ? 'default' : 'secondary'}>
                         {order.status}
                       </Badge>
                     </div>

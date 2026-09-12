@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { useState, useEffect } from 'react';
+import { LiveMap } from '@/components/maps/LiveMap';
+import { useDriverLocation } from '@/hooks/useDriverLocation';
 
 export default function DriverDashboard() {
   const { data: user } = useCurrentUser();
@@ -20,6 +22,8 @@ export default function DriverDashboard() {
 
   // In a real app, this would be tied to driver's actual status from DB
   const [isAvailable, setIsAvailable] = useState(true);
+
+  const { currentLocation } = useDriverLocation(isAvailable);
 
   const handleToggle = (checked: boolean) => {
     setIsAvailable(checked);
@@ -38,7 +42,7 @@ export default function DriverDashboard() {
     <div className="space-y-8">
       <div className="flex items-center justify-between bg-white p-4 rounded-xl shadow-sm border">
         <div>
-          <h2 className="text-lg font-semibold">Welcome, {user?.firstName}</h2>
+          <h2 className="text-lg font-semibold">Welcome, {user?.email}</h2>
           <p className="text-sm text-muted-foreground">
             {isAvailable ? 'You are receiving new requests.' : 'You are currently offline.'}
           </p>
@@ -64,6 +68,16 @@ export default function DriverDashboard() {
                 </div>
               </CardHeader>
               <CardContent className="pt-4 space-y-4">
+                <div className="h-48 md:h-64 w-full mb-4">
+                  <LiveMap 
+                    center={currentLocation || undefined}
+                    markers={[
+                      ...(currentLocation ? [{ lat: currentLocation.lat, lng: currentLocation.lng, type: 'DRIVER' as const, id: 'driver' }] : []),
+                      ...(delivery.order?.restaurant?.latitude && delivery.order?.restaurant?.longitude ? [{ lat: delivery.order.restaurant.latitude, lng: delivery.order.restaurant.longitude, type: 'RESTAURANT' as const, id: 'restaurant' }] : []),
+                      ...(delivery.order?.deliveryAddress?.latitude && delivery.order?.deliveryAddress?.longitude ? [{ lat: delivery.order.deliveryAddress.latitude, lng: delivery.order.deliveryAddress.longitude, type: 'CUSTOMER' as const, id: 'customer' }] : [])
+                    ]}
+                  />
+                </div>
                 <div className="grid gap-2 text-sm">
                   <div className="flex gap-2">
                     <span className="font-medium min-w-[80px] text-muted-foreground">Pickup:</span>
@@ -85,9 +99,9 @@ export default function DriverDashboard() {
                   <Button className="w-full" onClick={() => handleUpdateStatus(delivery.id, 'PICKED_UP')}>Mark Picked Up</Button>
                 )}
                 {delivery.status === 'PICKED_UP' && (
-                  <Button className="w-full" onClick={() => handleUpdateStatus(delivery.id, 'IN_TRANSIT')}>Start Transit</Button>
+                  <Button className="w-full" onClick={() => handleUpdateStatus(delivery.id, 'DRIVER_ARRIVING')}>Start Transit</Button>
                 )}
-                {delivery.status === 'IN_TRANSIT' && (
+                {delivery.status === 'DRIVER_ARRIVING' && (
                   <Button className="w-full" onClick={() => handleUpdateStatus(delivery.id, 'DELIVERED')}>Mark Delivered</Button>
                 )}
               </CardFooter>

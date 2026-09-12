@@ -21,4 +21,16 @@ export const deliveryApi = {
   toggleAvailability: async (isAvailable: boolean): Promise<any> => {
     return apiClient.patch('/drivers/me/availability', { isAvailable });
   },
+
+  updateLocation: async (lat: number, lng: number): Promise<any> => {
+    return apiClient.patch('/drivers/me/location', { lat, lng });
+  },
+
+  getDeliveryLocation: async (assignmentId: string): Promise<{ latitude: number, longitude: number }> => {
+    return apiClient.get(`/deliveries/${assignmentId}/location`);
+  },
+
+  getDeliveryLocationByOrder: async (orderId: string): Promise<{ latitude: number, longitude: number }> => {
+    return apiClient.get(`/deliveries/order/${orderId}/location`);
+  },
 };

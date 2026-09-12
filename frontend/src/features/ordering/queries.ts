@@ -15,7 +15,7 @@ export const useOrder = (id: string) => {
     enabled: !!id,
     refetchInterval: (query) => {
       const status = query.state.data?.status;
-      if (status === 'COMPLETED' || status === 'CANCELLED') return false;
+      if (status === 'DELIVERED' || status === 'CANCELLED') return false;
       return 10000;
     }
   });

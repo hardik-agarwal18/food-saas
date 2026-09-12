@@ -5,10 +5,15 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Role } from '@/types/api.types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useParams } from 'next/navigation';
+import { LiveMap } from '@/components/maps/LiveMap';
+import { useOrderDriverLocation } from '@/features/delivery/queries';
 
 export default function OrderDetailsPage() {
   const { id } = useParams() as { id: string };
   const { data: order, isLoading, isError } = useOrder(id);
+
+  const isOutForDelivery = order?.status === 'OUT_FOR_DELIVERY';
+  const { data: driverLocation } = useOrderDriverLocation(id, isOutForDelivery);
 
   const getStatusMessage = (status: string) => {
     switch(status) {
@@ -65,6 +70,23 @@ export default function OrderDetailsPage() {
                 </div>
               </CardContent>
             </Card>
+
+            {isOutForDelivery && (
+              <Card className="overflow-hidden border-primary/20">
+                <CardHeader>
+                  <CardTitle>Live Tracking</CardTitle>
+                </CardHeader>
+                <div className="h-64 w-full border-t">
+                  <LiveMap 
+                    center={driverLocation ? { lat: driverLocation.latitude, lng: driverLocation.longitude } : undefined}
+                    markers={[
+                      ...(driverLocation ? [{ lat: driverLocation.latitude, lng: driverLocation.longitude, type: 'DRIVER' as const, id: 'driver' }] : []),
+                      ...(order?.deliveryAddress?.latitude && order?.deliveryAddress?.longitude ? [{ lat: order.deliveryAddress.latitude, lng: order.deliveryAddress.longitude, type: 'CUSTOMER' as const, id: 'customer' }] : [])
+                    ]}
+                  />
+                </div>
+              </Card>
+            )}
 
             <Card>
               <CardHeader>

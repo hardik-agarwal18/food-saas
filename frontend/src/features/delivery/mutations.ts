@@ -30,3 +30,9 @@ export const useToggleAvailabilityMutation = () => {
     mutationFn: (isAvailable: boolean) => deliveryApi.toggleAvailability(isAvailable),
   });
 };
+
+export const useUpdateLocationMutation = () => {
+  return useMutation({
+    mutationFn: ({ lat, lng }: { lat: number; lng: number }) => deliveryApi.updateLocation(lat, lng),
+  });
+};

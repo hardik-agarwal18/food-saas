@@ -22,12 +22,12 @@ export default function RestaurantDashboard() {
 
   const activeOrders = useMemo(() => {
     if (!orders) return [];
-    return orders.filter(o => !['COMPLETED', 'CANCELLED', 'DELIVERED'].includes(o.status));
+    return orders.filter(o => !['DELIVERED', 'CANCELLED'].includes(o.status));
   }, [orders]);
 
   const pastOrders = useMemo(() => {
     if (!orders) return [];
-    return orders.filter(o => ['COMPLETED', 'CANCELLED', 'DELIVERED'].includes(o.status));
+    return orders.filter(o => ['DELIVERED', 'CANCELLED'].includes(o.status));
   }, [orders]);
 
   if (isLoadingRest) return <div className="p-8">Loading...</div>;
@@ -70,7 +70,7 @@ export default function RestaurantDashboard() {
                 </CardHeader>
                 <CardContent className="pt-4 flex flex-col md:flex-row gap-6">
                   <div className="flex-1 space-y-2">
-                    {order.items.map((item: any) => (
+                    {order.items?.map((item: any) => (
                       <div key={item.id} className="flex justify-between">
                         <div>
                           <span className="font-semibold">{item.quantity}x</span> {item.menuItem?.name}
@@ -90,10 +90,10 @@ export default function RestaurantDashboard() {
                       <Button className="w-full" onClick={() => handleUpdateStatus(order.id, 'PREPARING')}>Start Preparing</Button>
                     )}
                     {order.status === 'PREPARING' && (
-                      <Button className="w-full" onClick={() => handleUpdateStatus(order.id, 'READY_FOR_PICKUP')}>Mark Ready</Button>
+                      <Button className="w-full" onClick={() => handleUpdateStatus(order.id, 'READY')}>Mark Ready</Button>
                     )}
-                    {(order.status === 'READY_FOR_PICKUP' && order.orderType === 'PICKUP') && (
-                      <Button className="w-full" onClick={() => handleUpdateStatus(order.id, 'COMPLETED')}>Complete Pickup</Button>
+                    {(order.status === 'READY' && order.orderType === 'PICKUP') && (
+                      <Button className="w-full" onClick={() => handleUpdateStatus(order.id, 'DELIVERED')}>Complete Pickup</Button>
                     )}
                   </div>
                 </CardContent>
@@ -114,7 +114,7 @@ export default function RestaurantDashboard() {
                 <CardHeader className="py-3">
                   <div className="flex justify-between">
                     <span className="font-medium">#{order.id.slice(-8)}</span>
-                    <Badge variant={order.status === 'COMPLETED' ? 'default' : 'secondary'} className="text-[10px]">
+                    <Badge variant={order.status === 'DELIVERED' ? 'default' : 'secondary'} className="text-[10px]">
                       {order.status}
                     </Badge>
                   </div>
