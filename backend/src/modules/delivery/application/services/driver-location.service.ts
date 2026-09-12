@@ -3,19 +3,29 @@ import { redis } from '../../../../config/redis.js';
 import type { IDriverRepository } from '../../domain/repositories/driver.repository.js';
 import { DeliveryTokens } from '../../infrastructure/tokens/delivery.tokens.js';
 import { DriverStatus } from '../../domain/entities/driver.entity.js';
+import { LocationTokens } from '../../../location/infrastructure/tokens/location.tokens.js';
+import type { IGeoGridService } from '../../../location/domain/services/geo-grid.service.interface.js';
+import type { IDriverGeoIndex } from '../../../location/domain/services/driver-geo-index.interface.js';
+import { Coordinates } from '../../../location/domain/value-objects/coordinates.vo.js';
+import { GeoCell } from '../../../location/domain/value-objects/geo-cell.vo.js';
+import { LocationIndexUnavailableError } from '../../../location/domain/errors/location.errors.js';
 
 @injectable()
 export class DriverLocationService {
-  private readonly GEO_KEY = 'driver_locations';
-  private readonly ACTIVE_TTL_SECONDS = 60;
+  private readonly ACTIVE_TTL_SECONDS = Number(process.env.DRIVER_LOCATION_MAX_AGE_SECONDS || 60);
+  private readonly H3_RESOLUTION = Number(process.env.GEO_H3_RESOLUTION || 8);
 
   constructor(
     @inject(DeliveryTokens.DriverRepository)
     private readonly driverRepository: IDriverRepository,
+    @inject(LocationTokens.GeoGridService)
+    private readonly geoGridService: IGeoGridService,
+    @inject(LocationTokens.DriverGeoIndex)
+    private readonly driverGeoIndex: IDriverGeoIndex,
   ) {}
 
   /**
-   * Updates a driver's live location in Redis using Geospatial indexing.
+   * Updates a driver's live location in Redis using H3 indexing.
    * Atomically checks the timestamp to prevent out-of-order updates.
    *
    * @param driverId - The unique ID of the driver.
@@ -29,109 +39,131 @@ export class DriverLocationService {
     lng: number,
     timestamp: number,
   ): Promise<void> {
+    const coords = Coordinates.create({ latitude: lat, longitude: lng });
+    const newCell = this.geoGridService.cellFromCoordinates(coords, this.H3_RESOLUTION);
+
     const timestampKey = `driver:location:timestamp:${driverId}`;
     const activeKey = `driver:location:active:${driverId}`;
+    const currentCellKey = `driver:location:current_cell:${driverId}`;
 
+    // Atomically check timestamp, update TTL, and get the old cell.
+    // If timestamp is older, returns false.
+    // If newer, updates timestamp, TTL, and cell string, and returns the old cell string (or null).
     const luaScript = `
       local currentTs = redis.call('GET', KEYS[1])
       if not currentTs or tonumber(ARGV[1]) > tonumber(currentTs) then
         redis.call('SET', KEYS[1], ARGV[1])
-        redis.call('GEOADD', KEYS[2], ARGV[2], ARGV[3], ARGV[4])
-        redis.call('SETEX', KEYS[3], tonumber(ARGV[5]), '1')
-        return 1
+        redis.call('SETEX', KEYS[2], tonumber(ARGV[2]), '1')
+        
+        local oldCell = redis.call('GET', KEYS[3])
+        redis.call('SET', KEYS[3], ARGV[3])
+        
+        return oldCell or ''
       end
-      return 0
+      return false
     `;
 
-    await redis.eval(
+    const oldCellString = await redis.eval(
       luaScript,
       3,
       timestampKey,
-      this.GEO_KEY,
       activeKey,
+      currentCellKey,
       timestamp.toString(),
-      lng.toString(),
-      lat.toString(),
-      driverId,
       this.ACTIVE_TTL_SECONDS.toString(),
+      newCell.index,
     );
+
+    // If the Lua script returned false, the timestamp was stale.
+    if (oldCellString === false) {
+      return;
+    }
+
+    const oldCell =
+      oldCellString !== ''
+        ? GeoCell.create({ index: oldCellString as string, resolution: this.H3_RESOLUTION })
+        : null;
+
+    // Use DriverGeoIndex to perform the atomic spatial transition
+    await this.driverGeoIndex.move(oldCell, newCell, driverId);
+
+    // Save the latest raw coordinates for later retrieval
+    await redis.set(`driver:location:coords:${driverId}`, JSON.stringify({ lat, lng }));
   }
 
   /**
    * Fetches the last known coordinate for a driver.
    */
   async getLocation(driverId: string): Promise<[string, string] | null> {
-    const pos = await redis.geopos(this.GEO_KEY, driverId);
-    if (!pos || pos.length === 0 || pos[0] === null) {
+    const rawCoords = await redis.get(`driver:location:coords:${driverId}`);
+    if (!rawCoords) {
       return null;
     }
-    return pos[0];
+    const { lat, lng } = JSON.parse(rawCoords);
+    return [lng.toString(), lat.toString()]; // Format matches previous GEOPOS return value [longitude, latitude]
   }
 
   /**
-   * Finds drivers near a specific coordinate within a given radius.
+   * Finds drivers near a specific coordinate within a given H3 ring radius.
    * Filters out stale drivers and drivers who are not AVAILABLE.
    *
    * @param lat Latitude
    * @param lng Longitude
-   * @param radiusKm Radius in kilometers
-   * @returns Array of nearby drivers and their distances
+   * @param radiusRings Search radius in H3 rings
+   * @returns Array of nearby drivers with driverId
    */
   async getNearbyDrivers(
     lat: number,
     lng: number,
-    radiusKm: number,
-  ): Promise<Array<{ driverId: string; distance: number }>> {
-    // geosearch returns an array of arrays when WITHDIST is used: [["driver1", "1.5"], ["driver2", "2.1"]]
-    const geoResults = (await redis.geosearch(
-      this.GEO_KEY,
-      'FROMLONLAT',
-      lng,
-      lat,
-      'BYRADIUS',
-      radiusKm,
-      'km',
-      'WITHDIST',
-      'ASC',
-    )) as unknown as Array<[string, string]>;
+    radiusRings: number,
+  ): Promise<Array<{ driverId: string; lat: number; lng: number }>> {
+    const coords = Coordinates.create({ latitude: lat, longitude: lng });
+    const centerCell = this.geoGridService.cellFromCoordinates(coords, this.H3_RESOLUTION);
 
-    if (geoResults.length === 0) {
-      return [];
+    // 1. Determine target cells using H3
+    const cellsToSearch = this.geoGridService.getNeighbors(centerCell, radiusRings);
+
+    try {
+      // 2. Query DriverGeoIndex for candidates
+      const candidateIds = await this.driverGeoIndex.findDrivers(cellsToSearch);
+
+      if (candidateIds.length === 0) {
+        return [];
+      }
+
+      // 3. Filter stale drivers (check active TTL)
+      const activeKeys = candidateIds.map((id) => `driver:location:active:${id}`);
+      const activeStatus = await redis.mget(...activeKeys);
+
+      const activeCandidateIds = candidateIds.filter((_, index) => activeStatus[index] !== null);
+
+      if (activeCandidateIds.length === 0) {
+        return [];
+      }
+
+      // 4. Fetch coordinates for active drivers
+      const coordKeys = activeCandidateIds.map((id) => `driver:location:coords:${id}`);
+      const rawCoords = await redis.mget(...coordKeys);
+
+      // 5. Filter by DriverStatus.AVAILABLE from the domain
+      const drivers = await this.driverRepository.findByIds(activeCandidateIds);
+      const availableDrivers = drivers.filter((d) => d.status === DriverStatus.AVAILABLE);
+
+      const result: Array<{ driverId: string; lat: number; lng: number }> = [];
+
+      for (const driver of availableDrivers) {
+        const index = activeCandidateIds.indexOf(driver.id);
+        const coordsStr = rawCoords[index];
+        if (coordsStr) {
+          const { lat, lng } = JSON.parse(coordsStr);
+          result.push({ driverId: driver.id, lat, lng });
+        }
+      }
+
+      return result;
+    } catch (error) {
+      // Explicitly throw a domain error if Redis fails, so Dispatch knows it's an operational failure
+      throw new LocationIndexUnavailableError('Failed to query driver locations from Redis index');
     }
-
-    const driverDistances = geoResults.map(([driverId, distance]) => ({
-      driverId,
-      distance: parseFloat(distance),
-    }));
-
-    // Filter stale drivers by checking if their active TTL key exists
-    const activeKeys = driverDistances.map((d) => `driver:location:active:${d.driverId}`);
-    const activeStatus = await redis.mget(...activeKeys);
-
-    const activeDriverDistances = driverDistances.filter(
-      (_, index) => activeStatus[index] !== null,
-    );
-
-    if (activeDriverDistances.length === 0) {
-      return [];
-    }
-
-    // Filter by driver availability in the domain
-    const activeDriverIds = activeDriverDistances.map((d) => d.driverId);
-    const drivers = await this.driverRepository.findByIds(activeDriverIds);
-
-    const availableDrivers = drivers.filter((d) => d.status === DriverStatus.AVAILABLE);
-
-    if (availableDrivers.length === 0) {
-      return [];
-    }
-
-    // Re-map distances safely
-    const distanceByDriverId = new Map(activeDriverDistances.map((d) => [d.driverId, d.distance]));
-
-    return availableDrivers.map((driver) => ({
-      driverId: driver.id,
-      distance: distanceByDriverId.get(driver.id)!,
-    }));
   }
 }

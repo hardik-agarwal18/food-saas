@@ -12,4 +12,5 @@ export const DeliveryTokens = {
   DriverLocationService: Symbol('IDriverLocationService'),
   MqttBroadcasterService: Symbol('IMqttBroadcasterService'),
   DispatchOrderUseCase: Symbol('IDispatchOrderUseCase'),
+  RouteService: Symbol('IRouteService'),
 };

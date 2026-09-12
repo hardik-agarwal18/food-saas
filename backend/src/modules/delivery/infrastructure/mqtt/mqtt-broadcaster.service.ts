@@ -12,6 +12,7 @@ export interface IMqttBroadcasterService {
       deliveryId: string;
       pickup: { lat: number; lng: number };
       expiresAt: string;
+      estimatedETA?: number;
     },
   ): Promise<void>;
 }
@@ -56,6 +57,7 @@ export class MqttBroadcasterService implements IMqttBroadcasterService {
       deliveryId: string;
       pickup: { lat: number; lng: number };
       expiresAt: string;
+      estimatedETA?: number;
     },
   ): Promise<void> {
     if (!this.client || !this.client.connected) {

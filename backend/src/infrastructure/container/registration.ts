@@ -50,6 +50,7 @@ import { registerOrdering } from './modules/ordering.js';
 import { registerDeliveryModule } from './modules/delivery.js';
 import { registerAdminModule } from './modules/admin.js';
 import { registerNotificationsDependencies } from './modules/notifications.js';
+import { registerLocationModule } from './modules/location.js';
 
 /**
  * Registers dependencies for every application module.
@@ -68,6 +69,7 @@ export const registerDependencies = (): void => {
   registerRestaurant();
   registerMenuModule();
   registerOrdering();
+  registerLocationModule();
   registerDeliveryModule();
   registerAdminModule();
   registerNotificationsDependencies();

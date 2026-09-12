@@ -17,6 +17,7 @@ import { DriverLocationService } from '../../../modules/delivery/application/ser
 import { OnDeliveryPickedUpHandler } from '../../../modules/ordering/application/event-handlers/on-delivery-picked-up.handler.js';
 import { OnDeliveryDeliveredHandler } from '../../../modules/ordering/application/event-handlers/on-delivery-delivered.handler.js';
 import { EventDispatcher } from '../../../shared/events/event-dispatcher.js';
+import { GoogleRouteService } from '../../../modules/delivery/infrastructure/google/google-route.service.js';
 
 export function registerDeliveryModule() {
   container.registerSingleton(DeliveryTokens.DriverRepository, DriverRepositoryImpl);
@@ -56,6 +57,9 @@ export function registerDeliveryModule() {
   container.registerSingleton(DeliveryTokens.DriverLocationService, DriverLocationService);
   container.registerSingleton(DeliveryTokens.MqttBroadcasterService, MqttBroadcasterService);
   container.registerSingleton(DeliveryTokens.DispatchOrderUseCase, DispatchOrderUseCase);
+
+  // Register RouteService
+  container.registerSingleton(DeliveryTokens.RouteService, GoogleRouteService);
 
   const onOrderReadyHandler = container.resolve(OnOrderReadyHandler);
   const dispatchOrderUseCase = container.resolve(DispatchOrderUseCase);

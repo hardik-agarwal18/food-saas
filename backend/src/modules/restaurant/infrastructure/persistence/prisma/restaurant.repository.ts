@@ -1,4 +1,5 @@
 import { injectable, inject } from 'tsyringe';
+import * as h3 from 'h3-js';
 import { InfrastructureTokens } from '../../../../../infrastructure/container/tokens/index.js';
 import type { PrismaExecutor } from '../../../../../infrastructure/database/prisma-client.type.js';
 import { BaseRepository } from '../../../../../infrastructure/database/base.repository.js';
@@ -17,17 +18,25 @@ export class RestaurantRepositoryImpl extends BaseRepository implements IRestaur
 
   async save(restaurant: Restaurant): Promise<void> {
     const data = RestaurantMapper.toCreateInput(restaurant);
-    await this.execute(() => this.prisma.restaurant.create({ data }));
+    const h3Cell = this.computeH3Cell(restaurant.getLatitude(), restaurant.getLongitude());
+    await this.execute(() => this.prisma.restaurant.create({ data: { ...data, h3Cell } }));
   }
 
   async update(restaurant: Restaurant): Promise<void> {
     const data = RestaurantMapper.toUpdateInput(restaurant);
+    const h3Cell = this.computeH3Cell(restaurant.getLatitude(), restaurant.getLongitude());
     await this.execute(() =>
       this.prisma.restaurant.update({
         where: { id: restaurant.getId() },
-        data,
+        data: { ...data, h3Cell },
       }),
     );
+  }
+
+  private computeH3Cell(lat: number | null, lng: number | null): string | null {
+    if (lat === null || lng === null) return null;
+    const resolution = Number(process.env.GEO_H3_RESOLUTION || 8);
+    return h3.latLngToCell(lat, lng, resolution);
   }
 
   async findById(id: string): Promise<Restaurant | null> {

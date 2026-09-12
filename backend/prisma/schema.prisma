@@ -145,6 +145,7 @@ model Restaurant {
 
   latitude  Decimal?
   longitude Decimal?
+  h3Cell    String?  @map("h3_cell")
 
   status    RestaurantStatus @default(PENDING)
   createdAt DateTime         @default(now()) @map("created_at")
@@ -416,6 +417,7 @@ model Driver {
 
   currentLatitude  Decimal?  @map("current_latitude")
   currentLongitude Decimal?  @map("current_longitude")
+  h3Cell           String?   @map("h3_cell")
   lastLocationAt   DateTime? @map("last_location_at")
 
   createdAt DateTime @default(now()) @map("created_at")

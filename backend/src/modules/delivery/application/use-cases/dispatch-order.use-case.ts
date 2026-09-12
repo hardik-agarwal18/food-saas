@@ -9,6 +9,9 @@ import type { DriverLocationService } from '../services/driver-location.service.
 import type { IMqttBroadcasterService } from '../../infrastructure/mqtt/mqtt-broadcaster.service.js';
 import { prisma } from '../../../../infrastructure/database/prisma.js';
 
+import type { IRouteService } from '../../domain/services/route.service.interface.js';
+import { Coordinates } from '../../../location/domain/value-objects/coordinates.vo.js';
+
 @injectable()
 export class DispatchOrderUseCase implements EventHandler<OrderPlacedEvent> {
   private readonly logger = logger.child({ context: 'DispatchOrderUseCase' });
@@ -23,6 +26,8 @@ export class DispatchOrderUseCase implements EventHandler<OrderPlacedEvent> {
     private readonly locationService: DriverLocationService,
     @inject(DeliveryTokens.MqttBroadcasterService)
     private readonly mqttBroadcaster: IMqttBroadcasterService,
+    @inject(DeliveryTokens.RouteService)
+    private readonly routeService: IRouteService,
   ) {}
 
   async handle(event: OrderPlacedEvent): Promise<void> {
@@ -56,32 +61,56 @@ export class DispatchOrderUseCase implements EventHandler<OrderPlacedEvent> {
       const pickupLat = Number(restaurant.latitude);
       const pickupLng = Number(restaurant.longitude);
 
-      // 2. Find Nearby Drivers
-      // Let's search within 5km
-      const nearbyDrivers = await this.locationService.getNearbyDrivers(pickupLat, pickupLng, 5);
+      // 2. Find Nearby Drivers with expanding H3 rings
+      const initialRadius = Number(process.env.DISPATCH_INITIAL_SEARCH_RADIUS || 1);
+      const maxRadius = Number(process.env.DISPATCH_MAX_SEARCH_RADIUS || 5);
 
+      let nearbyDrivers: Array<{ driverId: string; lat: number; lng: number }> = [];
+      let currentRadius = initialRadius;
+
+      while (currentRadius <= maxRadius && nearbyDrivers.length === 0) {
+        this.logger.debug({ currentRadius }, 'Searching for drivers in H3 ring');
+        nearbyDrivers = await this.locationService.getNearbyDrivers(
+          pickupLat,
+          pickupLng,
+          currentRadius,
+        );
+        currentRadius++;
+      }
+
+      // 3. Candidate discovery and filtering already handled by DriverLocationService
       if (!nearbyDrivers || nearbyDrivers.length === 0) {
-        this.logger.warn({ orderId: event.orderId }, 'No nearby drivers found for dispatch');
+        this.logger.warn(
+          { orderId: event.orderId, maxRadius },
+          'No AVAILABLE drivers found for dispatch after expanding search',
+        );
         return;
       }
 
-      // 3. Filter AVAILABLE drivers
-      // In production we'd do a batch query, but for now we query Prisma
-      const driverIds = nearbyDrivers.map((d: any) => d.driverId);
-      const availableDrivers = await this.prisma.driver.findMany({
-        where: {
-          id: { in: driverIds },
-          status: 'AVAILABLE',
-        },
-        select: { id: true },
-      });
+      // 4. Final Dispatch Sorting via Route Matrix
+      const origin = Coordinates.create({ latitude: pickupLat, longitude: pickupLng });
+      const destinations = nearbyDrivers.map((d) => ({
+        id: d.driverId,
+        coordinates: Coordinates.create({ latitude: d.lat, longitude: d.lng }),
+      }));
 
-      if (availableDrivers.length === 0) {
-        this.logger.warn({ orderId: event.orderId }, 'No AVAILABLE drivers found for dispatch');
+      const routeResults = await this.routeService.getRoutes(origin, destinations);
+
+      // Sort drivers by ETA (durationSeconds)
+      routeResults.sort((a, b) => a.durationSeconds - b.durationSeconds);
+
+      // Take top 3 drivers to offer (or 1 depending on business logic, here we broadcast to top 3)
+      const topCandidates = routeResults.slice(0, 3);
+
+      if (topCandidates.length === 0) {
+        this.logger.warn(
+          { orderId: event.orderId },
+          'No drivers could be routed to the restaurant',
+        );
         return;
       }
 
-      // 4. Create PENDING Delivery Assignment (expires in 60 seconds)
+      // 5. Create PENDING Delivery Assignment (expires in 60 seconds)
       const expiresAt = new Date(Date.now() + 60 * 1000);
       const assignment = await this.createAssignment.execute(
         event.orderId,
@@ -93,19 +122,20 @@ export class DispatchOrderUseCase implements EventHandler<OrderPlacedEvent> {
       assignment.markOffered();
       await this.assignmentRepository.save(assignment);
 
-      // 5. Broadcast Offer
-      for (const driver of availableDrivers) {
-        await this.mqttBroadcaster.broadcastDeliveryOffer(driver.id, {
+      // 6. Broadcast Offer to top ranked drivers
+      for (const route of topCandidates) {
+        await this.mqttBroadcaster.broadcastDeliveryOffer(route.driverId, {
           assignmentId: assignment.id,
           deliveryId: assignment.orderId, // We use orderId as deliveryId for now
           pickup: { lat: pickupLat, lng: pickupLng },
           expiresAt: expiresAt.toISOString(),
+          estimatedETA: route.durationSeconds, // send ETA info
         });
       }
 
       this.logger.info(
-        { orderId: event.orderId, broadcastCount: availableDrivers.length },
-        'Successfully dispatched order offers',
+        { orderId: event.orderId, broadcastCount: topCandidates.length },
+        'Successfully dispatched order offers using Route Matrix sorting',
       );
     } catch (error) {
       this.logger.error({ error, orderId: event.orderId }, 'Failed to dispatch order');
