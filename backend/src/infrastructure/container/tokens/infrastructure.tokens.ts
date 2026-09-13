@@ -127,4 +127,9 @@ export const InfrastructureTokens = {
    * Avatar job processor.
    */
   AvatarJobProcessor: Symbol.for('Infrastructure.AvatarJobProcessor'),
+
+  /**
+   * Menu import job processor.
+   */
+  MenuImportJobProcessor: Symbol.for('Infrastructure.MenuImportJobProcessor'),
 } as const;

@@ -35,9 +35,15 @@ const connectionString = env.DATABASE_URL;
  *
  * The adapter connects Prisma's database operations to PostgreSQL.
  */
-const adapter = new PrismaPg({
+import pkg from 'pg';
+const { Pool } = pkg;
+
+const pool = new Pool({
   connectionString,
+  max: 20,
 });
+
+const adapter = new PrismaPg(pool);
 
 /**
  * Create the shared Prisma client.
