@@ -21,6 +21,56 @@ describe('Identity Controllers (HTTP)', () => {
       expect(response.status).toBe(201);
       expect(response.body.data).toBeDefined();
       expect(response.body.data.user.email).toBe(email);
+      expect(response.body.data.user.roles).toContain('CUSTOMER');
+    });
+
+    it('should successfully register a DRIVER', async () => {
+      const email = generateEmail();
+      const response = await request(app)
+        .post('/api/v1/identity/register')
+        .send({
+          email,
+          password: 'StrongPassword123!',
+          firstName: 'John',
+          lastName: 'Doe',
+          phone: '1234567890',
+          role: 'DRIVER'
+        });
+        
+      expect(response.status).toBe(201);
+      expect(response.body.data.user.roles).toContain('DRIVER');
+    });
+
+    it('should return 400 when attempting to register as ADMIN', async () => {
+      const email = generateEmail();
+      const response = await request(app)
+        .post('/api/v1/identity/register')
+        .send({
+          email,
+          password: 'StrongPassword123!',
+          firstName: 'John',
+          lastName: 'Doe',
+          phone: '1234567890',
+          role: 'ADMIN'
+        });
+        
+      expect(response.status).toBe(400);
+    });
+
+    it('should return 400 when attempting to register with UNKNOWN_ROLE', async () => {
+      const email = generateEmail();
+      const response = await request(app)
+        .post('/api/v1/identity/register')
+        .send({
+          email,
+          password: 'StrongPassword123!',
+          firstName: 'John',
+          lastName: 'Doe',
+          phone: '1234567890',
+          role: 'UNKNOWN_ROLE'
+        });
+        
+      expect(response.status).toBe(400);
     });
 
     it('should return 400 for missing required fields', async () => {

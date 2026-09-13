@@ -58,7 +58,7 @@ export class MenuImportController {
     if (!result) {
       throw new NotFoundError('Menu import not found');
     }
-    
+
     // Create safe DTO that excludes raw OCR text
     const persistence = MenuImportMapper.toPersistence(result);
     const { rawOcrText, ...safeDto } = persistence as any;

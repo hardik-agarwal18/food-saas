@@ -5,6 +5,7 @@ import { PlaceOrderUseCaseImpl } from '../../../modules/ordering/application/use
 import { GetCustomerOrdersUseCaseImpl } from '../../../modules/ordering/application/use-cases/get-customer-orders.use-case.impl.js';
 import { GetRestaurantOrdersUseCaseImpl } from '../../../modules/ordering/application/use-cases/get-restaurant-orders.use-case.impl.js';
 import { UpdateOrderStatusUseCaseImpl } from '../../../modules/ordering/application/use-cases/update-order-status.use-case.impl.js';
+import { GetOrderByIdUseCaseImpl } from '../../../modules/ordering/application/use-cases/get-order-by-id.use-case.impl.js';
 
 // Dynamically add use case tokens
 (OrderingTokens as any).PlaceOrderUseCase = Symbol.for('Ordering.PlaceOrderUseCase');
@@ -13,6 +14,7 @@ import { UpdateOrderStatusUseCaseImpl } from '../../../modules/ordering/applicat
   'Ordering.GetRestaurantOrdersUseCase',
 );
 (OrderingTokens as any).UpdateOrderStatusUseCase = Symbol.for('Ordering.UpdateOrderStatusUseCase');
+(OrderingTokens as any).GetOrderByIdUseCase = Symbol.for('Ordering.GetOrderByIdUseCase');
 
 export function registerOrdering(): void {
   // Repositories
@@ -32,4 +34,5 @@ export function registerOrdering(): void {
     (OrderingTokens as any).UpdateOrderStatusUseCase,
     UpdateOrderStatusUseCaseImpl,
   );
+  container.registerSingleton((OrderingTokens as any).GetOrderByIdUseCase, GetOrderByIdUseCaseImpl);
 }

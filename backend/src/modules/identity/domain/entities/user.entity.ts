@@ -108,14 +108,14 @@ export class User {
    * The constructor receives value objects and domain types rather than
    * raw strings, which keeps business rules inside the domain layer.
    */
-  public static create(params: { email: Email; passwordHash: PasswordHash }): User {
+  public static create(params: { email: Email; passwordHash: PasswordHash; roles?: Iterable<Role> }): User {
     const now = new Date();
 
     return new User({
       id: crypto.randomUUID(),
       email: params.email,
       passwordHash: params.passwordHash,
-      roles: [Role.CUSTOMER],
+      roles: params.roles ?? [Role.CUSTOMER],
       status: UserStatus.ACTIVE,
       emailVerified: false,
       createdAt: now,
