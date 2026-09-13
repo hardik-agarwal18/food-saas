@@ -139,9 +139,23 @@ export interface Restaurant {
   latitude?: number;
   longitude?: number;
 
+  cuisineType?: string;
+  rating?: number;
+  reviewCount?: number;
+
   status: RestaurantStatus;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface GetRestaurantsParams {
+  search?: string;
+  cuisineType?: string;
+  sortBy?: "rating" | "deliveryTime";
+  lat?: number;
+  lng?: number;
+  radius?: number;
+  status?: string;
 }
 
 export interface MenuCategory {
@@ -153,6 +167,7 @@ export interface MenuCategory {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  items?: MenuItem[];
 }
 
 export enum DietaryPreference {
@@ -195,6 +210,27 @@ export interface MenuModifierItem {
   priceAdjustment: string | number; // Decimal in DB
   isAvailable: boolean;
   sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export enum MenuImportStatus {
+  UPLOADED = 'UPLOADED',
+  PROCESSING = 'PROCESSING',
+  READY_FOR_REVIEW = 'READY_FOR_REVIEW',
+  CONFIRMED = 'CONFIRMED',
+  IMPORTED = 'IMPORTED',
+  FAILED = 'FAILED',
+}
+
+export interface MenuImport {
+  id: string;
+  restaurantId: string;
+  status: MenuImportStatus;
+  extractedData?: any;
+  warnings?: any;
+  errors?: any;
+  failureReason?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -264,6 +300,8 @@ export interface Order {
     state: string;
     zipCode: string;
     country: string;
+    latitude?: number;
+    longitude?: number;
   };
   specialInstructions?: string;
 

@@ -1,7 +1,7 @@
 'use client';
 
-import { useAvailableDeliveries, useMyActiveDeliveries } from '@/features/delivery/queries';
-import { useClaimDeliveryMutation, useUpdateDeliveryStatusMutation, useToggleAvailabilityMutation } from '@/features/delivery/mutations';
+import { useAvailableDeliveries, useMyActiveDeliveries } from '@/features/driver/deliveries/queries';
+import { useClaimDeliveryMutation, useUpdateDeliveryStatusMutation, useToggleAvailabilityMutation } from '@/features/driver/deliveries/mutations';
 import { useCurrentUser } from '@/features/auth/queries';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -73,15 +73,16 @@ export default function DriverDashboard() {
                     center={currentLocation || undefined}
                     markers={[
                       ...(currentLocation ? [{ lat: currentLocation.lat, lng: currentLocation.lng, type: 'DRIVER' as const, id: 'driver' }] : []),
-                      ...(delivery.order?.restaurant?.latitude && delivery.order?.restaurant?.longitude ? [{ lat: delivery.order.restaurant.latitude, lng: delivery.order.restaurant.longitude, type: 'RESTAURANT' as const, id: 'restaurant' }] : []),
-                      ...(delivery.order?.deliveryAddress?.latitude && delivery.order?.deliveryAddress?.longitude ? [{ lat: delivery.order.deliveryAddress.latitude, lng: delivery.order.deliveryAddress.longitude, type: 'CUSTOMER' as const, id: 'customer' }] : [])
+                      ...(delivery.order?.restaurant?.latitude && delivery.order?.restaurant?.longitude ? [{ lat: delivery.order.restaurant.latitude, lng: delivery.order.restaurant.longitude, type: 'RESTAURANT' as const, id: 'restaurant' }] : [])
                     ]}
-                    directionsOrigin={currentLocation ? { lat: currentLocation.lat, lng: currentLocation.lng } : undefined}
-                    directionsDestination={
-                      delivery.status === 'ACCEPTED' 
-                        ? (delivery.order?.restaurant?.latitude ? { lat: delivery.order.restaurant.latitude, lng: delivery.order.restaurant.longitude } : undefined)
-                        : (delivery.order?.deliveryAddress?.latitude ? { lat: delivery.order.deliveryAddress.latitude, lng: delivery.order.deliveryAddress.longitude } : undefined)
-                    }
+                    directionsOrigin={(currentLocation || undefined) as any}
+                    directionsDestination={(
+                      ['ACCEPTED', 'DRIVER_ARRIVING'].includes(delivery.status)
+                        ? (delivery.order?.restaurant?.latitude && delivery.order?.restaurant?.longitude ? { lat: delivery.order.restaurant.latitude, lng: delivery.order.restaurant.longitude } : undefined)
+                        : (delivery.status === 'PICKED_UP')
+                          ? (delivery.order?.deliveryAddress?.latitude && delivery.order?.deliveryAddress?.longitude ? { lat: delivery.order.deliveryAddress.latitude, lng: delivery.order.deliveryAddress.longitude } : undefined)
+                          : undefined
+                    ) as any}
                   />
                 </div>
                 <div className="grid gap-2 text-sm">
@@ -92,7 +93,7 @@ export default function DriverDashboard() {
                   <div className="flex gap-2">
                     <span className="font-medium min-w-[80px] text-muted-foreground">Dropoff:</span>
                     <span>
-                      {delivery.order?.deliveryAddress?.street}, {delivery.order?.deliveryAddress?.city}
+                      {delivery.order?.deliveryAddress?.streetAddress}, {delivery.order?.deliveryAddress?.city}
                     </span>
                   </div>
                 </div>
@@ -102,12 +103,12 @@ export default function DriverDashboard() {
                   <Button className="w-full" onClick={() => handleUpdateStatus(delivery.id, 'ACCEPTED')}>Accept Delivery</Button>
                 )}
                 {delivery.status === 'ACCEPTED' && (
-                  <Button className="w-full" onClick={() => handleUpdateStatus(delivery.id, 'PICKED_UP')}>Mark Picked Up</Button>
-                )}
-                {delivery.status === 'PICKED_UP' && (
-                  <Button className="w-full" onClick={() => handleUpdateStatus(delivery.id, 'DRIVER_ARRIVING')}>Start Transit</Button>
+                  <Button className="w-full" onClick={() => handleUpdateStatus(delivery.id, 'DRIVER_ARRIVING')}>Arrived at Restaurant</Button>
                 )}
                 {delivery.status === 'DRIVER_ARRIVING' && (
+                  <Button className="w-full" onClick={() => handleUpdateStatus(delivery.id, 'PICKED_UP')}>Confirm Pickup</Button>
+                )}
+                {delivery.status === 'PICKED_UP' && (
                   <Button className="w-full" onClick={() => handleUpdateStatus(delivery.id, 'DELIVERED')}>Mark Delivered</Button>
                 )}
               </CardFooter>
@@ -151,7 +152,7 @@ export default function DriverDashboard() {
                       <div className="w-2 h-2 rounded-full bg-red-500 mt-1.5" />
                       <div>
                         <div className="font-medium">Customer Dropoff</div>
-                        <div className="text-muted-foreground text-xs">{delivery.order?.deliveryAddress?.street}</div>
+                        <div className="text-muted-foreground text-xs">{delivery.order?.deliveryAddress?.streetAddress}</div>
                       </div>
                     </div>
                   </CardContent>

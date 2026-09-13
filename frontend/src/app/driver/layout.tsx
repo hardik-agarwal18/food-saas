@@ -1,8 +1,10 @@
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+'use client';
+
+import { RequireRole } from '@/components/auth/RequireRole';
 import { Role } from '@/types/api.types';
 import Link from 'next/link';
 import { Truck } from 'lucide-react';
-import { useDriverProfile } from '@/features/delivery/queries';
+import { useDriverProfile } from '@/features/driver/deliveries/queries';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 
@@ -31,7 +33,7 @@ export default function DriverLayout({
   }
 
   return (
-    <ProtectedRoute allowedRoles={[Role.DRIVER, Role.ADMIN]}>
+    <RequireRole allowedRoles={[Role.DRIVER, Role.ADMIN]}>
       <div className="min-h-screen flex flex-col bg-slate-50">
         <header className="bg-primary text-primary-foreground py-4 px-6 shadow-md flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -48,6 +50,6 @@ export default function DriverLayout({
           {children}
         </main>
       </div>
-    </ProtectedRoute>
+    </RequireRole>
   );
 }

@@ -42,7 +42,7 @@ apiClient.interceptors.request.use(
 );
 
 apiClient.interceptors.response.use(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   (response: AxiosResponse<ApiResponse<any>>) => {
     if (response.data && response.data.success !== undefined) {
       if (response.data.success) {
@@ -51,7 +51,7 @@ apiClient.interceptors.response.use(
     }
     return response.data;
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   async (error: AxiosError<any>) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 

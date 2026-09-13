@@ -1,7 +1,9 @@
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+'use client';
+
+import { RequireRole } from '@/components/auth/RequireRole';
 import { Role } from '@/types/api.types';
 import Link from 'next/link';
-import { useMyRestaurants } from '@/features/restaurants/queries';
+import { useMyRestaurants } from '@/features/restaurant/menu/queries';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 
@@ -30,7 +32,7 @@ export default function RestaurantLayout({
   }
 
   return (
-    <ProtectedRoute allowedRoles={[Role.RESTAURANT_OWNER, Role.ADMIN]}>
+    <RequireRole allowedRoles={[Role.RESTAURANT_OWNER, Role.ADMIN]}>
       <div className="min-h-screen flex">
         {/* Sidebar */}
         <aside className="w-64 bg-slate-900 text-white flex flex-col">
@@ -58,6 +60,6 @@ export default function RestaurantLayout({
           {children}
         </main>
       </div>
-    </ProtectedRoute>
+    </RequireRole>
   );
 }

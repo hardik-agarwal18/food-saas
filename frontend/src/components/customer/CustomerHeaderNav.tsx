@@ -11,6 +11,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuGroup,
 } from '@/components/ui/dropdown-menu';
 import { UserCircle } from 'lucide-react';
 
@@ -42,31 +43,31 @@ export function CustomerHeaderNav() {
       </Link>
       
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="rounded-full">
-            <UserCircle className="h-6 w-6" />
-            <span className="sr-only">Toggle user menu</span>
-          </Button>
+        <DropdownMenuTrigger render={<Button variant="ghost" size="icon" className="rounded-full" />}>
+          <UserCircle className="h-6 w-6" />
+          <span className="sr-only">Toggle user menu</span>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem asChild>
-            <Link href="/account/profile">Profile</Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link href="/account/addresses">Addresses</Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link href="/account/preferences">Preferences</Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild className="sm:hidden">
-            <Link href="/orders">Orders</Link>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => logoutMutation.mutate()}>
-            Log out
-          </DropdownMenuItem>
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem render={<Link href="/account/profile" />}>
+              Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem render={<Link href="/account/addresses" />}>
+              Addresses
+            </DropdownMenuItem>
+            <DropdownMenuItem render={<Link href="/account/preferences" />}>
+              Preferences
+            </DropdownMenuItem>
+            <DropdownMenuItem className="sm:hidden" render={<Link href="/orders" />}>
+              Orders
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => logoutMutation.mutate()}>
+              Log out
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
     </nav>

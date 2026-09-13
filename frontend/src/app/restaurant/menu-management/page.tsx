@@ -1,14 +1,16 @@
 'use client';
 
-import { useMyRestaurants } from '@/features/restaurants/queries';
-import { useRestaurantMenu } from '@/features/restaurants/queries';
+import { useMyRestaurants } from '@/features/restaurant/menu/queries';
+import { useRestaurantMenu } from '@/features/restaurant/menu/queries';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, Edit2, Trash2 } from 'lucide-react';
 import { useState } from 'react';
-import { CreateCategoryModal } from '@/features/restaurants/components/CreateCategoryModal';
-import { CreateMenuItemModal } from '@/features/restaurants/components/CreateMenuItemModal';
+import { CreateCategoryModal } from '@/features/restaurant/menu/components/CreateCategoryModal';
+import { CreateMenuItemModal } from '@/features/restaurant/menu/components/CreateMenuItemModal';
+import { MenuImportModal } from '@/features/restaurant/menu/components/MenuImportModal';
 import { MenuCategory, MenuItem } from '@/types/api.types';
+import { Wand2 } from 'lucide-react';
 
 export default function MenuManagementPage() {
   const { data: restaurants, isLoading: isLoadingRest } = useMyRestaurants();
@@ -16,6 +18,7 @@ export default function MenuManagementPage() {
   const { data: menuCategories, isLoading: isLoadingMenu } = useRestaurantMenu(restaurantId || '');
 
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [itemModalCategoryId, setItemModalCategoryId] = useState<string | null>(null);
 
   if (isLoadingRest) return <div className="p-8">Loading...</div>;
@@ -25,7 +28,14 @@ export default function MenuManagementPage() {
     <div className="p-8 max-w-6xl mx-auto space-y-8">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Menu Management</h1>
-        <Button className="gap-2" onClick={() => setIsCategoryModalOpen(true)}><Plus className="w-4 h-4" /> Add Category</Button>
+        <div className="flex gap-3">
+          <Button variant="secondary" className="gap-2" onClick={() => setIsImportModalOpen(true)}>
+            <Wand2 className="w-4 h-4" /> Import Menu (AI)
+          </Button>
+          <Button className="gap-2" onClick={() => setIsCategoryModalOpen(true)}>
+            <Plus className="w-4 h-4" /> Add Category
+          </Button>
+        </div>
       </div>
 
       {isLoadingMenu ? (
@@ -96,6 +106,14 @@ export default function MenuManagementPage() {
           categoryId={itemModalCategoryId}
           isOpen={!!itemModalCategoryId}
           onClose={() => setItemModalCategoryId(null)}
+        />
+      )}
+
+      {restaurantId && (
+        <MenuImportModal
+          restaurantId={restaurantId}
+          isOpen={isImportModalOpen}
+          onClose={() => setIsImportModalOpen(false)}
         />
       )}
     </div>

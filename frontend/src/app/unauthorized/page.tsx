@@ -18,12 +18,12 @@ export default function UnauthorizedPage() {
           <p className="text-sm text-muted-foreground">
             Please ensure you are logged in with the correct account type to view this content.
           </p>
-          <Button asChild className="w-full">
-            <Link href="/login">Switch Account</Link>
-          </Button>
-          <Button asChild variant="outline" className="w-full">
-            <Link href="/">Return to Home</Link>
-          </Button>
+          <Link href="/login" className="flex w-full">
+            <Button className="w-full">Switch Account</Button>
+          </Link>
+          <Link href="/" className="flex w-full">
+            <Button variant="outline" className="w-full">Return to Home</Button>
+          </Link>
         </CardContent>
       </Card>
     </div>

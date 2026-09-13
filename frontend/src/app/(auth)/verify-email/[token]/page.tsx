@@ -52,9 +52,9 @@ export default function VerifyEmailPage({ params }: { params: { token: string } 
               <div className="p-4 bg-green-50 text-green-700 rounded-md text-sm">
                 Your email has been verified. You can now use all features of your account.
               </div>
-              <Button asChild className="w-full">
-                <Link href="/login">Continue to Login</Link>
-              </Button>
+              <Link href="/login" className="flex w-full">
+                <Button className="w-full">Continue to Login</Button>
+              </Link>
             </div>
           )}
 
@@ -63,9 +63,9 @@ export default function VerifyEmailPage({ params }: { params: { token: string } 
               <div className="text-sm font-medium text-destructive">
                 {errorMessage}
               </div>
-              <Button asChild variant="outline" className="w-full">
-                <Link href="/login">Return to Login</Link>
-              </Button>
+              <Link href="/login" className="flex w-full">
+                <Button variant="outline" className="w-full">Return to Login</Button>
+              </Link>
             </div>
           )}
         </CardContent>
