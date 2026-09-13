@@ -13,7 +13,7 @@ export const toggleDriverAvailabilitySchema = z.object({
 });
 
 export const updateDeliveryStatusSchema = z.object({
-  status: z.enum(['PICKED_UP', 'DELIVERED']),
+  status: z.enum(['DRIVER_ARRIVING', 'PICKED_UP', 'DELIVERED']),
 });
 
 export const updateDriverLocationSchema = z.object({

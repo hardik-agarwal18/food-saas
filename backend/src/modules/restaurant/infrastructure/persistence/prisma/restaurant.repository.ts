@@ -58,6 +58,10 @@ export class RestaurantRepositoryImpl extends BaseRepository implements IRestaur
   async findAll(params: {
     status?: RestaurantStatus;
     city?: string;
+    search?: string;
+    latitude?: number;
+    longitude?: number;
+    radius?: number;
     limit?: number;
     offset?: number;
   }): Promise<{ items: Restaurant[]; total: number }> {
@@ -65,6 +69,22 @@ export class RestaurantRepositoryImpl extends BaseRepository implements IRestaur
 
     if (params.status) where.status = params.status;
     if (params.city) where.city = params.city;
+    
+    if (params.search) {
+      where.OR = [
+        { name: { contains: params.search, mode: 'insensitive' } },
+        { description: { contains: params.search, mode: 'insensitive' } },
+      ];
+    }
+
+    if (params.latitude !== undefined && params.longitude !== undefined) {
+      const radius = params.radius ?? 10; // Default 10 km
+      const resolution = Number(process.env.GEO_H3_RESOLUTION || 8);
+      const centerCell = h3.latLngToCell(params.latitude, params.longitude, resolution);
+      const kRing = Math.ceil(radius); // roughly 1km per ring at res 8
+      const neighborCells = h3.gridDisk(centerCell, kRing);
+      where.h3Cell = { in: neighborCells };
+    }
 
     const [total, rawList] = await Promise.all([
       this.execute(() => this.prisma.restaurant.count({ where })),

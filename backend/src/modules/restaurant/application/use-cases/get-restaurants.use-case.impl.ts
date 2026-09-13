@@ -26,6 +26,10 @@ export class GetRestaurantsUseCaseImpl implements IGetRestaurantsUseCase {
     const { items, total } = await this.restaurantRepo.findAll({
       status: dto.status ? statusMap[dto.status] : RestaurantStatus.ACTIVE,
       city: dto.city,
+      search: dto.search,
+      latitude: dto.latitude,
+      longitude: dto.longitude,
+      radius: dto.radius,
       limit,
       offset,
     });

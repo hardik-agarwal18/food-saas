@@ -31,6 +31,10 @@ export interface UpdateRestaurantDto {
 export interface ListRestaurantsDto {
   status?: string;
   city?: string;
+  search?: string;
+  latitude?: number;
+  longitude?: number;
+  radius?: number; // In km
   limit?: number;
   offset?: number;
 }

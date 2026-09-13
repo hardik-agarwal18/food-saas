@@ -8,6 +8,10 @@ export interface IRestaurantRepository {
   findAll(params: {
     status?: RestaurantStatus;
     city?: string;
+    search?: string;
+    latitude?: number;
+    longitude?: number;
+    radius?: number;
     limit?: number;
     offset?: number;
   }): Promise<{ items: Restaurant[]; total: number }>;

@@ -18,7 +18,7 @@ export class UpdateDeliveryStatusUseCaseImpl implements IUpdateDeliveryStatusUse
   async execute(
     assignmentId: string,
     userId: string,
-    newStatus: 'PICKED_UP' | 'DELIVERED',
+    newStatus: 'DRIVER_ARRIVING' | 'PICKED_UP' | 'DELIVERED',
   ): Promise<void> {
     const driver = await this.driverRepository.findByUserId(userId);
     if (!driver) {
@@ -30,7 +30,10 @@ export class UpdateDeliveryStatusUseCaseImpl implements IUpdateDeliveryStatusUse
       throw new DeliveryDomainError('Assignment not found.', 'ASSIGNMENT_NOT_FOUND');
     }
 
-    if (newStatus === 'PICKED_UP') {
+    if (newStatus === 'DRIVER_ARRIVING') {
+      assignment.driverArriving(driver.id);
+      await this.assignmentRepository.save(assignment);
+    } else if (newStatus === 'PICKED_UP') {
       assignment.pickUp(driver.id);
       await this.assignmentRepository.save(assignment);
     } else if (newStatus === 'DELIVERED') {
