@@ -24,6 +24,7 @@ export class RateLimitService {
           this.redis.call(command, ...args) as Promise<RedisReply>,
       }),
       skipSuccessfulRequests: true,
+      skip: () => process.env.NODE_ENV === 'test' && process.env.ENABLE_RATE_LIMIT !== 'true',
       identifier: prefix,
       message: {
         success: false,

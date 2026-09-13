@@ -9,11 +9,13 @@ describe('Rate Limiting Integration Tests', () => {
   let redisClient: Redis;
 
   beforeAll(() => {
+    process.env.ENABLE_RATE_LIMIT = 'true';
     // We instantiate our own Redis client for test cleanup using the exported config
     redisClient = new Redis(redisConnection);
   });
 
   afterAll(async () => {
+    process.env.ENABLE_RATE_LIMIT = 'false';
     await redisClient.quit();
   });
 

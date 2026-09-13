@@ -47,6 +47,12 @@ export const globalRateLimiter: RateLimitRequestHandler = rateLimit({
   max: RateLimitPolicies.Global.max,
 
   /**
+   * Disable rate limiting in the test environment to prevent tests from failing,
+   * unless ENABLE_RATE_LIMIT is explicitly set to 'true'.
+   */
+  skip: () => process.env.NODE_ENV === 'test' && process.env.ENABLE_RATE_LIMIT !== 'true',
+
+  /**
    * Structured response returned when the limit is exceeded.
    */
   message: {

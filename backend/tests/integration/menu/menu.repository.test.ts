@@ -21,9 +21,16 @@ describe('Menu Repositories Integration', () => {
   let testRestaurantId: string;
 
   beforeEach(async () => {
-    categoryRepo = new MenuCategoryRepositoryImpl(prisma);
-    itemRepo = new MenuItemRepositoryImpl(prisma);
-    modifierRepo = new MenuModifierRepositoryImpl(prisma);
+    const mockCacheService = {
+      get: async () => null,
+      set: async () => {},
+      delete: async () => {},
+      quit: async () => {},
+    } as any;
+
+    categoryRepo = new MenuCategoryRepositoryImpl(prisma, mockCacheService);
+    itemRepo = new MenuItemRepositoryImpl(prisma, mockCacheService);
+    modifierRepo = new MenuModifierRepositoryImpl(prisma, mockCacheService);
 
     const user = await createTestUser(prisma);
     

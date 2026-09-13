@@ -45,10 +45,7 @@ router.post(
   registerDriverController.handle.bind(registerDriverController),
 );
 
-router.get(
-  '/drivers/me',
-  getDriverProfileController.handle.bind(getDriverProfileController),
-);
+router.get('/drivers/me', getDriverProfileController.handle.bind(getDriverProfileController));
 
 router.patch(
   '/drivers/me/availability',

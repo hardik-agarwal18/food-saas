@@ -31,10 +31,7 @@ export function registerDeliveryModule() {
     DeliveryTokens.ToggleDriverAvailabilityUseCase,
     ToggleDriverAvailabilityUseCaseImpl,
   );
-  container.registerSingleton(
-    DeliveryTokens.GetDriverProfileUseCase,
-    GetDriverProfileUseCase,
-  );
+  container.registerSingleton(DeliveryTokens.GetDriverProfileUseCase, GetDriverProfileUseCase);
   container.registerSingleton(
     DeliveryTokens.CreateDeliveryAssignmentUseCase,
     CreateDeliveryAssignmentUseCaseImpl,

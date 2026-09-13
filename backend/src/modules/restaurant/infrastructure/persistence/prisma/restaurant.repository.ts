@@ -6,12 +6,15 @@ import { BaseRepository } from '../../../../../infrastructure/database/base.repo
 import { IRestaurantRepository } from '../../../domain/repositories/restaurant.repository.js';
 import { Restaurant, RestaurantStatus } from '../../../domain/entities/restaurant.entity.js';
 import { RestaurantMapper } from './mappers/restaurant.mapper.js';
+import { CacheService } from '../../../../../infrastructure/cache/cache.service.js';
 
 @injectable()
 export class RestaurantRepositoryImpl extends BaseRepository implements IRestaurantRepository {
   constructor(
     @inject(InfrastructureTokens.PrismaClient)
     prisma: PrismaExecutor,
+    @inject(InfrastructureTokens.CacheService)
+    private readonly cacheService: CacheService,
   ) {
     super(prisma);
   }
@@ -20,6 +23,7 @@ export class RestaurantRepositoryImpl extends BaseRepository implements IRestaur
     const data = RestaurantMapper.toCreateInput(restaurant);
     const h3Cell = this.computeH3Cell(restaurant.getLatitude(), restaurant.getLongitude());
     await this.execute(() => this.prisma.restaurant.create({ data: { ...data, h3Cell } }));
+    await this.cacheService.delete(`restaurant:${restaurant.getId()}`);
   }
 
   async update(restaurant: Restaurant): Promise<void> {
@@ -31,6 +35,7 @@ export class RestaurantRepositoryImpl extends BaseRepository implements IRestaur
         data: { ...data, h3Cell },
       }),
     );
+    await this.cacheService.delete(`restaurant:${restaurant.getId()}`);
   }
 
   private computeH3Cell(lat: number | null, lng: number | null): string | null {
@@ -40,8 +45,21 @@ export class RestaurantRepositoryImpl extends BaseRepository implements IRestaur
   }
 
   async findById(id: string): Promise<Restaurant | null> {
+    const cacheKey = `restaurant:${id}`;
+    const cached = await this.cacheService.get<any>(cacheKey);
+
+    if (cached) {
+      if (typeof cached.createdAt === 'string') cached.createdAt = new Date(cached.createdAt);
+      if (typeof cached.updatedAt === 'string') cached.updatedAt = new Date(cached.updatedAt);
+      if (cached.deletedAt && typeof cached.deletedAt === 'string')
+        cached.deletedAt = new Date(cached.deletedAt);
+      return RestaurantMapper.toDomain(cached);
+    }
+
     const raw = await this.execute(() => this.prisma.restaurant.findUnique({ where: { id } }));
     if (!raw) return null;
+
+    await this.cacheService.set(cacheKey, raw, 3600);
     return RestaurantMapper.toDomain(raw);
   }
 

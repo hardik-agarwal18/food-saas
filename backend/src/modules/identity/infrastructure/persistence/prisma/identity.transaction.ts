@@ -8,19 +8,22 @@ import { UserRepository } from './user.repository.js';
 import { RefreshSessionRepository } from './refresh-session.repository.js';
 import type { PrismaExecutor } from '../../../../../infrastructure/database/prisma-client.type.js';
 import { CustomerRepository } from '../../../../customer/infrastructure/persistence/prisma/customer.repository.js';
+import { CacheService } from '../../../../../infrastructure/cache/cache.service.js';
 
 @injectable()
 export class IdentityTransaction implements IIdentityTransaction {
   constructor(
     @inject(InfrastructureTokens.PrismaClient)
     private readonly prisma: PrismaExecutor,
+    @inject(InfrastructureTokens.CacheService)
+    private readonly cacheService: CacheService,
   ) {}
 
   async execute<T>(operation: (context: IdentityTransactionContext) => Promise<T>): Promise<T> {
     return this.prisma.$transaction(async (tx) => {
       const userRepository = new UserRepository(tx);
       const refreshSessionRepository = new RefreshSessionRepository(tx);
-      const customerRepository = new CustomerRepository(tx);
+      const customerRepository = new CustomerRepository(tx, this.cacheService);
 
       return operation({
         userRepository,

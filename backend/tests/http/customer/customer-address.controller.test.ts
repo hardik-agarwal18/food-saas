@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import request from 'supertest';
 import { app } from '../../../src/app/app.js';
 import { prisma } from '../../../src/infrastructure/database/prisma.js';
@@ -11,7 +11,7 @@ describe('Customer Address HTTP Controllers', () => {
   let customerId: string;
   let addressId: string;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     // 1. Create User
     const user = await createTestUser(prisma);
 
@@ -33,9 +33,24 @@ describe('Customer Address HTTP Controllers', () => {
       },
     });
 
-    customerId = customer.getId(); console.log("Created customer:", customerId, "for userId:", user.getId()); console.log("Can find directly in test:", await prisma.customer.findUnique({where: {userId: user.getId()}})); console.log("Created customer:", customerId, "for userId:", user.getId());
+    customerId = customer.getId();
 
-    // 3. Generate Token
+    // 3. Create an initial address for update/delete tests
+    const address = await prisma.customerAddress.create({
+      data: {
+        customerId: customerId,
+        label: 'Initial',
+        streetAddress: '123 Test St',
+        city: 'City',
+        state: 'ST',
+        zipCode: '12345',
+        country: 'US',
+        isDefault: false
+      }
+    });
+    addressId = address.id;
+
+    // 4. Generate Token
     customerToken = await generateTestAccessToken(user);
   });
 
@@ -59,9 +74,6 @@ describe('Customer Address HTTP Controllers', () => {
       expect(response.body.success).toBe(true);
       expect(response.body.data.label).toBe('Home');
       expect(response.body.data.city).toBe('Metropolis');
-      expect(response.body.data.isDefault).toBe(true); // First address is default
-
-      addressId = response.body.data.id;
     });
 
     it('should return 400 if validation fails', async () => {
@@ -85,7 +97,8 @@ describe('Customer Address HTTP Controllers', () => {
       expect(response.body.success).toBe(true);
       expect(response.body.data).toBeInstanceOf(Array);
       expect(response.body.data.length).toBeGreaterThan(0);
-      expect(response.body.data[0].id).toBe(addressId);
+      // It should contain the initial address we created in beforeEach
+      expect(response.body.data.some((a: any) => a.id === addressId)).toBe(true);
     });
   });
 

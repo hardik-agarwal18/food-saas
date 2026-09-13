@@ -5,22 +5,32 @@ import type { PrismaExecutor } from '../../../../../infrastructure/database/pris
 import { Customer } from '../../../domain/entities/customer.entity.js';
 import { CustomerMapper } from './mappers/customer.mapper.js';
 import { BaseRepository } from '../../../../../infrastructure/database/base.repository.js';
+import { CacheService } from '../../../../../infrastructure/cache/cache.service.js';
 
 @injectable()
 export class CustomerRepository extends BaseRepository implements ICustomerRepository {
   constructor(
     @inject(InfrastructureTokens.PrismaClient)
     prisma: PrismaExecutor,
+    @inject(InfrastructureTokens.CacheService)
+    private readonly cacheService: CacheService,
   ) {
     super(prisma);
   }
 
   async findById(id: string): Promise<Customer | null> {
+    const cacheKey = `customer:id:${id}`;
+    const cached = await this.cacheService.get<any>(cacheKey);
+
+    if (cached) {
+      if (typeof cached.createdAt === 'string') cached.createdAt = new Date(cached.createdAt);
+      if (typeof cached.updatedAt === 'string') cached.updatedAt = new Date(cached.updatedAt);
+      return CustomerMapper.toDomain(cached);
+    }
+
     const customer = await this.execute(() =>
       this.prisma.customer.findUnique({
-        where: {
-          id,
-        },
+        where: { id },
       }),
     );
 
@@ -28,15 +38,23 @@ export class CustomerRepository extends BaseRepository implements ICustomerRepos
       return null;
     }
 
+    await this.cacheService.set(cacheKey, customer, 3600); // Cache for 1 hour
     return CustomerMapper.toDomain(customer);
   }
 
   async findByUserId(userId: string): Promise<Customer | null> {
+    const cacheKey = `customer:userId:${userId}`;
+    const cached = await this.cacheService.get<any>(cacheKey);
+
+    if (cached) {
+      if (typeof cached.createdAt === 'string') cached.createdAt = new Date(cached.createdAt);
+      if (typeof cached.updatedAt === 'string') cached.updatedAt = new Date(cached.updatedAt);
+      return CustomerMapper.toDomain(cached);
+    }
+
     const customer = await this.execute(() =>
       this.prisma.customer.findUnique({
-        where: {
-          userId,
-        },
+        where: { userId },
       }),
     );
 
@@ -44,6 +62,7 @@ export class CustomerRepository extends BaseRepository implements ICustomerRepos
       return null;
     }
 
+    await this.cacheService.set(cacheKey, customer, 3600); // Cache for 1 hour
     return CustomerMapper.toDomain(customer);
   }
 
@@ -55,6 +74,9 @@ export class CustomerRepository extends BaseRepository implements ICustomerRepos
         data,
       }),
     );
+
+    await this.cacheService.delete(`customer:id:${customer.getId()}`);
+    await this.cacheService.delete(`customer:userId:${customer.getUserId()}`);
 
     return CustomerMapper.toDomain(newCustomer);
   }
@@ -70,6 +92,9 @@ export class CustomerRepository extends BaseRepository implements ICustomerRepos
         data,
       }),
     );
+
+    await this.cacheService.delete(`customer:id:${customer.getId()}`);
+    await this.cacheService.delete(`customer:userId:${customer.getUserId()}`);
 
     return CustomerMapper.toDomain(updateCustomer);
   }

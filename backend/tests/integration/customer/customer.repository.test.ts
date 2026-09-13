@@ -36,7 +36,14 @@ describe('CustomerRepository Integration Tests', () => {
 
     await prisma.$connect();
 
-    repository = new CustomerRepository(prisma);
+    const mockCacheService = {
+      get: async () => null,
+      set: async () => {},
+      delete: async () => {},
+      quit: async () => {},
+    } as any;
+
+    repository = new CustomerRepository(prisma, mockCacheService);
   });
 
   beforeEach(async () => {
