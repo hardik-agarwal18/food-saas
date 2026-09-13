@@ -22,10 +22,18 @@ import { GetMenuModifierItemsController } from '../controllers/get-menu-modifier
 import { MenuImportController } from '../controllers/menu-import.controller.js';
 import { confirmMenuImportSchema } from '../validators/menu-import.validator.js';
 import multer from 'multer';
+import { BadRequestError } from '../../../../shared/errors/BadRequestError.js';
 
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'application/pdf' || file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new BadRequestError('Only PDFs and images are allowed') as any, false);
+    }
+  },
 });
 
 const router = express.Router({ mergeParams: true }); // Important: to access restaurantId from parent

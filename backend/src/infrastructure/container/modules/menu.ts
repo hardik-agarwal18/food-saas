@@ -1,5 +1,5 @@
 import { container } from 'tsyringe';
-import { MenuTokens } from '../../../modules/menu/infrastructure/persistence/tokens/menu.tokens.js';
+import { MenuTokens } from '../../../modules/menu/infrastructure/tokens/menu.tokens.js';
 
 // Repositories
 import { MenuCategoryRepositoryImpl } from '../../../modules/menu/infrastructure/persistence/prisma/menu-category.repository.js';
@@ -10,14 +10,14 @@ import { StubMenuDocumentReader } from '../../../modules/menu/infrastructure/ocr
 import { DefaultMenuParser } from '../../../modules/menu/infrastructure/parsers/default-menu-parser.js';
 
 // Use Cases
-import { CreateMenuCategoryUseCaseImpl } from '../../../modules/menu/application/use-cases/create-menu-category.use-case.impl.js';
-import { GetMenuCategoriesUseCaseImpl } from '../../../modules/menu/application/use-cases/get-menu-categories.use-case.impl.js';
-import { CreateMenuItemUseCaseImpl } from '../../../modules/menu/application/use-cases/create-menu-item.use-case.impl.js';
-import { GetMenuItemsUseCaseImpl } from '../../../modules/menu/application/use-cases/get-menu-items.use-case.impl.js';
-import { CreateMenuModifierGroupUseCaseImpl } from '../../../modules/menu/application/use-cases/create-menu-modifier-group.use-case.impl.js';
-import { GetMenuModifierGroupsUseCaseImpl } from '../../../modules/menu/application/use-cases/get-menu-modifier-groups.use-case.impl.js';
-import { CreateMenuModifierItemUseCaseImpl } from '../../../modules/menu/application/use-cases/create-menu-modifier-item.use-case.impl.js';
-import { GetMenuModifierItemsUseCaseImpl } from '../../../modules/menu/application/use-cases/get-menu-modifier-items.use-case.impl.js';
+import { CreateMenuCategoryUseCaseImpl } from '../../../modules/menu/application/use-cases/create-menu-category/create-menu-category.use-case.impl.js';
+import { GetMenuCategoriesUseCaseImpl } from '../../../modules/menu/application/use-cases/get-menu-categories/get-menu-categories.use-case.impl.js';
+import { CreateMenuItemUseCaseImpl } from '../../../modules/menu/application/use-cases/create-menu-item/create-menu-item.use-case.impl.js';
+import { GetMenuItemsUseCaseImpl } from '../../../modules/menu/application/use-cases/get-menu-items/get-menu-items.use-case.impl.js';
+import { CreateMenuModifierGroupUseCaseImpl } from '../../../modules/menu/application/use-cases/create-menu-modifier-group/create-menu-modifier-group.use-case.impl.js';
+import { GetMenuModifierGroupsUseCaseImpl } from '../../../modules/menu/application/use-cases/get-menu-modifier-groups/get-menu-modifier-groups.use-case.impl.js';
+import { CreateMenuModifierItemUseCaseImpl } from '../../../modules/menu/application/use-cases/create-menu-modifier-item/create-menu-modifier-item.use-case.impl.js';
+import { GetMenuModifierItemsUseCaseImpl } from '../../../modules/menu/application/use-cases/get-menu-modifier-items/get-menu-modifier-items.use-case.impl.js';
 import { CreateMenuImportUseCaseImpl } from '../../../modules/menu/application/use-cases/create-menu-import/create-menu-import.use-case.impl.js';
 import { ProcessMenuImportUseCaseImpl } from '../../../modules/menu/application/use-cases/process-menu-import/process-menu-import.use-case.impl.js';
 import { GetMenuImportUseCaseImpl } from '../../../modules/menu/application/use-cases/get-menu-import/get-menu-import.use-case.impl.js';

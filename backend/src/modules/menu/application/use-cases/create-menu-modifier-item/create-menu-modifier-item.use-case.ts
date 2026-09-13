@@ -1,7 +1,7 @@
 import {
   CreateMenuModifierItemDto,
   MenuModifierItemResponseDto,
-} from '../dto/menu-modifier.dto.js';
+} from '../../dto/menu-modifier.dto.js';
 
 export interface ICreateMenuModifierItemUseCase {
   execute(

@@ -12,7 +12,7 @@ import { Money } from '../../../menu/domain/value-objects/money.vo.js';
 import { RestaurantTokens } from '../../../restaurant/infrastructure/persistence/tokens/restaurant.tokens.js';
 import type { IRestaurantRepository } from '../../../restaurant/domain/repositories/restaurant.repository.js';
 
-import { MenuTokens } from '../../../menu/infrastructure/persistence/tokens/menu.tokens.js';
+import { MenuTokens } from '../../../menu/infrastructure/tokens/menu.tokens.js';
 import type { IMenuItemRepository } from '../../../menu/domain/repositories/menu-item.repository.js';
 import type { IMenuModifierRepository } from '../../../menu/domain/repositories/menu-modifier.repository.js';
 

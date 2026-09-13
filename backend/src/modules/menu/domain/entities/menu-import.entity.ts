@@ -161,8 +161,17 @@ export class MenuImport {
 
   // State transitions
 
-  public startProcessing(): void {
-    if (this.status !== MenuImportStatus.UPLOADED && this.status !== MenuImportStatus.FAILED) {
+  public startProcessing(staleThresholdMs = 5 * 60 * 1000): void {
+    if (this.status === MenuImportStatus.PROCESSING) {
+      const isStale =
+        this.processingAt && new Date().getTime() - this.processingAt.getTime() > staleThresholdMs;
+      if (!isStale) {
+        throw new MenuDomainError(`Cannot start processing, currently processing and not stale`);
+      }
+    } else if (
+      this.status !== MenuImportStatus.UPLOADED &&
+      this.status !== MenuImportStatus.FAILED
+    ) {
       throw new MenuDomainError(`Cannot start processing from state ${this.status}`);
     }
     this.status = MenuImportStatus.PROCESSING;

@@ -1,4 +1,4 @@
-import { CreateMenuItemDto, MenuItemResponseDto } from '../dto/menu-item.dto.js';
+import { CreateMenuItemDto, MenuItemResponseDto } from '../../dto/menu-item.dto.js';
 
 export interface ICreateMenuItemUseCase {
   execute(

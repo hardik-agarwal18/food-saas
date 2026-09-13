@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { injectable, inject } from 'tsyringe';
-import type { ICreateMenuItemUseCase } from '../../application/use-cases/create-menu-item.use-case.js';
-import { MenuTokens } from '../../infrastructure/persistence/tokens/menu.tokens.js';
+import type { ICreateMenuItemUseCase } from '../../application/use-cases/create-menu-item/create-menu-item.use-case.js';
+import { MenuTokens } from '../../infrastructure/tokens/menu.tokens.js';
 import { sendResponse } from '../../../../shared/utils/AppResponse.js';
 
 @injectable()

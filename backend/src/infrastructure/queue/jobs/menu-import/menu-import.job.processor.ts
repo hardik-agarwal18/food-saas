@@ -1,7 +1,7 @@
 import { injectable, inject } from 'tsyringe';
 import { Job } from 'bullmq';
 import { MenuImportJobName, type ProcessMenuImportJob } from '../../types/menu-import.job.types.js';
-import { MenuTokens } from '../../../../modules/menu/infrastructure/persistence/tokens/menu.tokens.js';
+import { MenuTokens } from '../../../../modules/menu/infrastructure/tokens/menu.tokens.js';
 import type { ProcessMenuImportUseCase } from '../../../../modules/menu/application/use-cases/process-menu-import/process-menu-import.use-case.js';
 import { InfrastructureTokens } from '../../../container/tokens/infrastructure.tokens.js';
 import type { ILogger } from '../../../../shared/logger/logger.interface.js';
