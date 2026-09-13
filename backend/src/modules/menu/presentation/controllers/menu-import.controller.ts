@@ -31,7 +31,7 @@ export class MenuImportController {
       throw new BadRequestError('Menu document file is required');
     }
 
-    const actorId = req.user.id;
+    const actorId = req.user!.id;
 
     const result = await this.createMenuImportUseCase.execute({
       restaurantId,
@@ -51,7 +51,7 @@ export class MenuImportController {
   public get = catchAsync(async (req: Request, res: Response) => {
     const restaurantId = req.params.restaurantId as string;
     const importId = req.params.importId as string;
-    const actorId = req.user.id;
+    const actorId = req.user!.id;
 
     const result = await this.getMenuImportUseCase.execute({ restaurantId, importId, actorId });
 
@@ -73,7 +73,7 @@ export class MenuImportController {
   public confirm = catchAsync(async (req: Request, res: Response) => {
     const restaurantId = req.params.restaurantId as string;
     const importId = req.params.importId as string;
-    const actorId = req.user.id;
+    const actorId = req.user!.id;
     const { editedData } = req.body;
 
     await this.confirmMenuImportUseCase.execute({
@@ -92,7 +92,7 @@ export class MenuImportController {
   public retry = catchAsync(async (req: Request, res: Response) => {
     const restaurantId = req.params.restaurantId as string;
     const importId = req.params.importId as string;
-    const actorId = req.user.id;
+    const actorId = req.user!.id;
 
     await this.retryMenuImportUseCase.execute({
       restaurantId,
