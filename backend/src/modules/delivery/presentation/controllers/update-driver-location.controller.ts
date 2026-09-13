@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { inject, injectable } from 'tsyringe';
 import { DeliveryTokens } from '../../infrastructure/tokens/delivery.tokens.js';
 import type { IUpdateDriverLocationUseCase } from '../../application/use-cases/update-driver-location.use-case.js';
+import { sendResponse } from '../../../../shared/utils/AppResponse.js';
 
 @injectable()
 export class UpdateDriverLocationController {
@@ -17,7 +18,7 @@ export class UpdateDriverLocationController {
 
       await this.updateDriverLocationUseCase.execute(userId, latitude, longitude);
 
-      res.status(200).json({ success: true, message: 'Location updated successfully' });
+      sendResponse(res, 200, { success: true, message: 'Location updated successfully' });
     } catch (error) {
       next(error);
     }

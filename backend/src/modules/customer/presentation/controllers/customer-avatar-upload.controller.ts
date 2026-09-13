@@ -4,7 +4,7 @@ import type { CustomerAvatarUploadUseCase } from '../../application/use-cases/cu
 import { catchAsync } from '../../../../shared/utils/CatchAsync.js';
 import { NextFunction, Request, Response } from 'express';
 import { sendResponse } from '../../../../shared/utils/AppResponse.js';
-import { AppError } from '../../../../shared/errors/AppError.js';
+import { BadRequestError } from '../../../../shared/errors/BadRequestError.js';
 
 @injectable()
 export class CustomerAvatarUploadController {
@@ -17,7 +17,7 @@ export class CustomerAvatarUploadController {
     const userId = req.user?.id as string;
 
     if (!req.file) {
-      throw new AppError('Avatar file is required', 400, 'AVATAR_FILE_NOT_FOUND', true);
+      throw new BadRequestError('Avatar file is required');
     }
 
     await this.customerAvatarUploadUseCase.execute({

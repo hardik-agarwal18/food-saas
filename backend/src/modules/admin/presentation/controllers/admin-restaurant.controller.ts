@@ -5,6 +5,7 @@ import { AdminTokens } from '../../infrastructure/tokens/admin.tokens.js';
 import type { IApproveRestaurantUseCase } from '../../../restaurant/application/use-cases/approve-restaurant.use-case.js';
 import type { ISuspendRestaurantUseCase } from '../../../restaurant/application/use-cases/suspend-restaurant.use-case.js';
 import type { IGetPendingRestaurantsUseCase } from '../../application/use-cases/get-pending-restaurants.use-case.js';
+import { sendResponse } from '../../../../shared/utils/AppResponse.js';
 
 @injectable()
 export class AdminRestaurantController {
@@ -20,7 +21,7 @@ export class AdminRestaurantController {
   async getPending(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const restaurants = await this.getPendingRestaurantsUseCase.execute();
-      res.status(200).json({ success: true, data: restaurants });
+      sendResponse(res, 200, { success: true, message: 'Success', data: restaurants });
     } catch (error) {
       next(error);
     }
@@ -30,7 +31,7 @@ export class AdminRestaurantController {
     try {
       const id = req.params.id as string;
       const restaurant = await this.approveRestaurantUseCase.execute(id);
-      res.status(200).json({ success: true, data: restaurant });
+      sendResponse(res, 200, { success: true, message: 'Success', data: restaurant });
     } catch (error) {
       next(error);
     }
@@ -40,7 +41,7 @@ export class AdminRestaurantController {
     try {
       const id = req.params.id as string;
       const restaurant = await this.suspendRestaurantUseCase.execute(id);
-      res.status(200).json({ success: true, data: restaurant });
+      sendResponse(res, 200, { success: true, message: 'Success', data: restaurant });
     } catch (error) {
       next(error);
     }
