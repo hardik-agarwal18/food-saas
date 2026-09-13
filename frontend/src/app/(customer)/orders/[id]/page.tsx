@@ -83,6 +83,8 @@ export default function OrderDetailsPage() {
                       ...(driverLocation ? [{ lat: driverLocation.latitude, lng: driverLocation.longitude, type: 'DRIVER' as const, id: 'driver' }] : []),
                       ...(order?.deliveryAddress?.latitude && order?.deliveryAddress?.longitude ? [{ lat: order.deliveryAddress.latitude, lng: order.deliveryAddress.longitude, type: 'CUSTOMER' as const, id: 'customer' }] : [])
                     ]}
+                    directionsOrigin={driverLocation ? { lat: driverLocation.latitude, lng: driverLocation.longitude } : undefined}
+                    directionsDestination={order?.deliveryAddress?.latitude ? { lat: order.deliveryAddress.latitude, lng: order.deliveryAddress.longitude } : undefined}
                   />
                 </div>
               </Card>

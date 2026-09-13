@@ -76,6 +76,12 @@ export default function DriverDashboard() {
                       ...(delivery.order?.restaurant?.latitude && delivery.order?.restaurant?.longitude ? [{ lat: delivery.order.restaurant.latitude, lng: delivery.order.restaurant.longitude, type: 'RESTAURANT' as const, id: 'restaurant' }] : []),
                       ...(delivery.order?.deliveryAddress?.latitude && delivery.order?.deliveryAddress?.longitude ? [{ lat: delivery.order.deliveryAddress.latitude, lng: delivery.order.deliveryAddress.longitude, type: 'CUSTOMER' as const, id: 'customer' }] : [])
                     ]}
+                    directionsOrigin={currentLocation ? { lat: currentLocation.lat, lng: currentLocation.lng } : undefined}
+                    directionsDestination={
+                      delivery.status === 'ACCEPTED' 
+                        ? (delivery.order?.restaurant?.latitude ? { lat: delivery.order.restaurant.latitude, lng: delivery.order.restaurant.longitude } : undefined)
+                        : (delivery.order?.deliveryAddress?.latitude ? { lat: delivery.order.deliveryAddress.latitude, lng: delivery.order.deliveryAddress.longitude } : undefined)
+                    }
                   />
                 </div>
                 <div className="grid gap-2 text-sm">
