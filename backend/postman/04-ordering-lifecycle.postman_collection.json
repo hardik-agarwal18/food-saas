@@ -1,0 +1,359 @@
+{
+  "info": {
+    "_postman_id": "dd44ee55-ff66-gg77-hh88-ii99jj00kk11",
+    "name": "Food SaaS — 04 Ordering Lifecycle",
+    "description": "Test suite for the ordering lifecycle. Covers order placement by customer, status updates by restaurant, and history retrieval.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01 Setup & Auth",
+      "description": "Login as both Customer and Restaurant Owner.",
+      "item": [
+        {
+          "name": "Login as Customer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "if(body.success) {",
+                  "    pm.environment.set(\"customerAccessToken\", body.data.accessToken);",
+                  "    pm.environment.set(\"customerId\", body.data.user.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"{{customerEmail}}\",\n    \"password\": \"{{customerPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/identity/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "identity", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login as Restaurant Owner",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "if(body.success) {",
+                  "    pm.environment.set(\"restaurantAccessToken\", body.data.accessToken);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"{{restaurantEmail}}\",\n    \"password\": \"{{restaurantPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/identity/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "identity", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 Order Placement",
+      "item": [
+        {
+          "name": "Place Order (Customer)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "if(body.success) {",
+                  "    pm.environment.set(\"orderId\", body.data.id);",
+                  "}",
+                  "pm.test(\"Order status is PENDING\", function () {",
+                  "    pm.expect(body.data.status).to.eql(\"PENDING\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{customerAccessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"restaurantId\": \"{{restaurantId}}\",\n    \"orderType\": \"DELIVERY\",\n    \"deliveryAddress\": {\n        \"streetAddress\": \"123 Customer St\",\n        \"city\": \"Flavor Town\",\n        \"state\": \"CA\",\n        \"zipCode\": \"90210\",\n        \"country\": \"USA\",\n        \"latitude\": 34.053,\n        \"longitude\": -118.244\n    },\n    \"specialInstructions\": \"Leave at the door.\",\n    \"items\": [\n        {\n            \"menuItemId\": \"{{menuItemId}}\",\n            \"quantity\": 2,\n            \"specialInstructions\": \"Extra spicy please\",\n            \"modifiers\": [\n                {\n                    \"modifierGroupId\": \"{{modifierGroupId}}\",\n                    \"modifierItemId\": \"{{modifierItemId}}\"\n                }\n            ]\n        }\n    ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "orders"]
+            }
+          }
+        },
+        {
+          "name": "Get Order Details (Customer)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Verify Order ID\", function () {",
+                  "    pm.expect(body.data.id).to.eql(pm.environment.get(\"orderId\"));",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{customerAccessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/orders/{{orderId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "orders", "{{orderId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 Restaurant Management",
+      "item": [
+        {
+          "name": "List Restaurant Orders",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{restaurantAccessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/orders/restaurant/{{restaurantId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "orders", "restaurant", "{{restaurantId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Order Status (ACCEPTED)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Order status is ACCEPTED\", function () {",
+                  "    pm.expect(body.data.status).to.eql(\"ACCEPTED\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{restaurantAccessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"ACCEPTED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/orders/{{restaurantId}}/{{orderId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "orders", "{{restaurantId}}", "{{orderId}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "Update Order Status (PREPARING)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{restaurantAccessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"PREPARING\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/orders/{{restaurantId}}/{{orderId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "orders", "{{restaurantId}}", "{{orderId}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "Update Order Status (READY_FOR_PICKUP)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{restaurantAccessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"READY_FOR_PICKUP\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/orders/{{restaurantId}}/{{orderId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "orders", "{{restaurantId}}", "{{orderId}}", "status"]
+            },
+            "description": "After READY_FOR_PICKUP, the delivery system usually takes over to transition to OUT_FOR_DELIVERY and DELIVERED."
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 History & Authorization",
+      "item": [
+        {
+          "name": "List My Orders (Customer)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{customerAccessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/orders/customer/my",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "orders", "customer", "my"]
+            }
+          }
+        },
+        {
+          "name": "Customer Updating Order Status (Should Fail)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{customerAccessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"DELIVERED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/orders/{{restaurantId}}/{{orderId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "orders", "{{restaurantId}}", "{{orderId}}", "status"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

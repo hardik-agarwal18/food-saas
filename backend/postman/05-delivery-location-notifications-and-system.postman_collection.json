@@ -1,0 +1,433 @@
+{
+  "info": {
+    "_postman_id": "ee55ff66-gg77-hh88-ii99-jj00kk11ll22",
+    "name": "Food SaaS — 05 Delivery, Location & System",
+    "description": "Test suite for Driver registration, delivery assignments, real-time location tracking, and system health checks.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01 System Health",
+      "item": [
+        {
+          "name": "Liveness Probe",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Status is alive\", function () {",
+                  "    pm.expect(body.status).to.eql(\"alive\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/live",
+              "host": ["{{baseUrl}}"],
+              "path": ["live"]
+            }
+          }
+        },
+        {
+          "name": "Health Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Status is healthy\", function () {",
+                  "    pm.expect(body.status).to.eql(\"healthy\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 Setup & Auth",
+      "description": "Login as Driver",
+      "item": [
+        {
+          "name": "Login as Driver",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "if(body.success) {",
+                  "    pm.environment.set(\"driverAccessToken\", body.data.accessToken);",
+                  "    pm.environment.set(\"driverId\", body.data.user.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"{{driverEmail}}\",\n    \"password\": \"{{driverPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/identity/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "identity", "login"]
+            }
+          }
+        },
+        {
+          "name": "Register as Driver (Profile)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 or 400 (if already registered)\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201, 400]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{driverAccessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"vehicleType\": \"CAR\",\n    \"licenseNumber\": \"DL-1234567\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/deliveries/drivers/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "deliveries", "drivers", "register"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 Delivery Assignments",
+      "item": [
+        {
+          "name": "Get Available Deliveries",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "if(body.success && body.data.length > 0) {",
+                  "    pm.environment.set(\"deliveryAssignmentId\", body.data[0].id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{driverAccessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/deliveries/available",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "deliveries", "available"]
+            }
+          }
+        },
+        {
+          "name": "Claim Delivery Assignment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{driverAccessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/deliveries/{{deliveryAssignmentId}}/claim",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "deliveries", "{{deliveryAssignmentId}}", "claim"]
+            }
+          }
+        },
+        {
+          "name": "Get My Driver Assignments",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{driverAccessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/deliveries/driver/assignments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "deliveries", "driver", "assignments"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 Delivery Lifecycle & Location Tracking",
+      "item": [
+        {
+          "name": "Update Location (Driver)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{driverAccessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"latitude\": 34.053,\n    \"longitude\": -118.244\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/deliveries/location/update",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "deliveries", "location", "update"]
+            }
+          }
+        },
+        {
+          "name": "Update Delivery Status (PICKED_UP)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{driverAccessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"PICKED_UP\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/deliveries/{{deliveryAssignmentId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "deliveries", "{{deliveryAssignmentId}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "Get Delivery Location (by Assignment ID)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{customerAccessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/deliveries/location/assignment/{{deliveryAssignmentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "deliveries", "location", "assignment", "{{deliveryAssignmentId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Delivery Location (by Order ID)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{customerAccessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/deliveries/location/order/{{orderId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "deliveries", "location", "order", "{{orderId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Delivery Status (DELIVERED)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{driverAccessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"DELIVERED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/deliveries/{{deliveryAssignmentId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "deliveries", "{{deliveryAssignmentId}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "Get Nearby Drivers (Admin/System)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminAccessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/deliveries/drivers/nearby?lat=34.053&lng=-118.244&radius=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "deliveries", "drivers", "nearby"],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "34.053"
+                },
+                {
+                  "key": "lng",
+                  "value": "-118.244"
+                },
+                {
+                  "key": "radius",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
