@@ -19,6 +19,14 @@ import { CreateMenuModifierGroupController } from '../controllers/create-menu-mo
 import { GetMenuModifierGroupsController } from '../controllers/get-menu-modifier-groups.controller.js';
 import { CreateMenuModifierItemController } from '../controllers/create-menu-modifier-item.controller.js';
 import { GetMenuModifierItemsController } from '../controllers/get-menu-modifier-items.controller.js';
+import { MenuImportController } from '../controllers/menu-import.controller.js';
+import { confirmMenuImportSchema } from '../validators/menu-import.validator.js';
+import multer from 'multer';
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+});
 
 const router = express.Router({ mergeParams: true }); // Important: to access restaurantId from parent
 
@@ -33,6 +41,7 @@ const createMenuModifierGroupController = container.resolve(CreateMenuModifierGr
 const getMenuModifierGroupsController = container.resolve(GetMenuModifierGroupsController);
 const createMenuModifierItemController = container.resolve(CreateMenuModifierItemController);
 const getMenuModifierItemsController = container.resolve(GetMenuModifierItemsController);
+const menuImportController = container.resolve(MenuImportController);
 
 // ─── Categories ─────────────────────────────────────────────────────────────
 router
@@ -77,5 +86,40 @@ router
     createMenuModifierItemController.handle.bind(createMenuModifierItemController),
   )
   .get(getMenuModifierItemsController.handle.bind(getMenuModifierItemsController));
+
+// ─── Menu Imports ───────────────────────────────────────────────────────────
+router
+  .route('/menu-imports')
+  .post(
+    auth.authenticate,
+    authz.authorize(Permission.MENU_CREATE),
+    upload.single('file'),
+    menuImportController.upload.bind(menuImportController),
+  );
+
+router
+  .route('/menu-imports/:importId')
+  .get(
+    auth.authenticate,
+    authz.authorize(Permission.MENU_READ),
+    menuImportController.get.bind(menuImportController),
+  );
+
+router
+  .route('/menu-imports/:importId/confirm')
+  .post(
+    auth.authenticate,
+    authz.authorize(Permission.MENU_CREATE),
+    validate({ body: confirmMenuImportSchema }),
+    menuImportController.confirm.bind(menuImportController),
+  );
+
+router
+  .route('/menu-imports/:importId/retry')
+  .post(
+    auth.authenticate,
+    authz.authorize(Permission.MENU_CREATE),
+    menuImportController.retry.bind(menuImportController),
+  );
 
 export default router;
