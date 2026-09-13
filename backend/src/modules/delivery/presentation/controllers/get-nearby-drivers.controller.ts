@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { injectable } from 'tsyringe';
 import { DriverLocationService } from '../../application/services/driver-location.service.js';
 import { getNearbyDriversSchema } from '../validators/delivery.validator.js';
+import { sendResponse } from '../../../../shared/utils/AppResponse.js';
 
 @injectable()
 export class GetNearbyDriversController {
@@ -17,8 +18,9 @@ export class GetNearbyDriversController {
         validatedData.radius,
       );
 
-      res.status(200).json({
+      sendResponse(res, 200, {
         success: true,
+        message: 'Success',
         data: {
           drivers,
         },

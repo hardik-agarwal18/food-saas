@@ -11,4 +11,14 @@ export const MenuTokens = {
   GetMenuModifierGroupsUseCase: Symbol.for('Menu.GetMenuModifierGroupsUseCase'),
   CreateMenuModifierItemUseCase: Symbol.for('Menu.CreateMenuModifierItemUseCase'),
   GetMenuModifierItemsUseCase: Symbol.for('Menu.GetMenuModifierItemsUseCase'),
+
+  MenuImportRepository: Symbol.for('Menu.MenuImportRepository'),
+  MenuDocumentReader: Symbol.for('Menu.MenuDocumentReader'),
+  MenuParser: Symbol.for('Menu.MenuParser'),
+
+  CreateMenuImportUseCase: Symbol.for('Menu.CreateMenuImportUseCase'),
+  ProcessMenuImportUseCase: Symbol.for('Menu.ProcessMenuImportUseCase'),
+  GetMenuImportUseCase: Symbol.for('Menu.GetMenuImportUseCase'),
+  ConfirmMenuImportUseCase: Symbol.for('Menu.ConfirmMenuImportUseCase'),
+  RetryMenuImportUseCase: Symbol.for('Menu.RetryMenuImportUseCase'),
 };

@@ -59,6 +59,7 @@ import { ErrorHandlerMiddleware } from '../../../app/middleware/error-handler.mi
 import { SmtpService } from '../../email/smtp.email.service.js';
 import { EmailJobProcessor } from '../../queue/jobs/email/email.job.processor.js';
 import { AvatarJobProcessor } from '../../queue/jobs/avatar/avatar.job.processor.js';
+import { MenuImportJobProcessor } from '../../queue/jobs/menu-import/menu-import.job.processor.js';
 
 import { RateLimitService } from '../../security/rate-limit.service.js';
 import { R2FileStorage } from '../../storage/r2/r2.file-storage.js';
@@ -229,5 +230,12 @@ export const registerInfrastructure = (): void => {
    */
   container.register(InfrastructureTokens.AvatarJobProcessor, {
     useClass: AvatarJobProcessor,
+  });
+
+  /**
+   * Register MenuImportJobProcessor.
+   */
+  container.register(InfrastructureTokens.MenuImportJobProcessor, {
+    useClass: MenuImportJobProcessor,
   });
 };
