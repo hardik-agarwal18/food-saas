@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { inject, injectable } from 'tsyringe';
 import { AdminTokens } from '../../infrastructure/tokens/admin.tokens.js';
 import type { ISuspendUserUseCase } from '../../application/use-cases/suspend-user.use-case.js';
+import { sendResponse } from '../../../../shared/utils/AppResponse.js';
 
 @injectable()
 export class AdminUserController {
@@ -14,7 +15,7 @@ export class AdminUserController {
     try {
       const id = req.params.id as string;
       await this.suspendUserUseCase.execute(id);
-      res.status(200).json({ success: true, message: 'User suspended successfully' });
+      sendResponse(res, 200, { success: true, message: 'User suspended successfully' });
     } catch (error) {
       next(error);
     }

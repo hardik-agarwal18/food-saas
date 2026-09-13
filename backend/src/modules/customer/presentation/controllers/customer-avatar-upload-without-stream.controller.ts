@@ -3,7 +3,7 @@ import { CustomerTokens } from '../../infrastructure/persistence/tokens/customer
 import type { CustomerAvatarUploadWithoutStreamUseCase } from '../../application/use-cases/customer-avatar-upload-without-stream.use-case.js';
 import { catchAsync } from '../../../../shared/utils/CatchAsync.js';
 import { NextFunction, Request, Response } from 'express';
-import { AppError } from '../../../../shared/errors/AppError.js';
+import { BadRequestError } from '../../../../shared/errors/BadRequestError.js';
 import { sendResponse } from '../../../../shared/utils/AppResponse.js';
 
 @injectable()
@@ -17,7 +17,7 @@ export class CustomerAvatarUploadWithoutStreamController {
     const userId = req.user?.id as string;
 
     if (!req.file) {
-      throw new AppError('Avatar file is required', 400, 'AVATAR_FILE_NOT_FOUND', true);
+      throw new BadRequestError('Avatar file is required');
     }
 
     await this.customerAvatarUploadWithoutStreamUseCase.execute({
