@@ -12,6 +12,7 @@ import {
 
 import { RegisterDriverController } from '../controllers/register-driver.controller.js';
 import { ToggleDriverAvailabilityController } from '../controllers/toggle-driver-availability.controller.js';
+import { GetDriverProfileController } from '../controllers/get-driver-profile.controller.js';
 import { ClaimDeliveryAssignmentController } from '../controllers/claim-delivery-assignment.controller.js';
 import { UpdateDeliveryStatusController } from '../controllers/update-delivery-status.controller.js';
 import { GetAvailableDeliveriesController } from '../controllers/get-available-deliveries.controller.js';
@@ -26,6 +27,7 @@ const authenticationMiddleware = container.resolve(AuthenticationMiddleware);
 
 const registerDriverController = container.resolve(RegisterDriverController);
 const toggleDriverAvailabilityController = container.resolve(ToggleDriverAvailabilityController);
+const getDriverProfileController = container.resolve(GetDriverProfileController);
 const claimDeliveryAssignmentController = container.resolve(ClaimDeliveryAssignmentController);
 const updateDeliveryStatusController = container.resolve(UpdateDeliveryStatusController);
 const getAvailableDeliveriesController = container.resolve(GetAvailableDeliveriesController);
@@ -41,6 +43,11 @@ router.post(
   '/drivers/register',
   validate({ body: registerDriverSchema }),
   registerDriverController.handle.bind(registerDriverController),
+);
+
+router.get(
+  '/drivers/me',
+  getDriverProfileController.handle.bind(getDriverProfileController),
 );
 
 router.patch(

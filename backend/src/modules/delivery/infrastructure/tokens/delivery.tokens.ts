@@ -3,6 +3,7 @@ export const DeliveryTokens = {
   DeliveryAssignmentRepository: Symbol('IDeliveryAssignmentRepository'),
   RegisterDriverUseCase: Symbol('IRegisterDriverUseCase'),
   ToggleDriverAvailabilityUseCase: Symbol('IToggleDriverAvailabilityUseCase'),
+  GetDriverProfileUseCase: Symbol('IGetDriverProfileUseCase'),
   CreateDeliveryAssignmentUseCase: Symbol('ICreateDeliveryAssignmentUseCase'),
   ClaimDeliveryAssignmentUseCase: Symbol('IClaimDeliveryAssignmentUseCase'),
   UpdateDeliveryStatusUseCase: Symbol('IUpdateDeliveryStatusUseCase'),

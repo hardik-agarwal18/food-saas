@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { Role } from '../domain/enums/index.js';
 
 export const registerUserSchema = z.strictObject({
   email: z.string().trim().toLowerCase().email('Invalid email address.'),
@@ -20,6 +21,10 @@ export const registerUserSchema = z.strictObject({
     .min(1, 'Phone number cannot be empty')
     .max(20, 'Phone number cannot contain more than 20 digits')
     .trim(),
+  role: z
+    .enum([Role.CUSTOMER, Role.DRIVER, Role.RESTAURANT_OWNER])
+    .optional()
+    .default(Role.CUSTOMER),
 });
 
 export type RegisterUserRequest = z.infer<typeof registerUserSchema>;

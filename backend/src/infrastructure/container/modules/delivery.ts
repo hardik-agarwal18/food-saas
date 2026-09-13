@@ -18,6 +18,7 @@ import { OnDeliveryPickedUpHandler } from '../../../modules/ordering/application
 import { OnDeliveryDeliveredHandler } from '../../../modules/ordering/application/event-handlers/on-delivery-delivered.handler.js';
 import { EventDispatcher } from '../../../shared/events/event-dispatcher.js';
 import { GoogleRouteService } from '../../../modules/delivery/infrastructure/google/google-route.service.js';
+import { GetDriverProfileUseCase } from '../../../modules/delivery/application/use-cases/get-driver-profile.use-case.js';
 
 export function registerDeliveryModule() {
   container.registerSingleton(DeliveryTokens.DriverRepository, DriverRepositoryImpl);
@@ -29,6 +30,10 @@ export function registerDeliveryModule() {
   container.registerSingleton(
     DeliveryTokens.ToggleDriverAvailabilityUseCase,
     ToggleDriverAvailabilityUseCaseImpl,
+  );
+  container.registerSingleton(
+    DeliveryTokens.GetDriverProfileUseCase,
+    GetDriverProfileUseCase,
   );
   container.registerSingleton(
     DeliveryTokens.CreateDeliveryAssignmentUseCase,

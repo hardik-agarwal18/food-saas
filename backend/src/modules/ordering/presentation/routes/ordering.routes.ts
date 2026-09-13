@@ -8,6 +8,7 @@ import { PlaceOrderController } from '../controllers/place-order.controller.js';
 import { GetCustomerOrdersController } from '../controllers/get-customer-orders.controller.js';
 import { GetRestaurantOrdersController } from '../controllers/get-restaurant-orders.controller.js';
 import { UpdateOrderStatusController } from '../controllers/update-order-status.controller.js';
+import { GetOrderByIdController } from '../controllers/get-order-by-id.controller.js';
 import {
   placeOrderSchema,
   updateOrderStatusSchema,
@@ -23,6 +24,7 @@ const placeOrderController = container.resolve(PlaceOrderController);
 const getCustomerOrdersController = container.resolve(GetCustomerOrdersController);
 const getRestaurantOrdersController = container.resolve(GetRestaurantOrdersController);
 const updateOrderStatusController = container.resolve(UpdateOrderStatusController);
+const getOrderByIdController = container.resolve(GetOrderByIdController);
 
 // Customer Routes
 router.post(
@@ -39,6 +41,13 @@ router.get(
   authz.authorize(Permission.ORDER_READ),
   validate({ query: paginationQuerySchema }),
   getCustomerOrdersController.handle.bind(getCustomerOrdersController),
+);
+
+router.get(
+  '/:id',
+  auth.authenticate,
+  authz.authorize(Permission.ORDER_READ),
+  getOrderByIdController.handle.bind(getOrderByIdController),
 );
 
 // Restaurant Routes

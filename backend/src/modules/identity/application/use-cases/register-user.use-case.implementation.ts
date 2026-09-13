@@ -63,6 +63,7 @@ export class RegisterUserUseCaseImplementation implements RegisterUserUseCase {
     const user = User.create({
       email,
       passwordHash,
+      roles: input.role ? [input.role] : undefined,
     });
 
     const accessTokenIssuedAt = Math.floor(Date.now() / 1000);
@@ -125,14 +126,16 @@ export class RegisterUserUseCaseImplementation implements RegisterUserUseCase {
 
           await refreshSessionRepository.create(refreshSession);
 
-          const customerEntity = await this.customerProfileCreationUseCase.execute({
-            userId: createdUser.getId(),
-            firstName: input.firstName,
-            lastName: input.lastName,
-            phone: input.phone,
-          });
+          if (input.role === undefined || input.role === 'CUSTOMER') {
+            const customerEntity = await this.customerProfileCreationUseCase.execute({
+              userId: createdUser.getId(),
+              firstName: input.firstName,
+              lastName: input.lastName,
+              phone: input.phone,
+            });
 
-          await customerRepository.create(customerEntity);
+            await customerRepository.create(customerEntity);
+          }
 
           return createdUser;
         },
