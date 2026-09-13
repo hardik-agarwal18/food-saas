@@ -1,5 +1,6 @@
 export interface CreateMenuImportInput {
   restaurantId: string;
+  actorId: string;
   mimeType: string;
   buffer: Buffer;
   contentLength: number;

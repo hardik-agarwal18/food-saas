@@ -2,7 +2,7 @@ import { injectable, inject } from 'tsyringe';
 import { Request, Response } from 'express';
 import { catchAsync } from '../../../../shared/utils/CatchAsync.js';
 import { sendResponse } from '../../../../shared/utils/AppResponse.js';
-import { MenuTokens } from '../../infrastructure/persistence/tokens/menu.tokens.js';
+import { MenuTokens } from '../../infrastructure/tokens/menu.tokens.js';
 import type { CreateMenuImportUseCase } from '../../application/use-cases/create-menu-import/create-menu-import.use-case.js';
 import type { GetMenuImportUseCase } from '../../application/use-cases/get-menu-import/get-menu-import.use-case.js';
 import type { ConfirmMenuImportUseCase } from '../../application/use-cases/confirm-menu-import/confirm-menu-import.use-case.js';
@@ -31,10 +31,11 @@ export class MenuImportController {
       throw new BadRequestError('Menu document file is required');
     }
 
-    // Usually want to check restaurant ownership here but relying on middleware or use case.
+    const actorId = req.user.id;
 
     const result = await this.createMenuImportUseCase.execute({
       restaurantId,
+      actorId,
       mimeType: req.file.mimetype,
       buffer: req.file.buffer,
       contentLength: req.file.size,
@@ -50,28 +51,35 @@ export class MenuImportController {
   public get = catchAsync(async (req: Request, res: Response) => {
     const restaurantId = req.params.restaurantId as string;
     const importId = req.params.importId as string;
+    const actorId = req.user.id;
 
-    const result = await this.getMenuImportUseCase.execute({ restaurantId, importId });
+    const result = await this.getMenuImportUseCase.execute({ restaurantId, importId, actorId });
 
     if (!result) {
       throw new NotFoundError('Menu import not found');
     }
+    
+    // Create safe DTO that excludes raw OCR text
+    const persistence = MenuImportMapper.toPersistence(result);
+    const { rawOcrText, ...safeDto } = persistence as any;
 
     sendResponse(res, 200, {
       success: true,
       message: 'Menu import retrieved',
-      data: MenuImportMapper.toPersistence(result), // Reuse persistence mapping or create DTO
+      data: safeDto,
     });
   });
 
   public confirm = catchAsync(async (req: Request, res: Response) => {
     const restaurantId = req.params.restaurantId as string;
     const importId = req.params.importId as string;
+    const actorId = req.user.id;
     const { editedData } = req.body;
 
     await this.confirmMenuImportUseCase.execute({
       restaurantId,
       importId,
+      actorId,
       editedData,
     });
 
@@ -84,10 +92,12 @@ export class MenuImportController {
   public retry = catchAsync(async (req: Request, res: Response) => {
     const restaurantId = req.params.restaurantId as string;
     const importId = req.params.importId as string;
+    const actorId = req.user.id;
 
     await this.retryMenuImportUseCase.execute({
       restaurantId,
       importId,
+      actorId,
     });
 
     sendResponse(res, 202, {

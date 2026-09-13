@@ -1,5 +1,5 @@
 import { inject, injectable } from 'tsyringe';
-import { MenuTokens } from '../../../infrastructure/persistence/tokens/menu.tokens.js';
+import { MenuTokens } from '../../../infrastructure/tokens/menu.tokens.js';
 import { InfrastructureTokens } from '../../../../../infrastructure/container/tokens/index.js';
 import type { MenuImportRepository } from '../../../domain/repositories/menu-import.repository.js';
 import type { MenuDocumentReader } from '../../contracts/menu-document-reader.interface.js';
@@ -55,7 +55,13 @@ export class ProcessMenuImportUseCaseImpl implements ProcessMenuImportUseCase {
       EventDispatcher.getInstance().dispatch(
         new MenuImportProcessingStartedEvent(importEntity.getId(), importEntity.getRestaurantId()),
       );
-    } catch (e) {
+    } catch (e: any) {
+      if (e.message.includes('currently processing and not stale')) {
+        this.logger.info(
+          `Menu import ${input.importId} is currently processing and not stale. Skipping.`,
+        );
+        return;
+      }
       this.logger.error(`Failed to transition menu import ${input.importId} to processing:`, e);
       return; // Could be optimistic lock error, let it be retried by BullMQ
     }

@@ -1,11 +1,14 @@
 import { inject, injectable } from 'tsyringe';
-import { MenuTokens } from '../../../infrastructure/persistence/tokens/menu.tokens.js';
+import { MenuTokens } from '../../../infrastructure/tokens/menu.tokens.js';
 import type { MenuImportRepository } from '../../../domain/repositories/menu-import.repository.js';
+import { RestaurantTokens } from '../../../../restaurant/infrastructure/persistence/tokens/restaurant.tokens.js';
+import type { IRestaurantRepository } from '../../../../restaurant/domain/repositories/restaurant.repository.js';
 import type {
   ConfirmMenuImportInput,
   ConfirmMenuImportUseCase,
 } from './confirm-menu-import.use-case.js';
 import { MenuDomainError } from '../../../domain/errors/menu-domain.error.js';
+import { ConflictError } from '../../../../../shared/errors/ConflictError.js';
 import { withTransaction } from '../../../../../infrastructure/database/transaction.js';
 import { MenuCategory } from '../../../domain/entities/menu-category.entity.js';
 import { MenuItem } from '../../../domain/entities/menu-item.entity.js';
@@ -23,6 +26,8 @@ export class ConfirmMenuImportUseCaseImpl implements ConfirmMenuImportUseCase {
   constructor(
     @inject(MenuTokens.MenuImportRepository)
     private readonly menuImportRepository: MenuImportRepository,
+    @inject(RestaurantTokens.RestaurantRepository)
+    private readonly restaurantRepo: IRestaurantRepository,
   ) {}
 
   async execute(input: ConfirmMenuImportInput): Promise<void> {
@@ -34,6 +39,14 @@ export class ConfirmMenuImportUseCaseImpl implements ConfirmMenuImportUseCase {
 
     if (importEntity.getRestaurantId() !== input.restaurantId) {
       throw new MenuDomainError('Unauthorized access to menu import');
+    }
+
+    const restaurant = await this.restaurantRepo.findById(input.restaurantId);
+    if (!restaurant) {
+      throw new MenuDomainError('Restaurant not found');
+    }
+    if (restaurant.getOwnerId() !== input.actorId) {
+      throw new MenuDomainError('Unauthorized to modify this restaurant menu');
     }
 
     // Support edits before confirmation
@@ -104,7 +117,7 @@ export class ConfirmMenuImportUseCaseImpl implements ConfirmMenuImportUseCase {
       });
 
       if (result.count === 0) {
-        throw new MenuDomainError(
+        throw new ConflictError(
           'Optimistic concurrency control failed. The entity was modified by another transaction.',
         );
       }

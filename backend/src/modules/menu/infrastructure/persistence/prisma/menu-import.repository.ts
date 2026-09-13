@@ -5,7 +5,7 @@ import { BaseRepository } from '../../../../../infrastructure/database/base.repo
 import { MenuImportRepository } from '../../../domain/repositories/menu-import.repository.js';
 import { MenuImport } from '../../../domain/entities/menu-import.entity.js';
 import { MenuImportMapper } from './mappers/menu-import.mapper.js';
-import { MenuDomainError } from '../../../domain/errors/menu-domain.error.js';
+import { ConflictError } from '../../../../../shared/errors/ConflictError.js';
 
 @injectable()
 export class MenuImportRepositoryImpl extends BaseRepository implements MenuImportRepository {
@@ -46,7 +46,7 @@ export class MenuImportRepositoryImpl extends BaseRepository implements MenuImpo
     );
 
     if (result.count === 0) {
-      throw new MenuDomainError(
+      throw new ConflictError(
         'Optimistic concurrency control failed. The entity was modified by another transaction.',
       );
     }

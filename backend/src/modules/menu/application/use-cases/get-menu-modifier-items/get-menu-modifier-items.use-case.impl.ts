@@ -1,10 +1,10 @@
 import { injectable, inject } from 'tsyringe';
 import type { IGetMenuModifierItemsUseCase } from './get-menu-modifier-items.use-case.js';
-import { MenuModifierItemResponseDto } from '../dto/menu-modifier.dto.js';
-import { MenuTokens } from '../../infrastructure/persistence/tokens/menu.tokens.js';
-import type { IMenuModifierRepository } from '../../domain/repositories/menu-modifier.repository.js';
-import { MenuDtoMapper } from '../mappers/menu-dto.mapper.js';
-import { MenuDomainError } from '../../domain/errors/menu-domain.error.js';
+import { MenuModifierItemResponseDto } from '../../dto/menu-modifier.dto.js';
+import { MenuTokens } from '../../../infrastructure/tokens/menu.tokens.js';
+import type { IMenuModifierRepository } from '../../../domain/repositories/menu-modifier.repository.js';
+import { MenuDtoMapper } from '../../mappers/menu-dto.mapper.js';
+import { MenuDomainError } from '../../../domain/errors/menu-domain.error.js';
 
 @injectable()
 export class GetMenuModifierItemsUseCaseImpl implements IGetMenuModifierItemsUseCase {

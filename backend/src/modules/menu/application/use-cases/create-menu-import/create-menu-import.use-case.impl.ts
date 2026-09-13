@@ -1,9 +1,12 @@
 import { inject, injectable } from 'tsyringe';
-import { MenuTokens } from '../../../infrastructure/persistence/tokens/menu.tokens.js';
+import { MenuTokens } from '../../../infrastructure/tokens/menu.tokens.js';
 import { InfrastructureTokens } from '../../../../../infrastructure/container/tokens/index.js';
 import type { FileStorage } from '../../../../../shared/contracts/storage/file-storage.js';
 import type { MenuImportRepository } from '../../../domain/repositories/menu-import.repository.js';
 import { MenuImport } from '../../../domain/entities/menu-import.entity.js';
+import { RestaurantTokens } from '../../../../restaurant/infrastructure/persistence/tokens/restaurant.tokens.js';
+import type { IRestaurantRepository } from '../../../../restaurant/domain/repositories/restaurant.repository.js';
+import { MenuDomainError } from '../../../domain/errors/menu-domain.error.js';
 import { addProcessMenuImportJob } from '../../../../../infrastructure/queue/queues/menu-import.queue.js';
 import type {
   CreateMenuImportInput,
@@ -20,6 +23,8 @@ export class CreateMenuImportUseCaseImpl implements CreateMenuImportUseCase {
     private readonly menuImportRepository: MenuImportRepository,
     @inject(InfrastructureTokens.FileStorage)
     private readonly fileStorage: FileStorage,
+    @inject(RestaurantTokens.RestaurantRepository)
+    private readonly restaurantRepo: IRestaurantRepository,
   ) {}
 
   async execute(input: CreateMenuImportInput): Promise<CreateMenuImportOutput> {
@@ -27,6 +32,14 @@ export class CreateMenuImportUseCaseImpl implements CreateMenuImportUseCase {
     // but the create method currently generates one. We'll bypass `create` to inject the ID
     // or just use `create` and get the ID.
     // Let's use `create` and we'll use its generated ID.
+
+    const restaurant = await this.restaurantRepo.findById(input.restaurantId);
+    if (!restaurant) {
+      throw new MenuDomainError('Restaurant not found');
+    }
+    if (restaurant.getOwnerId() !== input.actorId) {
+      throw new MenuDomainError('Unauthorized to modify this restaurant menu');
+    }
 
     const sourceFileKey = `restaurants/${input.restaurantId}/menu-imports/${crypto.randomUUID()}/source`;
 
