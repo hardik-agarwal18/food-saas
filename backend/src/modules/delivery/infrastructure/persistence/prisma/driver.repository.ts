@@ -1,53 +1,60 @@
 import { inject, injectable } from 'tsyringe';
 import type { IDriverRepository } from '../../../domain/repositories/driver.repository.js';
 import { Driver, DriverStatus, VehicleType } from '../../../domain/entities/driver.entity.js';
-import { PrismaClient } from '../../../../../generated/prisma/client.js';
 import { InfrastructureTokens } from '../../../../../infrastructure/container/tokens/infrastructure.tokens.js';
+import { BaseRepository } from '../../../../../infrastructure/database/base.repository.js';
+import type { PrismaExecutor } from '../../../../../infrastructure/database/prisma-client.type.js';
 
 @injectable()
-export class DriverRepositoryImpl implements IDriverRepository {
-  constructor(@inject(InfrastructureTokens.PrismaClient) private prisma: PrismaClient) {}
+export class DriverRepositoryImpl extends BaseRepository implements IDriverRepository {
+  constructor(@inject(InfrastructureTokens.PrismaClient) prisma: PrismaExecutor) {
+    super(prisma);
+  }
 
   async findById(id: string): Promise<Driver | null> {
-    const record = await this.prisma.driver.findUnique({ where: { id } });
+    const record = await this.execute(() => this.prisma.driver.findUnique({ where: { id } }));
     return record ? this.mapToDomain(record) : null;
   }
 
   async findByIds(ids: string[]): Promise<Driver[]> {
     if (ids.length === 0) return [];
-    const records = await this.prisma.driver.findMany({ where: { id: { in: ids } } });
+    const records = await this.execute(() =>
+      this.prisma.driver.findMany({ where: { id: { in: ids } } }),
+    );
     return records.map((record) => this.mapToDomain(record));
   }
 
   async findByUserId(userId: string): Promise<Driver | null> {
-    const record = await this.prisma.driver.findUnique({ where: { userId } });
+    const record = await this.execute(() => this.prisma.driver.findUnique({ where: { userId } }));
     return record ? this.mapToDomain(record) : null;
   }
 
   async save(driver: Driver): Promise<void> {
-    await this.prisma.driver.upsert({
-      where: { id: driver.id },
-      create: {
-        id: driver.id,
-        userId: driver.userId,
-        firstName: driver.firstName,
-        lastName: driver.lastName,
-        phone: driver.phone,
-        vehicleType: driver.vehicleType,
-        vehiclePlateNumber: driver.vehiclePlateNumber,
-        status: driver.status,
-        currentLatitude: driver.currentLocation?.latitude,
-        currentLongitude: driver.currentLocation?.longitude,
-        lastLocationAt: driver.lastLocationAt,
-      },
-      update: {
-        status: driver.status,
-        currentLatitude: driver.currentLocation?.latitude,
-        currentLongitude: driver.currentLocation?.longitude,
-        lastLocationAt: driver.lastLocationAt,
-        updatedAt: new Date(),
-      },
-    });
+    await this.execute(() =>
+      this.prisma.driver.upsert({
+        where: { id: driver.id },
+        create: {
+          id: driver.id,
+          userId: driver.userId,
+          firstName: driver.firstName,
+          lastName: driver.lastName,
+          phone: driver.phone,
+          vehicleType: driver.vehicleType,
+          vehiclePlateNumber: driver.vehiclePlateNumber,
+          status: driver.status,
+          currentLatitude: driver.currentLocation?.latitude,
+          currentLongitude: driver.currentLocation?.longitude,
+          lastLocationAt: driver.lastLocationAt,
+        },
+        update: {
+          status: driver.status,
+          currentLatitude: driver.currentLocation?.latitude,
+          currentLongitude: driver.currentLocation?.longitude,
+          lastLocationAt: driver.lastLocationAt,
+          updatedAt: new Date(),
+        },
+      }),
+    );
   }
 
   private mapToDomain(record: any): Driver {
