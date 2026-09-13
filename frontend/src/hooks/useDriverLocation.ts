@@ -17,6 +17,7 @@ export const useDriverLocation = (isOnline: boolean) => {
     }
 
     if (!('geolocation' in navigator)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setError('Geolocation is not supported by your browser');
       return;
     }
@@ -42,8 +43,8 @@ export const useDriverLocation = (isOnline: boolean) => {
     return () => {
       if (watchIdRef.current !== null) {
         navigator.geolocation.clearWatch(watchIdRef.current);
-      }
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOnline]); // We intentionally do not include updateLocationMutation in deps to avoid re-triggering
 
   return { currentLocation, error };

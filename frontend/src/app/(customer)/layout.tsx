@@ -1,6 +1,8 @@
 import { CartWidget } from '@/features/cart/components/CartWidget';
 import Link from 'next/link';
 
+import { CustomerHeaderNav } from '@/components/customer/CustomerHeaderNav';
+
 export default function CustomerLayout({
   children,
 }: {
@@ -13,11 +15,7 @@ export default function CustomerLayout({
           <Link href="/" className="font-bold text-xl tracking-tight text-primary">
             FoodSaaS
           </Link>
-          <nav className="flex items-center gap-4 text-sm font-medium">
-            <Link href="/login" className="hover:text-primary transition-colors">
-              Log In
-            </Link>
-          </nav>
+          <CustomerHeaderNav />
         </div>
       </header>
       <div className="flex-1">

@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { deliveryApi } from './api';
 
 export const useAvailableDeliveries = () => {
@@ -32,5 +32,13 @@ export const useOrderDriverLocation = (orderId?: string, isOutForDelivery?: bool
     queryFn: () => deliveryApi.getDeliveryLocationByOrder(orderId!),
     enabled: !!orderId && isOutForDelivery,
     refetchInterval: 5000,
+  });
+};
+
+export const useDriverProfile = () => {
+  return useQuery({
+    queryKey: ['driverProfile'],
+    queryFn: () => deliveryApi.getDriverProfile(),
+    retry: false, // Don't retry so we can redirect immediately on 404
   });
 };

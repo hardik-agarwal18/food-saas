@@ -5,11 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useParams } from 'next/navigation';
 import { MenuItem } from '@/types/api.types';
+import { MenuItemModal } from '@/features/cart/components/MenuItemModal';
+import { useState } from 'react';
 
 export function RestaurantDetail() {
   const { id } = useParams() as { id: string };
   const { data: restaurant, isLoading: isLoadingRest } = useRestaurant(id);
   const { data: menuCategories, isLoading: isLoadingMenu } = useRestaurantMenu(id);
+  const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
 
   if (isLoadingRest) {
     return <div className="animate-pulse h-[300px] bg-muted rounded-xl" />;
@@ -54,7 +57,7 @@ export function RestaurantDetail() {
           </div>
         ) : menuCategories && menuCategories.length > 0 ? (
           <div className="space-y-10">
-            {menuCategories.map((category: any) => (
+            {menuCategories.map((category: { id: string; name: string; description?: string; items?: MenuItem[] }) => (
               <div key={category.id}>
                 <h3 className="text-xl font-semibold mb-4">{category.name}</h3>
                 {category.description && <p className="text-muted-foreground mb-4">{category.description}</p>}
@@ -79,7 +82,7 @@ export function RestaurantDetail() {
                         )}
                       </div>
                       <div className="p-4 pt-0">
-                        <Button className="w-full" variant="secondary" onClick={() => console.log('Add to cart', item)}>
+                        <Button className="w-full" variant="secondary" onClick={() => setSelectedItem(item)}>
                           Add to Cart
                         </Button>
                       </div>
@@ -93,6 +96,15 @@ export function RestaurantDetail() {
           <p className="text-muted-foreground">This restaurant has not published a menu yet.</p>
         )}
       </div>
+
+      {selectedItem && (
+        <MenuItemModal
+          item={selectedItem}
+          restaurantId={id}
+          isOpen={true}
+          onClose={() => setSelectedItem(null)}
+        />
+      )}
     </div>
   );
 }

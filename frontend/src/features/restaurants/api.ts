@@ -26,6 +26,14 @@ export const restaurantApi = {
     return apiClient.get(`/restaurants/${id}/menu`);
   },
 
+  createMenuCategory: async (id: string, data: { name: string; description?: string }): Promise<MenuCategory> => {
+    return apiClient.post(`/restaurants/${id}/menu/categories`, data);
+  },
+
+  createMenuItem: async (id: string, data: { name: string; description?: string; price: number; categoryId: string; imageUrl?: string }): Promise<MenuItem> => {
+    return apiClient.post(`/restaurants/${id}/menu/items`, data);
+  },
+
   approveRestaurant: async (id: string): Promise<Restaurant> => {
     return apiClient.patch(`/restaurants/${id}/approve`);
   },

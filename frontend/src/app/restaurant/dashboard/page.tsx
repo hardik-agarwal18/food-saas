@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useState, useMemo } from 'react';
+import { OrderItem } from '@/types/api.types';
 
 export default function RestaurantDashboard() {
   const { data: restaurants, isLoading: isLoadingRest } = useMyRestaurants();
@@ -70,7 +71,7 @@ export default function RestaurantDashboard() {
                 </CardHeader>
                 <CardContent className="pt-4 flex flex-col md:flex-row gap-6">
                   <div className="flex-1 space-y-2">
-                    {order.items?.map((item: any) => (
+                    {order.items?.map((item: OrderItem) => (
                       <div key={item.id} className="flex justify-between">
                         <div>
                           <span className="font-semibold">{item.quantity}x</span> {item.menuItem?.name}

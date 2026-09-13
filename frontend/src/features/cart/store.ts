@@ -31,11 +31,7 @@ export const useCartStore = create<CartState>()(
       addItem: (item, newRestaurantId) => set((state) => {
         // Prevent adding items from multiple restaurants
         if (state.restaurantId && state.restaurantId !== newRestaurantId && state.items.length > 0) {
-          // In a real app, you might want to prompt the user before clearing
-          return {
-            restaurantId: newRestaurantId,
-            items: [{ ...item, id: crypto.randomUUID() }]
-          };
+          throw new Error('RESTAURANT_CONFLICT');
         }
         
         // Check if identical item already exists (same menu item, same modifiers)

@@ -1,9 +1,13 @@
 import { apiClient } from '@/lib/api/client';
-import { DeliveryAssignment } from '@/types/api.types';
+import { DeliveryAssignment, Driver } from '@/types/api.types';
 
 export const deliveryApi = {
   getAvailableDeliveries: async (): Promise<DeliveryAssignment[]> => {
     return apiClient.get('/deliveries/available');
+  },
+
+  getDriverProfile: async (): Promise<Driver> => {
+    return apiClient.get('/drivers/me');
   },
 
   getMyActiveDeliveries: async (): Promise<DeliveryAssignment[]> => {

@@ -2,12 +2,34 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Role } from '@/types/api.types';
 import Link from 'next/link';
 import { Truck } from 'lucide-react';
+import { useDriverProfile } from '@/features/delivery/queries';
+import { useRouter, usePathname } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function DriverLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { data: profile, isLoading, isError } = useDriverProfile();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (!isLoading && isError && pathname !== '/driver/register') {
+      router.replace('/driver/register');
+    }
+  }, [isLoading, isError, pathname, router]);
+
+  if (isLoading) {
+    return <div className="flex h-screen items-center justify-center">Loading driver profile...</div>;
+  }
+
+  // Allow rendering the register page even if profile is missing
+  if (isError && pathname !== '/driver/register') {
+    return null;
+  }
+
   return (
     <ProtectedRoute allowedRoles={[Role.DRIVER, Role.ADMIN]}>
       <div className="min-h-screen flex flex-col bg-slate-50">

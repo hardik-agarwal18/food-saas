@@ -5,11 +5,18 @@ import { useRestaurantMenu } from '@/features/restaurants/queries';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, Edit2, Trash2 } from 'lucide-react';
+import { useState } from 'react';
+import { CreateCategoryModal } from '@/features/restaurants/components/CreateCategoryModal';
+import { CreateMenuItemModal } from '@/features/restaurants/components/CreateMenuItemModal';
+import { MenuCategory, MenuItem } from '@/types/api.types';
 
 export default function MenuManagementPage() {
   const { data: restaurants, isLoading: isLoadingRest } = useMyRestaurants();
   const restaurantId = restaurants?.[0]?.id || null;
   const { data: menuCategories, isLoading: isLoadingMenu } = useRestaurantMenu(restaurantId || '');
+
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [itemModalCategoryId, setItemModalCategoryId] = useState<string | null>(null);
 
   if (isLoadingRest) return <div className="p-8">Loading...</div>;
   if (!restaurantId) return <div className="p-8">No restaurant found.</div>;
@@ -18,7 +25,7 @@ export default function MenuManagementPage() {
     <div className="p-8 max-w-6xl mx-auto space-y-8">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Menu Management</h1>
-        <Button className="gap-2"><Plus className="w-4 h-4" /> Add Category</Button>
+        <Button className="gap-2" onClick={() => setIsCategoryModalOpen(true)}><Plus className="w-4 h-4" /> Add Category</Button>
       </div>
 
       {isLoadingMenu ? (
@@ -28,12 +35,12 @@ export default function MenuManagementPage() {
         </div>
       ) : menuCategories && menuCategories.length > 0 ? (
         <div className="space-y-8">
-          {menuCategories.map((category: any) => (
+          {menuCategories.map((category: MenuCategory) => (
             <Card key={category.id} className="border-t-4 border-t-slate-800">
               <CardHeader className="flex flex-row items-center justify-between bg-slate-50 border-b py-3">
                 <CardTitle className="text-xl">{category.name}</CardTitle>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" className="gap-2"><Plus className="w-4 h-4" /> Add Item</Button>
+                  <Button variant="outline" size="sm" className="gap-2" onClick={() => setItemModalCategoryId(category.id)}><Plus className="w-4 h-4" /> Add Item</Button>
                   <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground"><Edit2 className="w-4 h-4" /></Button>
                   <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive"><Trash2 className="w-4 h-4" /></Button>
                 </div>
@@ -43,7 +50,7 @@ export default function MenuManagementPage() {
                   <div className="text-center text-muted-foreground py-6">No items in this category.</div>
                 ) : (
                   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {category.items?.map((item: any) => (
+                    {category.items?.map((item: MenuItem) => (
                       <div key={item.id} className="flex justify-between p-4 border rounded-lg hover:border-primary/50 transition-colors">
                         <div className="flex-1 pr-4">
                           <h4 className="font-semibold">{item.name}</h4>
@@ -71,8 +78,25 @@ export default function MenuManagementPage() {
         <div className="text-center p-16 border-2 border-dashed rounded-xl text-muted-foreground bg-slate-50">
           <p className="text-lg font-medium mb-2">Your menu is empty</p>
           <p className="mb-6">Start building your menu by adding your first category.</p>
-          <Button size="lg"><Plus className="w-5 h-5 mr-2" /> Add Category</Button>
+          <Button size="lg" onClick={() => setIsCategoryModalOpen(true)}><Plus className="w-5 h-5 mr-2" /> Add Category</Button>
         </div>
+      )}
+
+      {restaurantId && (
+        <CreateCategoryModal 
+          restaurantId={restaurantId}
+          isOpen={isCategoryModalOpen}
+          onClose={() => setIsCategoryModalOpen(false)}
+        />
+      )}
+
+      {restaurantId && itemModalCategoryId && (
+        <CreateMenuItemModal
+          restaurantId={restaurantId}
+          categoryId={itemModalCategoryId}
+          isOpen={!!itemModalCategoryId}
+          onClose={() => setItemModalCategoryId(null)}
+        />
       )}
     </div>
   );

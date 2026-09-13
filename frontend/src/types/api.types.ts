@@ -1,4 +1,4 @@
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   message: string;
   data?: T;
@@ -72,13 +72,41 @@ export interface User {
   updatedAt: string;
 }
 
+export interface CustomerPreferences {
+  language?: string;
+  notifications?: {
+    push?: boolean;
+    sms?: boolean;
+    email?: boolean;
+  };
+  marketing?: {
+    enabled?: boolean;
+  };
+}
+
+export interface CustomerAddress {
+  id: string;
+  customerId: string;
+  label: string;
+  streetAddress: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
+  latitude?: number;
+  longitude?: number;
+  isDefault: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Customer {
   id: string;
   userId: string;
   firstName: string;
   lastName: string;
   phone: string;
-  preferences?: Record<string, any>;
+  preferences?: CustomerPreferences;
   avatarUrl?: string;
   createdAt: string;
   updatedAt: string;
@@ -230,7 +258,13 @@ export interface Order {
   restaurantName: string;
   restaurant?: Restaurant;
 
-  deliveryAddress?: Record<string, any>;
+  deliveryAddress?: {
+    streetAddress: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+  };
   specialInstructions?: string;
 
   acceptedAt?: string;

@@ -29,7 +29,16 @@ export function CheckoutForm() {
     }
   });
 
-  const onSubmit = (data: any) => {
+  interface CheckoutFormData {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+    specialInstructions: string;
+  }
+
+  const onSubmit = (data: CheckoutFormData) => {
     if (!restaurantId || items.length === 0) return;
 
     placeOrderMutation.mutate({

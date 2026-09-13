@@ -18,7 +18,28 @@ export const useSuspendRestaurantMutation = () => {
   return useMutation({
     mutationFn: (id: string) => restaurantApi.suspendRestaurant(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['restaurants'] });
+    },
+  });
+};
+
+export const useCreateMenuCategoryMutation = (restaurantId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: { name: string; description?: string }) => restaurantApi.createMenuCategory(restaurantId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['restaurant-menu', restaurantId] });
+    },
+  });
+};
+
+export const useCreateMenuItemMutation = (restaurantId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: { name: string; description?: string; price: number; categoryId: string; imageUrl?: string }) => restaurantApi.createMenuItem(restaurantId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['restaurant-menu', restaurantId] });
     },
   });
 };

@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Restaurant } from '@/types/api.types';
 
 export default function AdminDashboard() {
   const { data: pendingData, isLoading: isLoadingPending } = useRestaurants({ status: 'PENDING' });
@@ -42,7 +43,7 @@ export default function AdminDashboard() {
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {pendingData?.items?.map((restaurant: any) => (
+              {pendingData?.items?.map((restaurant: Restaurant) => (
                 <Card key={restaurant.id} className="border-l-4 border-l-yellow-500">
                   <CardHeader>
                     <div className="flex justify-between items-start">
@@ -84,7 +85,7 @@ export default function AdminDashboard() {
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {activeData?.items?.map((restaurant: any) => (
+              {activeData?.items?.map((restaurant: Restaurant) => (
                 <Card key={restaurant.id}>
                   <CardHeader>
                     <div className="flex justify-between items-start">
