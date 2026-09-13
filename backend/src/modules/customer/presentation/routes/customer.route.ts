@@ -80,4 +80,50 @@ router
     customerAvatarRemoveController.handle.bind(customerAvatarRemoveController),
   );
 
+import { AddCustomerAddressController } from '../controllers/add-customer-address.controller.js';
+import { UpdateCustomerAddressController } from '../controllers/update-customer-address.controller.js';
+import { DeleteCustomerAddressController } from '../controllers/delete-customer-address.controller.js';
+import { GetCustomerAddressesController } from '../controllers/get-customer-addresses.controller.js';
+import { SetDefaultCustomerAddressController } from '../controllers/set-default-customer-address.controller.js';
+
+const addCustomerAddressController = container.resolve(AddCustomerAddressController);
+const updateCustomerAddressController = container.resolve(UpdateCustomerAddressController);
+const deleteCustomerAddressController = container.resolve(DeleteCustomerAddressController);
+const getCustomerAddressesController = container.resolve(GetCustomerAddressesController);
+const setDefaultCustomerAddressController = container.resolve(SetDefaultCustomerAddressController);
+
+router
+  .route('/me/addresses')
+  .post(
+    authenticationMiddleware.authenticate,
+    authorizationMiddleware.authorize(Permission.CUSTOMER_PROFILE_UPDATE),
+    addCustomerAddressController.handle.bind(addCustomerAddressController),
+  )
+  .get(
+    authenticationMiddleware.authenticate,
+    authorizationMiddleware.authorize(Permission.CUSTOMER_PROFILE_READ),
+    getCustomerAddressesController.handle.bind(getCustomerAddressesController),
+  );
+
+router
+  .route('/me/addresses/:addressId')
+  .patch(
+    authenticationMiddleware.authenticate,
+    authorizationMiddleware.authorize(Permission.CUSTOMER_PROFILE_UPDATE),
+    updateCustomerAddressController.handle.bind(updateCustomerAddressController),
+  )
+  .delete(
+    authenticationMiddleware.authenticate,
+    authorizationMiddleware.authorize(Permission.CUSTOMER_PROFILE_UPDATE),
+    deleteCustomerAddressController.handle.bind(deleteCustomerAddressController),
+  );
+
+router
+  .route('/me/addresses/:addressId/default')
+  .post(
+    authenticationMiddleware.authenticate,
+    authorizationMiddleware.authorize(Permission.CUSTOMER_PROFILE_UPDATE),
+    setDefaultCustomerAddressController.handle.bind(setDefaultCustomerAddressController),
+  );
+
 export default router;

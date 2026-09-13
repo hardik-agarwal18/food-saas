@@ -56,7 +56,7 @@ describe('Full Lifecycle E2E Test', () => {
     const jobCall = enqueueSpy.mock.calls[0][0];
     const url = new URL(jobCall.verificationUrl);
     const verificationToken = url.pathname.split('/').pop() as string;
-    
+
     expect(verificationToken).toBeDefined();
 
     // 3. Login
@@ -84,13 +84,13 @@ describe('Full Lifecycle E2E Test', () => {
     const userMeResponse = await request(app)
       .get('/api/v1/identity/me')
       .set('Authorization', `Bearer ${accessToken}`);
-      
+
     expect(userMeResponse.status).toBe(200);
     expect(userMeResponse.body.data.isEmailVerified).toBe(true);
 
     // 5. Fetch Customer Profile
     const fetchProfileResponse = await request(app)
-      .get('/api/v1/customer/me')
+      .get('/api/v1/customers/me')
       .set('Authorization', `Bearer ${accessToken}`);
 
     expect(fetchProfileResponse.status).toBe(200);
@@ -100,7 +100,7 @@ describe('Full Lifecycle E2E Test', () => {
 
     // 6. Update Customer Profile
     const updateProfileResponse = await request(app)
-      .patch('/api/v1/customer/update-profile')
+      .patch('/api/v1/customers/update-profile')
       .set('Authorization', `Bearer ${accessToken}`)
       .send({
         firstName: 'UpdatedE2E',

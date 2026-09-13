@@ -7,7 +7,7 @@ import { buildTestCustomer } from '../../factories/customer.factory.js';
 import { generateTestAccessToken } from '../../helpers/auth.helper.js';
 
 describe('Customer Controllers (HTTP)', () => {
-  describe('GET /api/v1/customer/me', () => {
+  describe('GET /api/v1/customers/me', () => {
     it('should return customer profile', async () => {
       const user = await createTestUser(prisma);
       const token = await generateTestAccessToken(user);
@@ -34,7 +34,7 @@ describe('Customer Controllers (HTTP)', () => {
       });
 
       const response = await request(app)
-        .get('/api/v1/customer/me')
+        .get('/api/v1/customers/me')
         .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
@@ -48,7 +48,7 @@ describe('Customer Controllers (HTTP)', () => {
       const token = await generateTestAccessToken(user);
 
       const response = await request(app)
-        .get('/api/v1/customer/me')
+        .get('/api/v1/customers/me')
         .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(404);
@@ -56,7 +56,7 @@ describe('Customer Controllers (HTTP)', () => {
     });
   });
 
-  describe('PATCH /api/v1/customer/update-profile', () => {
+  describe('PATCH /api/v1/customers/update-profile', () => {
     it('should update customer profile', async () => {
       const user = await createTestUser(prisma);
       const token = await generateTestAccessToken(user);
@@ -83,7 +83,7 @@ describe('Customer Controllers (HTTP)', () => {
       });
 
       const response = await request(app)
-        .patch('/api/v1/customer/update-profile')
+        .patch('/api/v1/customers/update-profile')
         .set('Authorization', `Bearer ${token}`)
         .send({
           firstName: 'Alicia',
@@ -95,7 +95,7 @@ describe('Customer Controllers (HTTP)', () => {
     });
   });
 
-  describe('PATCH /api/v1/customer/me/update-preferences', () => {
+  describe('PATCH /api/v1/customers/me/update-preferences', () => {
     it('should update customer preferences', async () => {
       const user = await createTestUser(prisma);
       const token = await generateTestAccessToken(user);
@@ -122,7 +122,7 @@ describe('Customer Controllers (HTTP)', () => {
       });
 
       const response = await request(app)
-        .patch('/api/v1/customer/me/update-preferences')
+        .patch('/api/v1/customers/me/update-preferences')
         .set('Authorization', `Bearer ${token}`)
         .send({
           language: 'es',
@@ -131,7 +131,7 @@ describe('Customer Controllers (HTTP)', () => {
       expect(response.status).toBe(200);
 
       const profileResponse = await request(app)
-        .get('/api/v1/customer/me')
+        .get('/api/v1/customers/me')
         .set('Authorization', `Bearer ${token}`);
 
       expect(profileResponse.status).toBe(200);

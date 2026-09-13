@@ -6,9 +6,12 @@
  */
 
 import { PrismaPg } from '@prisma/adapter-pg';
+import pkg from 'pg';
+const { Pool } = pkg;
 import { PrismaClient } from '../../src/generated/prisma/client.js';
 
 let prisma: PrismaClient | null = null;
+let pool: pkg.Pool | null = null;
 
 /**
  * Returns the shared Prisma client, creating it when necessary.
@@ -17,12 +20,11 @@ let prisma: PrismaClient | null = null;
  */
 export const getPrismaClient = (): PrismaClient => {
   if (!prisma) {
-    const adapter = new PrismaPg({
-      connectionString: process.env.TEST_DATABASE_URL,
-    });
     if (!process.env.TEST_DATABASE_URL) {
       throw new Error('TEST_DATABASE_URL is not set');
     }
+    pool = new Pool({ connectionString: process.env.TEST_DATABASE_URL, max: 10 });
+    const adapter = new PrismaPg(pool);
     prisma = new PrismaClient({
       adapter,
     });
@@ -49,6 +51,11 @@ export const disconnectTestDatabase = async (): Promise<void> => {
   }
 
   await prisma.$disconnect();
+  
+  if (pool) {
+    await pool.end();
+    pool = null;
+  }
 
   prisma = null;
 };
@@ -62,11 +69,28 @@ export const disconnectTestDatabase = async (): Promise<void> => {
 export const cleanTestDatabase = async (): Promise<void> => {
   const client = getPrismaClient();
 
-  await client.$transaction([
-    client.passwordReset.deleteMany(),
-    client.emailVerification.deleteMany(),
-    client.refreshSession.deleteMany(),
-    client.customer.deleteMany(),
-    client.user.deleteMany(),
-  ]);
+  // Delete child records first to satisfy foreign-key constraints
+  await client.orderItemModifier.deleteMany();
+  await client.orderItem.deleteMany();
+  await client.orderStatusHistory.deleteMany();
+  await client.deliveryAssignment.deleteMany();
+  await client.order.deleteMany();
+
+  await client.menuItemToModifierGroup.deleteMany();
+  await client.menuModifierItem.deleteMany();
+  await client.menuModifierGroup.deleteMany();
+  await client.menuItem.deleteMany();
+  await client.menuCategory.deleteMany();
+  await client.restaurant.deleteMany();
+
+  await client.driver.deleteMany();
+  await client.customer.deleteMany();
+
+  await client.passwordReset.deleteMany();
+  await client.emailVerification.deleteMany();
+  await client.refreshSession.deleteMany();
+  await client.outboxEvent.deleteMany();
+
+  // Finally, delete the parent User table
+  await client.user.deleteMany();
 };
