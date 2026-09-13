@@ -1,14 +1,14 @@
-import { PrismaClient } from './src/generated/prisma/client.js';
+import { PrismaClient } from '../src/generated/prisma/client.js';
 const prisma = new PrismaClient();
 
 async function promote() {
   await prisma.user.updateMany({
     where: { email: { startsWith: 'owner' } },
-    data: { roles: ['RESTAURANT_OWNER'] }
+    data: { roles: ['RESTAURANT_OWNER'] },
   });
   await prisma.user.updateMany({
     where: { email: { startsWith: 'driver' } },
-    data: { roles: ['DRIVER'] }
+    data: { roles: ['DRIVER'] },
   });
   console.log('Promoted successfully');
 }
