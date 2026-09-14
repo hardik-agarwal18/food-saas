@@ -1,4 +1,4 @@
-﻿import { Order } from '../entities/order.entity.js';
+import { Order } from '../entities/order.entity.js';
 
 export interface PaginationOptions {
   page: number;
@@ -28,4 +28,13 @@ export interface IOrderRepository {
     restaurantId: string,
     options?: PaginationOptions,
   ): Promise<PaginatedResult<Order>>;
+
+  getAnalytics(
+    restaurantId: string,
+    date: Date,
+  ): Promise<{
+    totalRevenue: number;
+    activeOrdersCount: number;
+    completedOrdersCount: number;
+  }>;
 }

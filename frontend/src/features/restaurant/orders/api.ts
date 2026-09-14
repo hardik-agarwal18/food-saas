@@ -27,5 +27,9 @@ export const restaurantOrdersApi = {
 
   updateOrderStatus: async (restaurantId: string, orderId: string, status: string): Promise<Order> => {
     return apiClient.patch(`/orders/restaurants/${restaurantId}/${orderId}/status`, { status });
+  },
+
+  getRestaurantAnalytics: async (restaurantId: string): Promise<{ totalRevenue: number, activeOrdersCount: number, completedOrdersCount: number }> => {
+    return apiClient.get(`/orders/restaurants/${restaurantId}/analytics`);
   }
 };
