@@ -1,4 +1,4 @@
-export interface ProcessMenuImportInput {
+﻿export interface ProcessMenuImportInput {
   importId: string;
 }
 

@@ -1,4 +1,4 @@
-import { DeliveryAssignment } from '../entities/delivery-assignment.entity.js';
+﻿import { DeliveryAssignment } from '../entities/delivery-assignment.entity.js';
 
 export interface IDeliveryAssignmentRepository {
   findById(id: string): Promise<DeliveryAssignment | null>;

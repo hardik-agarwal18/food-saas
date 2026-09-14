@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Shared Prisma client configuration.
  *
  * This file creates the application's Prisma client.

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Dependency-injection tokens used by the Identity module.
  *
  * Symbols are used instead of class names so that the application

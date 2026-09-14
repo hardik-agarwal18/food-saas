@@ -1,4 +1,4 @@
-import 'reflect-metadata';
+﻿import 'reflect-metadata';
 import { registerWorkerDependencies } from '../infrastructure/container/worker-registration.js';
 import { container } from 'tsyringe';
 import { InfrastructureTokens } from '../infrastructure/container/tokens/infrastructure.tokens.js';

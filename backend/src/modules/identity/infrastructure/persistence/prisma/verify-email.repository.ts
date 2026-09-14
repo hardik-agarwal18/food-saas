@@ -1,4 +1,4 @@
-import { injectable, inject } from 'tsyringe';
+﻿import { injectable, inject } from 'tsyringe';
 import { VerifyEmail } from '../../../domain/entities/verify-email.entity.js';
 import { IVerifyEmailRepository } from '../../../domain/repositories/verify-email.repository.js';
 import { InfrastructureTokens } from '../../../../../infrastructure/container/tokens/index.js';

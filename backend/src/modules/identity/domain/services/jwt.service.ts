@@ -1,4 +1,4 @@
-import { ITokenPayload } from './token-payload.js';
+﻿import { ITokenPayload } from './token-payload.js';
 
 export interface IJwtService {
   signAccessToken(TokenPayload: ITokenPayload): Promise<string>;

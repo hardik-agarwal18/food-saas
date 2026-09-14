@@ -14,10 +14,10 @@ export const apiClient = axios.create({
 let isRefreshing = false;
 let failedQueue: Array<{
   resolve: (token: string) => void;
-  reject: (err: any) => void;
+  reject: (err: unknown) => void;
 }> = [];
 
-const processQueue = (error: any, token: string | null = null) => {
+const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue.forEach((prom) => {
     if (error) {
       prom.reject(error);
@@ -42,6 +42,7 @@ apiClient.interceptors.request.use(
 );
 
 apiClient.interceptors.response.use(
+   
   (response: AxiosResponse<ApiResponse<any>>) => {
     if (response.data && response.data.success !== undefined) {
       if (response.data.success) {
@@ -50,6 +51,7 @@ apiClient.interceptors.response.use(
     }
     return response.data;
   },
+   
   async (error: AxiosError<any>) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
@@ -97,6 +99,7 @@ apiClient.interceptors.response.use(
           processQueue(refreshError, null);
           localStorage.removeItem('accessToken');
           if (typeof window !== 'undefined') {
+            // eslint-disable-next-line @next/next/no-location-assign-relative-destination
             window.location.href = '/login';
           }
           return Promise.reject(refreshError);

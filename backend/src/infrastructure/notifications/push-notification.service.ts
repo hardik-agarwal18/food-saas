@@ -1,4 +1,4 @@
-export interface PushNotificationService {
+﻿export interface PushNotificationService {
   /**
    * Sends a simulated push notification to a user's device.
    * @param userId The ID of the user to send the notification to.

@@ -1,4 +1,4 @@
-import { RestaurantDomainError } from '../errors/restaurant-domain.error.js';
+﻿import { RestaurantDomainError } from '../errors/restaurant-domain.error.js';
 import { RestaurantName, Address } from '../value-objects/index.js';
 import { CustomerPhoneNumber } from '../../../customer/domain/value-objects/index.js';
 import { Email } from '../../../identity/domain/value-objects/email.vo.js';

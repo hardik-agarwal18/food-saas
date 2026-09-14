@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Dependency-injection container entry point.
  *
  * This file initializes all dependency registrations when it is
@@ -19,11 +19,11 @@
  * Startup flow:
  *
  * main.ts
- *   → import container.ts
- *       → registerDependencies()
- *           → registerInfrastructure()
- *           → registerIdentity()
- *           → registerOtherModules()
+ *   â†’ import container.ts
+ *       â†’ registerDependencies()
+ *           â†’ registerInfrastructure()
+ *           â†’ registerIdentity()
+ *           â†’ registerOtherModules()
  */
 
 import { registerDependencies } from './registration.js';

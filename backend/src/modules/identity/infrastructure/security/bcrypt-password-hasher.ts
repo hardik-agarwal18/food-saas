@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+﻿import bcrypt from 'bcrypt';
 
 import { env } from '../../../../config/env.config.js';
 import { IPasswordHasher } from '../../domain/services/password-hasher.js';

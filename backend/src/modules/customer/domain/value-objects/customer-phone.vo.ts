@@ -1,4 +1,4 @@
-import { InvalidCustomerPhoneNumberError } from '../errors/invalid-customer-phone-number.error.js';
+﻿import { InvalidCustomerPhoneNumberError } from '../errors/invalid-customer-phone-number.error.js';
 
 export class CustomerPhoneNumber {
   private static readonly CUSTOMER_PHONE_MIN: number = 8;

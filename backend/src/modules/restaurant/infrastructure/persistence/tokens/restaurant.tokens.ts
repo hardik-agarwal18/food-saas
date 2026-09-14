@@ -1,4 +1,4 @@
-export const RestaurantTokens = {
+﻿export const RestaurantTokens = {
   RestaurantRepository: Symbol.for('Restaurant.RestaurantRepository'),
   CreateRestaurantUseCase: Symbol.for('Restaurant.CreateRestaurantUseCase'),
   GetRestaurantByIdUseCase: Symbol.for('Restaurant.GetRestaurantByIdUseCase'),

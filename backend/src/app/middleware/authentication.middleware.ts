@@ -1,4 +1,4 @@
-import { injectable, inject } from 'tsyringe';
+﻿import { injectable, inject } from 'tsyringe';
 import { IdentityTokens } from '../../modules/identity/infrastructure/persistence/tokens/identity.tokens.js';
 import type { IJwtService } from '../../modules/identity/domain/services/jwt.service.js';
 import { catchAsync } from '../../shared/utils/CatchAsync.js';

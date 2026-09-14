@@ -1,4 +1,4 @@
-import { DeliveryDomainError } from '../errors/delivery-domain.error.js';
+﻿import { DeliveryDomainError } from '../errors/delivery-domain.error.js';
 import { Money } from '../../../menu/domain/value-objects/money.vo.js';
 import { AggregateRoot } from '../../../../shared/domain/aggregate-root.js';
 import { DeliveryPickedUpEvent } from '../events/delivery-picked-up.event.js';
@@ -41,7 +41,7 @@ export class DeliveryAssignment extends AggregateRoot {
     return new DeliveryAssignment(props);
   }
 
-  /** Use this when loading from persistence — bypasses any creation-time guards */
+  /** Use this when loading from persistence â€” bypasses any creation-time guards */
   static rehydrate(props: DeliveryAssignmentProps): DeliveryAssignment {
     return new DeliveryAssignment(props);
   }

@@ -1,4 +1,4 @@
-import { AppError } from './AppError.js';
+﻿import { AppError } from './AppError.js';
 
 export class InvalidUrlError extends AppError {
   constructor(message: string) {

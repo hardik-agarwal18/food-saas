@@ -1,4 +1,4 @@
-import { Customer } from '../../domain/entities/customer.entity.js';
+﻿import { Customer } from '../../domain/entities/customer.entity.js';
 import { CustomerProfileInput } from '../dto/customer-profile-creation.dto.js';
 
 export interface CustomerProfileCreationUseCase {

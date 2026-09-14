@@ -1,18 +1,19 @@
 'use client';
 
-import { useMyRestaurants } from '@/features/restaurants/queries';
-import { useRestaurantOrders } from '@/features/ordering/queries';
-import { useUpdateOrderStatusMutation } from '@/features/ordering/mutations';
+import { useMyRestaurants } from '@/features/restaurant/menu/queries';
+import { useRestaurantOrders } from '@/features/restaurant/orders/queries';
+import { useUpdateOrderStatusMutation } from '@/features/restaurant/orders/mutations';
 import { OrderStatus } from '@/types/api.types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useState, useMemo } from 'react';
+import { OrderItem } from '@/types/api.types';
 
 export default function RestaurantDashboard() {
   const { data: restaurants, isLoading: isLoadingRest } = useMyRestaurants();
   const restaurantId = restaurants?.[0]?.id || null;
-  const { data: orders, isLoading: isLoadingOrders } = useRestaurantOrders(restaurantId);
+  const { data: orders, isLoading: isLoadingOrders } = useRestaurantOrders(restaurantId || "");
   const updateStatusMutation = useUpdateOrderStatusMutation();
 
   const handleUpdateStatus = (orderId: string, status: string) => {
@@ -21,13 +22,15 @@ export default function RestaurantDashboard() {
   };
 
   const activeOrders = useMemo(() => {
-    if (!orders) return [];
-    return orders.filter(o => !['DELIVERED', 'CANCELLED'].includes(o.status));
+    const ordersList = Array.isArray(orders) ? orders : (orders as any)?.data || (orders as any)?.items;
+    if (!ordersList) return [];
+    return ordersList.filter((o: any) => !['DELIVERED', 'CANCELLED'].includes(o.status));
   }, [orders]);
 
   const pastOrders = useMemo(() => {
-    if (!orders) return [];
-    return orders.filter(o => ['DELIVERED', 'CANCELLED'].includes(o.status));
+    const ordersList = Array.isArray(orders) ? orders : (orders as any)?.data || (orders as any)?.items;
+    if (!ordersList) return [];
+    return ordersList.filter((o: any) => ['DELIVERED', 'CANCELLED'].includes(o.status));
   }, [orders]);
 
   if (isLoadingRest) return <div className="p-8">Loading...</div>;
@@ -59,7 +62,7 @@ export default function RestaurantDashboard() {
           </div>
         ) : (
           <div className="grid gap-6">
-            {activeOrders.map(order => (
+            {activeOrders.map((order: any) => (
               <Card key={order.id} className="border-l-4 border-l-primary shadow-sm">
                 <CardHeader className="flex flex-row items-center justify-between pb-2 bg-slate-50 border-b">
                   <div>
@@ -70,10 +73,10 @@ export default function RestaurantDashboard() {
                 </CardHeader>
                 <CardContent className="pt-4 flex flex-col md:flex-row gap-6">
                   <div className="flex-1 space-y-2">
-                    {order.items?.map((item: any) => (
+                    {order.items?.map((item: OrderItem) => (
                       <div key={item.id} className="flex justify-between">
                         <div>
-                          <span className="font-semibold">{item.quantity}x</span> {item.menuItem?.name}
+                          <span className="font-semibold">{item.quantity}x</span> {item.name}
                           {item.specialInstructions && <p className="text-xs text-muted-foreground ml-5 italic">"{item.specialInstructions}"</p>}
                         </div>
                       </div>
@@ -109,7 +112,7 @@ export default function RestaurantDashboard() {
           <div className="text-muted-foreground text-sm">No recent past orders.</div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {pastOrders.slice(0, 6).map(order => (
+            {pastOrders.slice(0, 6).map((order: any) => (
               <Card key={order.id} className="bg-slate-50/50">
                 <CardHeader className="py-3">
                   <div className="flex justify-between">

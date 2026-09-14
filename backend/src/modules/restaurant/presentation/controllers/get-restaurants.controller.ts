@@ -1,4 +1,4 @@
-import { injectable, inject } from 'tsyringe';
+﻿import { injectable, inject } from 'tsyringe';
 import { catchAsync } from '../../../../shared/utils/CatchAsync.js';
 import { NextFunction, Request, Response } from 'express';
 import { RestaurantTokens } from '../../infrastructure/persistence/tokens/restaurant.tokens.js';
@@ -19,6 +19,10 @@ export class GetRestaurantsController {
     const result = await this.useCase.execute({
       status: req.query.status as string | undefined,
       city: req.query.city as string | undefined,
+      search: req.query.search as string | undefined,
+      latitude: req.query.latitude ? parseFloat(req.query.latitude as string) : undefined,
+      longitude: req.query.longitude ? parseFloat(req.query.longitude as string) : undefined,
+      radius: req.query.radius ? parseFloat(req.query.radius as string) : undefined,
       limit,
       offset,
     });

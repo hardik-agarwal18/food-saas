@@ -1,4 +1,4 @@
-import { inject, injectable } from 'tsyringe';
+﻿import { inject, injectable } from 'tsyringe';
 import type { IClaimDeliveryAssignmentUseCase } from './claim-delivery-assignment.use-case.js';
 import type { IDeliveryAssignmentRepository } from '../../domain/repositories/delivery-assignment.repository.js';
 import type { IDriverRepository } from '../../domain/repositories/driver.repository.js';
@@ -39,7 +39,7 @@ export class ClaimDeliveryAssignmentUseCaseImpl implements IClaimDeliveryAssignm
     // We attempt to accept to ensure the state transition is valid before hitting the DB
     assignment.accept(driver.id);
 
-    // 4. Concurrency DB Check via repository — atomically marks driver as BUSY too
+    // 4. Concurrency DB Check via repository â€” atomically marks driver as BUSY too
     const success = await this.assignmentRepository.claimAssignment(assignmentId, driver.id);
 
     if (!success) {

@@ -1,4 +1,4 @@
-import { container } from 'tsyringe';
+﻿import { container } from 'tsyringe';
 import { CustomerTokens } from '../../../modules/customer/infrastructure/persistence/tokens/customer.tokens.js';
 import { CustomerRepository } from '../../../modules/customer/infrastructure/persistence/prisma/customer.repository.js';
 import { PrismaCustomerAddressRepository } from '../../../modules/customer/infrastructure/persistence/prisma/customer-address.repository.js';

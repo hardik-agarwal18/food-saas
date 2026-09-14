@@ -1,4 +1,4 @@
-import { container } from 'tsyringe';
+﻿import { container } from 'tsyringe';
 import express from 'express';
 import { GetCustomerProfileController } from '../controllers/get-customer-profile.controller.js';
 import { AuthenticationMiddleware } from '../../../../app/middleware/authentication.middleware.js';

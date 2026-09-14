@@ -1,3 +1,3 @@
-export interface ISuspendUserUseCase {
+﻿export interface ISuspendUserUseCase {
   execute(userId: string): Promise<void>;
 }

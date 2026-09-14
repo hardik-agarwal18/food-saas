@@ -1,4 +1,4 @@
-export interface UploadFileInput {
+﻿export interface UploadFileInput {
   key: string;
   body: Buffer;
   contentType: string;

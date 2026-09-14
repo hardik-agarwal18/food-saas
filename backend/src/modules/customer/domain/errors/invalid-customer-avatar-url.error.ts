@@ -1,4 +1,4 @@
-import { CustomerDomainError } from './customer-domain.error.js';
+﻿import { CustomerDomainError } from './customer-domain.error.js';
 
 export class InvalidCustomerAvatarUrlError extends CustomerDomainError {
   constructor(message = 'Invalid customer avatar url') {

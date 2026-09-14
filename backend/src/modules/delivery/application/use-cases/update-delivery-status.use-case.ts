@@ -1,7 +1,7 @@
-export interface IUpdateDeliveryStatusUseCase {
+﻿export interface IUpdateDeliveryStatusUseCase {
   execute(
     assignmentId: string,
     userId: string,
-    newStatus: 'PICKED_UP' | 'DELIVERED',
+    newStatus: 'DRIVER_ARRIVING' | 'PICKED_UP' | 'DELIVERED',
   ): Promise<void>;
 }

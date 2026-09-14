@@ -1,4 +1,4 @@
-import { AuthenticationError } from '../../../../shared/errors/AuthenticationError.js';
+﻿import { AuthenticationError } from '../../../../shared/errors/AuthenticationError.js';
 
 export class RefreshTokenReuseError extends AuthenticationError {
   constructor() {

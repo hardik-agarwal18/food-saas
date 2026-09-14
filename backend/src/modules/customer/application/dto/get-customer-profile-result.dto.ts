@@ -1,4 +1,4 @@
-import { CustomerPreferencesType } from '../../types.js';
+﻿import { CustomerPreferencesType } from '../../types.js';
 
 export interface GetCustomerProfileResult {
   customerId: string;

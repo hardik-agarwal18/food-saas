@@ -1,4 +1,4 @@
-import { User } from '../entities/user.entity.js';
+﻿import { User } from '../entities/user.entity.js';
 import { Email } from '../value-objects/email.vo.js';
 
 export interface IUserRepository {

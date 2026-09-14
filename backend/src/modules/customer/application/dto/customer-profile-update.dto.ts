@@ -1,4 +1,4 @@
-export interface CustomerProfileUpdateInput {
+﻿export interface CustomerProfileUpdateInput {
   userId: string;
   firstName?: string;
   lastName?: string;

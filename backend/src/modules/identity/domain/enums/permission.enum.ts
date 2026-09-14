@@ -1,4 +1,4 @@
-export enum Permission {
+﻿export enum Permission {
   // User
   USER_READ = 'user:read',
   USER_UPDATE = 'user:update',

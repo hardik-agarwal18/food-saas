@@ -1,4 +1,4 @@
-export const EmailJobName = {
+﻿export const EmailJobName = {
   SEND_VERIFICATION_EMAIL: 'send-verification-email',
   SEND_RESET_PASSWORD_EMAIL: 'send-reset-password-email',
 } as const;

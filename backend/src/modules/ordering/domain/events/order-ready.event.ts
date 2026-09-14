@@ -1,4 +1,4 @@
-import { DomainEvent } from '../../../../shared/events/domain-event.js';
+﻿import { DomainEvent } from '../../../../shared/events/domain-event.js';
 import { OrderType } from '../../../../generated/prisma/client.js';
 
 export class OrderReadyEvent implements DomainEvent {

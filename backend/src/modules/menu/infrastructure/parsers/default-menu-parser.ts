@@ -1,4 +1,4 @@
-import { injectable } from 'tsyringe';
+﻿import { injectable } from 'tsyringe';
 import { ExtractedMenu, MenuParser } from '../../application/contracts/menu-parser.interface.js';
 import { RawMenuDocument } from '../../application/contracts/menu-document-reader.interface.js';
 

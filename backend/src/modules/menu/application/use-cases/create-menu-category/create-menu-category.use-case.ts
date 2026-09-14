@@ -1,4 +1,4 @@
-import { CreateMenuCategoryDto, MenuCategoryResponseDto } from '../../dto/menu-category.dto.js';
+﻿import { CreateMenuCategoryDto, MenuCategoryResponseDto } from '../../dto/menu-category.dto.js';
 
 export interface ICreateMenuCategoryUseCase {
   execute(

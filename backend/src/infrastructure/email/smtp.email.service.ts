@@ -1,4 +1,4 @@
-import { injectable } from 'tsyringe';
+﻿import { injectable } from 'tsyringe';
 import nodemailer, { Transporter } from 'nodemailer';
 import { EmailService } from './email.service.js';
 import { smtpConfig, smtpOptions } from '../../config/smtp.config.js';
@@ -102,7 +102,7 @@ export class SmtpService implements EmailService {
       text: `Good news! Your order #${orderId.substring(0, 8)} from ${restaurantName} is ready for pickup or delivery.`,
       html: `
         <div style="font-family: Arial, sans-serif; padding: 20px;">
-          <h2>Your order is ready! 🍔</h2>
+          <h2>Your order is ready! ðŸ”</h2>
           <p>Your order <strong>#${orderId.substring(0, 8)}</strong> from <strong>${restaurantName}</strong> is prepared and ready to go.</p>
           <p>Thank you for using FoodFlow.</p>
         </div>
@@ -118,7 +118,7 @@ export class SmtpService implements EmailService {
       text: `Your driver, ${driverName}, has picked up your order #${orderId.substring(0, 8)} and is heading your way.`,
       html: `
         <div style="font-family: Arial, sans-serif; padding: 20px;">
-          <h2>Out for delivery 🚗</h2>
+          <h2>Out for delivery ðŸš—</h2>
           <p>Your order <strong>#${orderId.substring(0, 8)}</strong> has been picked up by your driver, <strong>${driverName}</strong>.</p>
           <p>They are currently en route to your location.</p>
         </div>
@@ -134,7 +134,7 @@ export class SmtpService implements EmailService {
       text: `Your order #${orderId.substring(0, 8)} has been delivered. Enjoy your meal!`,
       html: `
         <div style="font-family: Arial, sans-serif; padding: 20px;">
-          <h2>Enjoy your meal! 🍽️</h2>
+          <h2>Enjoy your meal! ðŸ½ï¸</h2>
           <p>Your order <strong>#${orderId.substring(0, 8)}</strong> has been successfully delivered.</p>
           <p>Thank you for choosing FoodFlow!</p>
         </div>

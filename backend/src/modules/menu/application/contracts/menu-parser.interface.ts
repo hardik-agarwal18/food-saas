@@ -1,4 +1,4 @@
-import { RawMenuDocument } from './menu-document-reader.interface.js';
+﻿import { RawMenuDocument } from './menu-document-reader.interface.js';
 
 export interface ExtractedMenuItem {
   name: string;

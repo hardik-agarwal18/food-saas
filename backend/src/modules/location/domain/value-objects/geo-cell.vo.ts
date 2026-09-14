@@ -1,4 +1,4 @@
-import { InvalidGeoCellError } from '../errors/location.errors.js';
+﻿import { InvalidGeoCellError } from '../errors/location.errors.js';
 
 export interface GeoCellProps {
   index: string;

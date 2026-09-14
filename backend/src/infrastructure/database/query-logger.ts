@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Prisma query logging integration.
  *
  * This file connects Prisma's query event system to the application's

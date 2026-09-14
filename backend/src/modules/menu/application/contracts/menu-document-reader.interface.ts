@@ -1,4 +1,4 @@
-export interface RawMenuDocument {
+﻿export interface RawMenuDocument {
   text: string;
   metadata?: any;
 }

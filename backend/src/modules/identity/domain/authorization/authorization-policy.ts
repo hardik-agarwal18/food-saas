@@ -1,4 +1,4 @@
-import { Role, Permission } from '../enums/index.js';
+﻿import { Role, Permission } from '../enums/index.js';
 
 /**
  * Maps each application role to the permissions granted to that role.

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Contextual information attached to log entries.
  *
  * LogContext allows the application to add useful metadata to logs

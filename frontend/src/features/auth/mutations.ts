@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { authApi } from './api';
-import { LoginRequest, RegisterRequest } from './types';
+import { ForgotPasswordRequest, LoginRequest, RegisterRequest, ResetPasswordRequest, ChangePasswordRequest } from './types';
 import { useRouter } from 'next/navigation';
 
 export const useLoginMutation = (options?: { 
@@ -33,13 +33,15 @@ export const useLoginMutation = (options?: {
       } else if (roles.includes('DRIVER')) {
         router.push('/driver/dashboard');
       } else {
-        router.push('/customer/restaurants');
+        router.push('/');
       }
     },
   });
 };
 
-export const useRegisterMutation = () => {
+export const useRegisterMutation = (options?: {
+  redirectUrl?: string
+}) => {
   const queryClient = useQueryClient();
   const router = useRouter();
 
@@ -48,7 +50,17 @@ export const useRegisterMutation = () => {
     onSuccess: (data) => {
       localStorage.setItem('accessToken', data.accessToken);
       queryClient.setQueryData(['currentUser'], data.user);
-      router.push('/');
+      
+      const roles = data.user.roles as unknown as string[];
+      if (options?.redirectUrl) {
+        router.push(options.redirectUrl);
+      } else if (roles.includes('RESTAURANT_OWNER')) {
+        router.push('/restaurant/dashboard'); // Layout will catch if setup is needed
+      } else if (roles.includes('DRIVER')) {
+        router.push('/driver/dashboard'); // Layout will catch if setup is needed
+      } else {
+        router.push('/');
+      }
     },
   });
 };
@@ -64,5 +76,33 @@ export const useLogoutMutation = () => {
       queryClient.clear();
       router.push('/login');
     },
+  });
+};
+
+export const useForgotPasswordMutation = () => {
+  return useMutation({
+    mutationFn: (data: ForgotPasswordRequest) => authApi.forgotPassword(data),
+  });
+};
+
+export const useResetPasswordMutation = (token: string) => {
+  const router = useRouter();
+  return useMutation({
+    mutationFn: (data: ResetPasswordRequest) => authApi.resetPassword(token, data),
+    onSuccess: () => {
+      router.push('/login?reset_success=true');
+    },
+  });
+};
+
+export const useVerifyEmailMutation = (token: string) => {
+  return useMutation({
+    mutationFn: () => authApi.verifyEmail(token),
+  });
+};
+
+export const useChangePasswordMutation = () => {
+  return useMutation({
+    mutationFn: (data: ChangePasswordRequest) => authApi.changePassword(data),
   });
 };

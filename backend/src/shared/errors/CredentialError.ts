@@ -1,4 +1,4 @@
-import { AppError } from './AppError.js';
+﻿import { AppError } from './AppError.js';
 
 export class CredentialError extends AppError {
   constructor(message: string, code = 'INVALID_CREDENTIALS') {

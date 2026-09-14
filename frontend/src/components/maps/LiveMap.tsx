@@ -10,8 +10,8 @@ const containerStyle = {
 };
 
 const defaultCenter = {
-  lat: 40.7128,
-  lng: -74.0060
+  lat: 12.9716,
+  lng: 77.5946
 };
 
 export interface LiveMapProps {
@@ -21,9 +21,10 @@ export interface LiveMapProps {
   directionsWaypoints?: Array<{ location: { lat: number; lng: number }, stopover: boolean }>;
   center?: { lat: number; lng: number };
   zoom?: number;
+  onClick?: (e: google.maps.MapMouseEvent) => void;
 }
 
-export function LiveMap({ markers = [], directionsOrigin, directionsDestination, directionsWaypoints, center, zoom = 14 }: LiveMapProps) {
+export function LiveMap({ markers = [], directionsOrigin, directionsDestination, directionsWaypoints, center, zoom = 14, onClick }: LiveMapProps) {
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''
@@ -83,6 +84,7 @@ export function LiveMap({ markers = [], directionsOrigin, directionsDestination,
         center={mapCenter}
         zoom={zoom}
         options={{ disableDefaultUI: true, zoomControl: true }}
+        onClick={onClick}
       >
         {markers.map((marker) => (
           <Marker 

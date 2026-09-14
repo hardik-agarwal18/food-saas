@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Names of cache operations used for metrics and logging.
  *
  * Using an enum prevents different parts of the application

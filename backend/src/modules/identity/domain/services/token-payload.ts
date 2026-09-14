@@ -1,4 +1,4 @@
-import { TokenType, Role } from '../enums/index.js';
+﻿import { TokenType, Role } from '../enums/index.js';
 
 export interface ITokenPayload {
   sub: string;

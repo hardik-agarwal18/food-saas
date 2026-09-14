@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Health service.
  *
  * This service checks the health of application dependencies.

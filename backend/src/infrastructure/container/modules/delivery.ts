@@ -1,4 +1,4 @@
-import { container } from 'tsyringe';
+﻿import { container } from 'tsyringe';
 import { DeliveryTokens } from '../../../modules/delivery/infrastructure/tokens/delivery.tokens.js';
 import { DriverRepositoryImpl } from '../../../modules/delivery/infrastructure/persistence/prisma/driver.repository.js';
 import { DeliveryAssignmentRepositoryImpl } from '../../../modules/delivery/infrastructure/persistence/prisma/delivery-assignment.repository.js';
@@ -31,10 +31,7 @@ export function registerDeliveryModule() {
     DeliveryTokens.ToggleDriverAvailabilityUseCase,
     ToggleDriverAvailabilityUseCaseImpl,
   );
-  container.registerSingleton(
-    DeliveryTokens.GetDriverProfileUseCase,
-    GetDriverProfileUseCase,
-  );
+  container.registerSingleton(DeliveryTokens.GetDriverProfileUseCase, GetDriverProfileUseCase);
   container.registerSingleton(
     DeliveryTokens.CreateDeliveryAssignmentUseCase,
     CreateDeliveryAssignmentUseCaseImpl,

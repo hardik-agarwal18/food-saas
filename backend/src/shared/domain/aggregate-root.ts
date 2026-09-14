@@ -1,4 +1,4 @@
-import { DomainEvent } from '../events/domain-event.js';
+﻿import { DomainEvent } from '../events/domain-event.js';
 
 /**
  * Base class for all Aggregate Roots.

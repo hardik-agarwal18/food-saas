@@ -1,4 +1,4 @@
-import { inject, injectable } from 'tsyringe';
+﻿import { inject, injectable } from 'tsyringe';
 import { IGetRestaurantsUseCase } from './get-restaurants.use-case.js';
 import { ListRestaurantsDto, ListRestaurantsResponseDto } from '../dto/restaurant.dto.js';
 import type { IRestaurantRepository } from '../../domain/repositories/restaurant.repository.js';
@@ -26,6 +26,10 @@ export class GetRestaurantsUseCaseImpl implements IGetRestaurantsUseCase {
     const { items, total } = await this.restaurantRepo.findAll({
       status: dto.status ? statusMap[dto.status] : RestaurantStatus.ACTIVE,
       city: dto.city,
+      search: dto.search,
+      latitude: dto.latitude,
+      longitude: dto.longitude,
+      radius: dto.radius,
       limit,
       offset,
     });

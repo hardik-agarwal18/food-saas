@@ -1,4 +1,4 @@
-export interface MenuCategoryResponseDto {
+﻿export interface MenuCategoryResponseDto {
   id: string;
   restaurantId: string;
   name: string;

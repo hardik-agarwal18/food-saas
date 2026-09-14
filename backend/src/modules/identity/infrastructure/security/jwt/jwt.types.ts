@@ -1,4 +1,4 @@
-import { TokenType } from '../../../domain/enums/token-type.enum.js';
+﻿import { TokenType } from '../../../domain/enums/token-type.enum.js';
 
 export interface IJwtConfig {
   accessTokenSecret: string;

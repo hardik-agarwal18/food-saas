@@ -50,6 +50,9 @@ export const envSchema = z.object({
   MQTT_URL: z.string().url().optional(),
   MQTT_USERNAME: z.string().optional(),
   MQTT_PASSWORD: z.string().optional(),
+  STRIPE_SECRET_KEY: z.string().optional(),
+  STRIPE_WEBHOOK_SECRET: z.string().optional(),
+  GEMINI_API_KEY: z.string().optional(),
 
   // Location/H3 Configuration
   GEO_H3_RESOLUTION: z.coerce.number().min(0).max(15).default(8),

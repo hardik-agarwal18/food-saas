@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useRegisterMutation } from '../mutations';
-import { ApiError } from '@/types/api.types';
+import { ApiError, Role } from '@/types/api.types';
 import Link from 'next/link';
 
 const registerSchema = z.object({
@@ -17,6 +17,7 @@ const registerSchema = z.object({
   email: z.string().email('Invalid email address'),
   phone: z.string().min(1, 'Phone is required'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
+  role: z.enum([Role.CUSTOMER, Role.DRIVER, Role.RESTAURANT_OWNER]).optional(),
 });
 
 type RegisterValues = z.infer<typeof registerSchema>;
@@ -32,6 +33,7 @@ export function RegisterForm() {
       email: '',
       phone: '',
       password: '',
+      role: Role.CUSTOMER,
     },
   });
 
@@ -63,6 +65,33 @@ export function RegisterForm() {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div className="space-y-3 mb-6">
+            <Label>What are you signing up as?</Label>
+            <div className="space-y-2">
+              <label className="flex items-center space-x-3 cursor-pointer">
+                <input type="radio" value={Role.CUSTOMER} {...register('role')} className="h-4 w-4 text-primary" />
+                <div>
+                  <div className="font-medium">Customer</div>
+                  <div className="text-xs text-muted-foreground">Order food and track deliveries.</div>
+                </div>
+              </label>
+              <label className="flex items-center space-x-3 cursor-pointer">
+                <input type="radio" value={Role.DRIVER} {...register('role')} className="h-4 w-4 text-primary" />
+                <div>
+                  <div className="font-medium">Driver</div>
+                  <div className="text-xs text-muted-foreground">Accept and deliver orders.</div>
+                </div>
+              </label>
+              <label className="flex items-center space-x-3 cursor-pointer">
+                <input type="radio" value={Role.RESTAURANT_OWNER} {...register('role')} className="h-4 w-4 text-primary" />
+                <div>
+                  <div className="font-medium">Restaurant Owner</div>
+                  <div className="text-xs text-muted-foreground">Manage restaurants, menus, and orders.</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="firstName">First Name</Label>

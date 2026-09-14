@@ -1,4 +1,4 @@
-import { Queue } from 'bullmq';
+﻿import { Queue } from 'bullmq';
 import { redisConnection } from '../../../config/redis.js';
 import { AvatarJobName, type UploadAvatarJobData } from '../types/avatar.job.types.js';
 

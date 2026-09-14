@@ -1,4 +1,4 @@
-export class DeliveryDomainError extends Error {
+﻿export class DeliveryDomainError extends Error {
   public readonly code: string;
 
   constructor(message: string, code: string = 'DELIVERY_DOMAIN_ERROR') {

@@ -1,4 +1,4 @@
-export interface IRateLimitPolicy {
+﻿export interface IRateLimitPolicy {
   windowMs: number;
   max: number;
 }

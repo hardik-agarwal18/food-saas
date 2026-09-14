@@ -1,0 +1,27 @@
+import { CartWidget } from '@/features/customer/cart/components/CartWidget';
+import Link from 'next/link';
+
+import { CustomerHeaderNav } from '@/components/customer/CustomerHeaderNav';
+
+export default function CustomerLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="min-h-screen flex flex-col">
+      <header className="border-b sticky top-0 bg-background/95 backdrop-blur z-40">
+        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+          <Link href="/" className="font-bold text-xl tracking-tight text-primary">
+            FoodSaaS
+          </Link>
+          <CustomerHeaderNav />
+        </div>
+      </header>
+      <div className="flex-1">
+        {children}
+      </div>
+      <CartWidget />
+    </div>
+  );
+}

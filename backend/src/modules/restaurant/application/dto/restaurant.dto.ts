@@ -1,4 +1,4 @@
-export interface CreateRestaurantDto {
+﻿export interface CreateRestaurantDto {
   name: string;
   description?: string;
   phoneNumber: string;
@@ -31,6 +31,10 @@ export interface UpdateRestaurantDto {
 export interface ListRestaurantsDto {
   status?: string;
   city?: string;
+  search?: string;
+  latitude?: number;
+  longitude?: number;
+  radius?: number; // In km
   limit?: number;
   offset?: number;
 }

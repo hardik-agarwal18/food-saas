@@ -1,4 +1,4 @@
-import { DomainError } from './domain.error.js';
+﻿import { DomainError } from './domain.error.js';
 
 export class EmailAlreadyRegisteredError extends DomainError {
   constructor() {

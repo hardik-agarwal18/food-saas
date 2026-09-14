@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useUpdateLocationMutation } from '@/features/delivery/mutations';
+import { useUpdateLocationMutation } from '@/features/driver/deliveries/mutations';
 
 export const useDriverLocation = (isOnline: boolean) => {
   const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -17,6 +17,7 @@ export const useDriverLocation = (isOnline: boolean) => {
     }
 
     if (!('geolocation' in navigator)) {
+       
       setError('Geolocation is not supported by your browser');
       return;
     }
@@ -44,6 +45,7 @@ export const useDriverLocation = (isOnline: boolean) => {
         navigator.geolocation.clearWatch(watchIdRef.current);
       }
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOnline]); // We intentionally do not include updateLocationMutation in deps to avoid re-triggering
 
   return { currentLocation, error };

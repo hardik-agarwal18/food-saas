@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Application composition file.
  *
  * This file creates and configures the Express application.
@@ -18,10 +18,10 @@
  * Current request flow:
  *
  * Security
- *   → Request context
- *   → HTTP logger
- *   → Routes
- *   → Error handler
+ *   â†’ Request context
+ *   â†’ HTTP logger
+ *   â†’ Routes
+ *   â†’ Error handler
  */
 
 import express from 'express';

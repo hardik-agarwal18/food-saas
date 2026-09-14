@@ -1,4 +1,4 @@
-import { Prisma } from '../../../../../../generated/prisma/client.js';
+﻿import { Prisma } from '../../../../../../generated/prisma/client.js';
 import { Restaurant, RestaurantStatus } from '../../../../domain/entities/restaurant.entity.js';
 import { RestaurantName, Address } from '../../../../domain/value-objects/index.js';
 import { CustomerPhoneNumber } from '../../../../../customer/domain/value-objects/index.js';

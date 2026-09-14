@@ -1,10 +1,11 @@
-import { Money } from '../../../menu/domain/value-objects/money.vo.js';
+﻿import { Money } from '../../../menu/domain/value-objects/money.vo.js';
 import { OrderItem } from './order-item.entity.js';
 import { OrderingDomainError } from '../errors/ordering-domain.error.js';
 import { OrderStatus, PaymentStatus, OrderType } from '../../../../generated/prisma/client.js';
 import { AggregateRoot } from '../../../../shared/domain/aggregate-root.js';
 import { OrderReadyEvent } from '../events/order-ready.event.js';
 import { OrderPlacedEvent } from '../events/order-placed.event.js';
+import { OrderPaidEvent } from '../events/order-paid.event.js';
 
 export type OrderProps = {
   id: string;
@@ -203,6 +204,10 @@ export class Order extends AggregateRoot {
     }
     this.props.paymentStatus = PaymentStatus.PAID;
     this.touch();
+
+    this.addDomainEvent(
+      new OrderPaidEvent(this.getId(), this.getCustomerId(), this.getRestaurantId()),
+    );
   }
 
   public markPaymentFailed(): void {

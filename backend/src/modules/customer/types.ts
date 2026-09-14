@@ -1,4 +1,4 @@
-export type CustomerPreferencesType = {
+﻿export type CustomerPreferencesType = {
   language: string;
   notifications: {
     push: boolean;

@@ -1,4 +1,4 @@
-import { AppError } from './AppError.js';
+﻿import { AppError } from './AppError.js';
 
 /**
  * Represents an internal server failure.

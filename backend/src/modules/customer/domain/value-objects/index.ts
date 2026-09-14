@@ -1,4 +1,4 @@
-export * from './customer-address-label.vo.js';
+﻿export * from './customer-address-label.vo.js';
 export * from './customer-avatar.vo.js';
 export * from './customer-first-name.vo.js';
 export * from './customer-last-name.vo.js';

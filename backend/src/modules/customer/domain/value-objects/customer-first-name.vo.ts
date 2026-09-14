@@ -1,4 +1,4 @@
-import { InvalidCustomerFirstNameError } from '../errors/invalid-customer-first-name.error.js';
+﻿import { InvalidCustomerFirstNameError } from '../errors/invalid-customer-first-name.error.js';
 
 export class CustomerFirstName {
   private static readonly CUSTOMER_FIRST_NAME_MIN: number = 1;

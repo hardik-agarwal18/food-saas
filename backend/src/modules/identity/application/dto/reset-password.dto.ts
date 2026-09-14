@@ -1,4 +1,4 @@
-export interface ResetPasswordInput {
+﻿export interface ResetPasswordInput {
   token: string;
   newPassword: string;
 }

@@ -1,4 +1,4 @@
-import { container } from 'tsyringe';
+﻿import { container } from 'tsyringe';
 import { EventDispatcher } from '../../../shared/events/event-dispatcher.js';
 
 // Services

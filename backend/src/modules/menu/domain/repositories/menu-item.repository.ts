@@ -1,4 +1,4 @@
-import { MenuItem } from '../entities/menu-item.entity.js';
+﻿import { MenuItem } from '../entities/menu-item.entity.js';
 
 export interface IMenuItemRepository {
   save(item: MenuItem): Promise<void>;

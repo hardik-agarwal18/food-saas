@@ -1,4 +1,4 @@
-import { DietaryPreference } from '../../domain/entities/menu-item.entity.js';
+﻿import { DietaryPreference } from '../../domain/entities/menu-item.entity.js';
 
 export interface MenuItemResponseDto {
   id: string;

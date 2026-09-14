@@ -1,4 +1,4 @@
-export interface CustomerAvatarUploadInput {
+﻿export interface CustomerAvatarUploadInput {
   userId: string;
 
   file: {

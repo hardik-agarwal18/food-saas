@@ -1,4 +1,4 @@
-import { container } from 'tsyringe';
+﻿import { container } from 'tsyringe';
 import { OrderingTokens } from '../../../modules/ordering/infrastructure/tokens/ordering.tokens.js';
 import { OrderRepositoryImpl } from '../../../modules/ordering/infrastructure/persistence/prisma/order.repository.js';
 import { PlaceOrderUseCaseImpl } from '../../../modules/ordering/application/use-cases/place-order.use-case.impl.js';
@@ -7,32 +7,23 @@ import { GetRestaurantOrdersUseCaseImpl } from '../../../modules/ordering/applic
 import { UpdateOrderStatusUseCaseImpl } from '../../../modules/ordering/application/use-cases/update-order-status.use-case.impl.js';
 import { GetOrderByIdUseCaseImpl } from '../../../modules/ordering/application/use-cases/get-order-by-id.use-case.impl.js';
 
-// Dynamically add use case tokens
-(OrderingTokens as any).PlaceOrderUseCase = Symbol.for('Ordering.PlaceOrderUseCase');
-(OrderingTokens as any).GetCustomerOrdersUseCase = Symbol.for('Ordering.GetCustomerOrdersUseCase');
-(OrderingTokens as any).GetRestaurantOrdersUseCase = Symbol.for(
-  'Ordering.GetRestaurantOrdersUseCase',
-);
-(OrderingTokens as any).UpdateOrderStatusUseCase = Symbol.for('Ordering.UpdateOrderStatusUseCase');
-(OrderingTokens as any).GetOrderByIdUseCase = Symbol.for('Ordering.GetOrderByIdUseCase');
-
 export function registerOrdering(): void {
   // Repositories
   container.registerSingleton(OrderingTokens.OrderRepository, OrderRepositoryImpl);
 
   // Use Cases
-  container.registerSingleton((OrderingTokens as any).PlaceOrderUseCase, PlaceOrderUseCaseImpl);
+  container.registerSingleton(OrderingTokens.PlaceOrderUseCase, PlaceOrderUseCaseImpl);
   container.registerSingleton(
-    (OrderingTokens as any).GetCustomerOrdersUseCase,
+    OrderingTokens.GetCustomerOrdersUseCase,
     GetCustomerOrdersUseCaseImpl,
   );
   container.registerSingleton(
-    (OrderingTokens as any).GetRestaurantOrdersUseCase,
+    OrderingTokens.GetRestaurantOrdersUseCase,
     GetRestaurantOrdersUseCaseImpl,
   );
   container.registerSingleton(
-    (OrderingTokens as any).UpdateOrderStatusUseCase,
+    OrderingTokens.UpdateOrderStatusUseCase,
     UpdateOrderStatusUseCaseImpl,
   );
-  container.registerSingleton((OrderingTokens as any).GetOrderByIdUseCase, GetOrderByIdUseCaseImpl);
+  container.registerSingleton(OrderingTokens.GetOrderByIdUseCase, GetOrderByIdUseCaseImpl);
 }

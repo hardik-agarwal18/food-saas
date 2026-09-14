@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Base class for all application-specific errors.
  *
  * Instead of throwing plain Error objects everywhere, the application

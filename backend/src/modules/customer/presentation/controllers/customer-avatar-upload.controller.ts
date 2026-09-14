@@ -1,4 +1,4 @@
-import { injectable, inject } from 'tsyringe';
+﻿import { injectable, inject } from 'tsyringe';
 import { CustomerTokens } from '../../infrastructure/persistence/tokens/customer.tokens.js';
 import type { CustomerAvatarUploadUseCase } from '../../application/use-cases/customer-avatar-upload.use-case.js';
 import { catchAsync } from '../../../../shared/utils/CatchAsync.js';

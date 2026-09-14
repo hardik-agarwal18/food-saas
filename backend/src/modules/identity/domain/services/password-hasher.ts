@@ -1,4 +1,4 @@
-import { PasswordHash } from '../value-objects/password-hash.vo.js';
+﻿import { PasswordHash } from '../value-objects/password-hash.vo.js';
 
 /**
  * Defines the contract for password hashing and password verification.

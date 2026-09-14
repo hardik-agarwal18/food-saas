@@ -1,4 +1,4 @@
-import { inject, injectable } from 'tsyringe';
+﻿import { inject, injectable } from 'tsyringe';
 import type { IToggleDriverAvailabilityUseCase } from './toggle-driver-availability.use-case.js';
 import type { IDriverRepository } from '../../domain/repositories/driver.repository.js';
 import { DeliveryDomainError } from '../../domain/errors/delivery-domain.error.js';

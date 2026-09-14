@@ -1,4 +1,4 @@
-import type { Express } from 'express';
+﻿import type { Express } from 'express';
 import express from 'express';
 import identityRoutes from '../modules/identity/presentation/routes/identity.route.js';
 import restaurantRoutes from '../modules/restaurant/presentation/routes/restaurant.routes.js';
@@ -7,6 +7,8 @@ import { orderingRoutes } from '../modules/ordering/presentation/routes/ordering
 import deliveryRoutes from '../modules/delivery/presentation/routes/delivery.routes.js';
 import customerRoutes from '../modules/customer/presentation/routes/customer.route.js';
 import adminRoutes from '../modules/admin/presentation/routes/admin.routes.js';
+
+import { paymentRouter } from '../modules/payment/presentation/payment.routes.js';
 
 /**
  * Registers all application routes.
@@ -21,6 +23,7 @@ export const registerRoutes = (app: Express): void => {
   apiRouter.use('/restaurants', restaurantRoutes);
   apiRouter.use('/restaurants', menuRoutes);
   apiRouter.use('/orders', orderingRoutes);
+  apiRouter.use('/payments', paymentRouter);
   apiRouter.use('/', deliveryRoutes);
   apiRouter.use('/admin', adminRoutes);
 

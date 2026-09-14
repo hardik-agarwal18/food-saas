@@ -1,4 +1,4 @@
-import { AppError } from './AppError.js';
+﻿import { AppError } from './AppError.js';
 
 /**
  * Represents a failure while converting cache data between

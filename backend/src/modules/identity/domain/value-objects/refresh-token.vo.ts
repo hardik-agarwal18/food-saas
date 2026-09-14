@@ -1,4 +1,4 @@
-import { RefreshSessionExpiredError, RefreshSessionRevokedError } from '../errors/index.js';
+﻿import { RefreshSessionExpiredError, RefreshSessionRevokedError } from '../errors/index.js';
 
 export class RefreshToken {
   private readonly tokenHash: string;

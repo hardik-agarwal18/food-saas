@@ -1,3 +1,3 @@
-export interface RefreshTokenInput {
+﻿export interface RefreshTokenInput {
   refreshToken: string;
 }

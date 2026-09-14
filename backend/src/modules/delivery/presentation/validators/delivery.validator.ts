@@ -1,4 +1,4 @@
-import { z } from 'zod';
+﻿import { z } from 'zod';
 
 export const registerDriverSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
@@ -13,7 +13,7 @@ export const toggleDriverAvailabilitySchema = z.object({
 });
 
 export const updateDeliveryStatusSchema = z.object({
-  status: z.enum(['PICKED_UP', 'DELIVERED']),
+  status: z.enum(['DRIVER_ARRIVING', 'PICKED_UP', 'DELIVERED']),
 });
 
 export const updateDriverLocationSchema = z.object({

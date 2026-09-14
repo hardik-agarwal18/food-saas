@@ -1,4 +1,4 @@
-export const MenuTokens = {
+﻿export const MenuTokens = {
   MenuCategoryRepository: Symbol.for('Menu.MenuCategoryRepository'),
   MenuItemRepository: Symbol.for('Menu.MenuItemRepository'),
   MenuModifierRepository: Symbol.for('Menu.MenuModifierRepository'),

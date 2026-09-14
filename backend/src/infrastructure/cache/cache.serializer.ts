@@ -1,4 +1,4 @@
-import { CacheSerializationError } from '../../shared/errors/CacheSerializationError.js';
+﻿import { CacheSerializationError } from '../../shared/errors/CacheSerializationError.js';
 
 /**
  * Converts cache values to JSON strings and restores them

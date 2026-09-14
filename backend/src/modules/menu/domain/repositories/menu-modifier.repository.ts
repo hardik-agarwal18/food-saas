@@ -1,4 +1,4 @@
-import { MenuModifierGroup } from '../entities/menu-modifier-group.entity.js';
+﻿import { MenuModifierGroup } from '../entities/menu-modifier-group.entity.js';
 import { MenuModifierItem } from '../entities/menu-modifier-item.entity.js';
 
 export interface IMenuModifierRepository {

@@ -1,4 +1,4 @@
-import { MenuDomainError } from '../errors/menu-domain.error.js';
+﻿import { MenuDomainError } from '../errors/menu-domain.error.js';
 import { Money } from '../value-objects/money.vo.js';
 
 export enum DietaryPreference {

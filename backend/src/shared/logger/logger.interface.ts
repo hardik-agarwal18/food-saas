@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Abstraction for the application's logging system.
  *
  * The rest of the application should depend on ILogger rather than

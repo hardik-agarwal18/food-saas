@@ -1,4 +1,4 @@
-import { injectable, inject } from 'tsyringe';
+﻿import { injectable, inject } from 'tsyringe';
 import { EventHandler } from '../../../../shared/events/event-dispatcher.js';
 import { OrderPlacedEvent } from '../../../ordering/domain/events/order-placed.event.js';
 import { logger } from '../../../../infrastructure/observability/logger/pino.js';

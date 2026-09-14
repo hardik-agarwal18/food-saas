@@ -1,4 +1,4 @@
-import 'reflect-metadata';
+﻿import 'reflect-metadata';
 import { container } from 'tsyringe';
 
 import { registerDeliveryModule } from '../infrastructure/container/modules/delivery.js';
@@ -173,9 +173,9 @@ async function runTests() {
     });
 
     if (successCount === 1 && conflictCount === 2) {
-      console.log('✅ Race A Passed: Exactly 1 winner, 2 losers.');
+      console.log('âœ… Race A Passed: Exactly 1 winner, 2 losers.');
     } else {
-      console.error(`❌ Race A Failed: Success=${successCount}, Conflicts=${conflictCount}`);
+      console.error(`âŒ Race A Failed: Success=${successCount}, Conflicts=${conflictCount}`);
     }
 
     // Verify DB State
@@ -260,9 +260,9 @@ async function runTests() {
     });
 
     if (r2SuccessCount === 1 && r2ConflictCount === 1) {
-      console.log('✅ Race B Passed: Driver exactly claimed 1 assignment, the other failed.');
+      console.log('âœ… Race B Passed: Driver exactly claimed 1 assignment, the other failed.');
     } else {
-      console.error(`❌ Race B Failed: Success=${r2SuccessCount}, Failed=${r2ConflictCount}`);
+      console.error(`âŒ Race B Failed: Success=${r2SuccessCount}, Failed=${r2ConflictCount}`);
     }
 
     const driverD = await prisma.driver.findUnique({ where: { id: driverD_id } });

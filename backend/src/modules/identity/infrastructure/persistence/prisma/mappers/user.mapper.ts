@@ -1,4 +1,4 @@
-import { User as PrismaUser } from '../../../../../../generated/prisma/client.js';
+﻿import { User as PrismaUser } from '../../../../../../generated/prisma/client.js';
 import { User } from '../../../../domain/entities/index.js';
 import { Role, UserStatus } from '../../../../domain/enums/index.js';
 import { Email, PasswordHash } from '../../../../domain/value-objects/index.js';

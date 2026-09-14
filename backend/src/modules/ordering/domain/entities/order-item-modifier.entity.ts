@@ -1,4 +1,4 @@
-import { Money } from '../../../menu/domain/value-objects/money.vo.js';
+﻿import { Money } from '../../../menu/domain/value-objects/money.vo.js';
 
 export type OrderItemModifierProps = {
   id: string;

@@ -1,4 +1,4 @@
-import { container } from 'tsyringe';
+﻿import { container } from 'tsyringe';
 import { Job, Worker } from 'bullmq';
 import { InfrastructureTokens } from '../../container/tokens/infrastructure.tokens.js';
 import { EmailJobProcessor } from '../jobs/email/email.job.processor.js';

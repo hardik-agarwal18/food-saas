@@ -1,4 +1,4 @@
-import { ResetPasswordEntity } from '../entities/reset-password.entity.js';
+﻿import { ResetPasswordEntity } from '../entities/reset-password.entity.js';
 
 export interface IPasswordResetRepository {
   create(resetPassword: ResetPasswordEntity): Promise<ResetPasswordEntity>;

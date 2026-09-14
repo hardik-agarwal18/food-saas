@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Infrastructure dependency tokens.
  *
  * This object contains the identifiers used by tsyringe to locate

@@ -1,4 +1,4 @@
-import { container } from 'tsyringe';
+﻿import { container } from 'tsyringe';
 import { RestaurantTokens } from '../../../modules/restaurant/infrastructure/persistence/tokens/restaurant.tokens.js';
 import { RestaurantRepositoryImpl } from '../../../modules/restaurant/infrastructure/persistence/prisma/restaurant.repository.js';
 import { CreateRestaurantUseCaseImpl } from '../../../modules/restaurant/application/use-cases/create-restaurant.use-case.impl.js';

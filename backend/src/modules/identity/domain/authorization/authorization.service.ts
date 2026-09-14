@@ -1,4 +1,4 @@
-import { Role } from '../enums/role.enum.js';
+﻿import { Role } from '../enums/role.enum.js';
 import { Permission } from '../enums/permission.enum.js';
 import { ROLE_PERMISSIONS } from './authorization-policy.js';
 

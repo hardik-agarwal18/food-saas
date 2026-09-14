@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Information associated with the currently executing request.
  *
  * RequestContext contains identifiers that allow the application

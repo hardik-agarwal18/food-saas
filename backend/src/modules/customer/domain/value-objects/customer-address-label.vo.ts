@@ -1,4 +1,4 @@
-import { CustomerDomainError } from '../errors/customer-domain.error.js';
+﻿import { CustomerDomainError } from '../errors/customer-domain.error.js';
 
 export class CustomerAddressLabel {
   private readonly value: string;

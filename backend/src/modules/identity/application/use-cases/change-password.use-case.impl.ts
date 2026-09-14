@@ -1,4 +1,4 @@
-import { injectable, inject } from 'tsyringe';
+﻿import { injectable, inject } from 'tsyringe';
 import { ChangePasswordUseCase } from './change-password.use-case.js';
 import { ChangePasswordInput } from '../dto/change-password.dto.js';
 import { IdentityTokens } from '../../infrastructure/persistence/tokens/identity.tokens.js';

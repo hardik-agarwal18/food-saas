@@ -1,4 +1,4 @@
-import 'reflect-metadata';
+﻿import 'reflect-metadata';
 import '../infrastructure/container/index.js';
 import mqtt from 'mqtt';
 import { container } from 'tsyringe';

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Initializes the metadata reflection system before dependency
  * injection and decorated classes are used.
  */

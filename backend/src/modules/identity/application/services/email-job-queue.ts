@@ -1,4 +1,4 @@
-export interface IEmailJobQueue {
+﻿export interface IEmailJobQueue {
   enqueueVerificationEmail(data: {
     userId: string;
     email: string;

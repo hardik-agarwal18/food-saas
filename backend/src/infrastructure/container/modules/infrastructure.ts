@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Infrastructure dependency registrations.
  *
  * This file connects infrastructure abstractions and tokens to

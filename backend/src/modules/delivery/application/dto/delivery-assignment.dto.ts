@@ -1,4 +1,4 @@
-export interface DeliveryAssignmentResponseDto {
+﻿export interface DeliveryAssignmentResponseDto {
   id: string;
   orderId: string;
   driverId: string | null;
