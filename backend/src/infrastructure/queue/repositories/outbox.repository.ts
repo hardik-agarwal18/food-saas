@@ -9,7 +9,7 @@ export interface IOutboxEventRepository {
   markProcessed(eventId: string): Promise<void>;
   scheduleRetry(eventId: string, nextAttemptAt: Date, error: string): Promise<void>;
   markDeadLettered(eventId: string, error: string): Promise<void>;
-  releaseClaim(eventId: string): Promise<void>;
+  releaseClaim(eventId: string, nextAttemptAt?: Date): Promise<void>;
 }
 
 @injectable()
@@ -97,12 +97,13 @@ export class PrismaOutboxEventRepository extends BaseRepository implements IOutb
     );
   }
 
-  async releaseClaim(eventId: string): Promise<void> {
+  async releaseClaim(eventId: string, nextAttemptAt?: Date): Promise<void> {
     await this.execute(() =>
       this.prisma.outboxEvent.update({
         where: { id: eventId },
         data: {
           claimedAt: null,
+          ...(nextAttemptAt ? { nextAttemptAt } : {}),
         },
       }),
     );

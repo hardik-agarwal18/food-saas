@@ -50,7 +50,11 @@ export class PaymentController {
       res.status(200).send('Webhook processed');
     } catch (error: any) {
       console.error('Webhook processing error:', error.message);
-      res.status(400).send(`Webhook Error: ${error.message}`);
+      if (error.name === 'PaymentAttemptNotReadyError') {
+        res.status(500).send(`Webhook Error: ${error.message}`);
+      } else {
+        res.status(400).send(`Webhook Error: ${error.message}`);
+      }
     }
   };
 }

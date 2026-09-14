@@ -594,13 +594,14 @@ enum EventHandlerExecutionStatus {
 }
 
 model EventHandlerExecution {
-  eventId      String                        @db.Uuid
-  handlerName  String                        @map("handler_name")
-  status       EventHandlerExecutionStatus   @default(PROCESSING)
-  attemptCount Int                           @default(0) @map("attempt_count")
-  claimedAt    DateTime?                     @map("claimed_at")
-  completedAt  DateTime?                     @map("completed_at")
-  lastError    String?                       @map("last_error")
+  eventId      String                      @db.Uuid
+  handlerName  String                      @map("handler_name")
+  status       EventHandlerExecutionStatus @default(PROCESSING)
+  attemptCount Int                         @default(0) @map("attempt_count")
+  claimedAt    DateTime?                   @map("claimed_at")
+  leaseToken   String?                     @map("lease_token")
+  completedAt  DateTime?                   @map("completed_at")
+  lastError    String?                     @map("last_error")
 
   @@id([eventId, handlerName])
   @@map("event_handler_executions")

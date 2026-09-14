@@ -2,8 +2,12 @@ import { z } from 'zod';
 
 export const extractedMenuItemSchema = z.object({
   name: z.string().min(1).max(200),
-  description: z.string().max(1000).optional(),
-  price: z.number().min(0),
+  description: z
+    .string()
+    .max(1000)
+    .nullish()
+    .transform((val) => val ?? undefined),
+  price: z.number().finite().min(0),
 });
 
 export const extractedMenuCategorySchema = z.object({

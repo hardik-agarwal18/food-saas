@@ -4,6 +4,15 @@ import { PaymentTokens } from '../../infrastructure/tokens/payment.tokens.js';
 import { PaymentAttemptStatus } from '../../../../generated/prisma/client.js';
 import type { IPaymentTransaction } from '../transaction/payment.transaction.js';
 
+export class PaymentAttemptNotReadyError extends Error {
+  constructor(providerPaymentId: string) {
+    super(
+      `Webhook received for unknown payment (maybe not created yet): ${providerPaymentId}. Retrying...`,
+    );
+    this.name = 'PaymentAttemptNotReadyError';
+  }
+}
+
 @injectable()
 export class ProcessWebhookUseCase {
   constructor(
@@ -44,8 +53,7 @@ export class ProcessWebhookUseCase {
       );
 
       if (!paymentAttempt) {
-        console.warn(`Webhook received for unknown payment: ${event.providerPaymentId}`);
-        return;
+        throw new PaymentAttemptNotReadyError(event.providerPaymentId);
       }
 
       // If it's already in a final state, ignore (idempotency check)

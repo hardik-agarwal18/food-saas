@@ -133,8 +133,29 @@ export function startOutboxWorker(
           const prismaClient = container.resolve<PrismaClient>(InfrastructureTokens.PrismaClient);
           const idempotentDispatcher = new IdempotentDispatcher(prismaClient, record.id);
 
-          await idempotentDispatcher.dispatchWithIdempotency(event, handlers);
+          const results = await idempotentDispatcher.dispatchWithIdempotency(event, handlers);
           const durationMs = Date.now() - startMs;
+
+          const hasFailed = results.some((r) => r.status === 'FAILED');
+          const hasInProgress = results.some((r) => r.status === 'IN_PROGRESS');
+
+          if (hasInProgress) {
+            logger.info(
+              `Outbox event ${record.id} has handlers IN_PROGRESS. Delaying markProcessed.`,
+              {
+                component: 'OutboxWorker',
+                eventId: record.id,
+              },
+            );
+            // Delay for a short time instead of throwing an error
+            const shortRetryTime = new Date(Date.now() + 5000);
+            await repository.releaseClaim(record.id, shortRetryTime);
+            continue;
+          }
+
+          if (hasFailed) {
+            throw new Error('One or more event handlers failed');
+          }
 
           await repository.markProcessed(record.id);
 
