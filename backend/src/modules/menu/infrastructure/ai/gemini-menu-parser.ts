@@ -6,6 +6,8 @@ import type {
 } from '../../application/contracts/menu-parser.interface.js';
 import type { RawMenuDocument } from '../../application/contracts/menu-document-reader.interface.js';
 import { env } from '../../../../config/env.config.js';
+import { GEMINI_MENU_MODEL } from './gemini.constants.js';
+import { extractedMenuDataSchema } from '../../shared/schemas/extracted-menu.schema.js';
 
 @injectable()
 export class GeminiMenuParser implements MenuParser {
@@ -21,7 +23,7 @@ export class GeminiMenuParser implements MenuParser {
     }
 
     const response = await this.ai.models.generateContent({
-      model: 'gemini-3.5-flash',
+      model: GEMINI_MENU_MODEL,
       contents: [
         {
           role: 'user',
@@ -89,9 +91,16 @@ export class GeminiMenuParser implements MenuParser {
       throw new Error('Gemini output was not valid JSON');
     }
 
+    let validatedData: any;
+    try {
+      validatedData = extractedMenuDataSchema.parse(parsedData);
+    } catch (e: any) {
+      throw new Error(`Gemini output failed validation: ${e.message}`);
+    }
+
     return {
       data: {
-        categories: parsedData.categories || [],
+        categories: validatedData.categories || [],
       },
       warnings: [],
       errors: [],

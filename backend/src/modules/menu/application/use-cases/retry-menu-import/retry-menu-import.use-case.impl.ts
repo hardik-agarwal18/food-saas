@@ -1,4 +1,4 @@
-﻿import { inject, injectable } from 'tsyringe';
+import { inject, injectable } from 'tsyringe';
 import { MenuTokens } from '../../../infrastructure/tokens/menu.tokens.js';
 import type { MenuImportRepository } from '../../../domain/repositories/menu-import.repository.js';
 import type { RetryMenuImportInput, RetryMenuImportUseCase } from './retry-menu-import.use-case.js';
@@ -17,8 +17,14 @@ export class RetryMenuImportUseCaseImpl implements RetryMenuImportUseCase {
     private readonly restaurantRepo: IRestaurantRepository,
   ) {}
 
+  /**
+   * Retries a failed menu import by resetting its state and re-enqueuing the BullMQ job.
+   *
+   * This increments `MenuImport.retryCount` (user-initiated manual retry).
+   * BullMQ infrastructure retries are separate and do NOT increment retryCount.
+   */
   async execute(input: RetryMenuImportInput): Promise<void> {
-    const importEntity = await this.menuImportRepository.findByIdForUpdate(input.importId);
+    const importEntity = await this.menuImportRepository.findById(input.importId);
 
     if (!importEntity) {
       throw new MenuDomainError('Menu import not found');

@@ -1,7 +1,8 @@
-﻿import { z } from 'zod';
+import { z } from 'zod';
+import { extractedMenuDataSchema } from '../../shared/schemas/extracted-menu.schema.js';
 
 export const confirmMenuImportSchema = z.object({
   body: z.object({
-    editedData: z.any().optional(), // Could be more strongly typed later
+    editedData: extractedMenuDataSchema.optional(),
   }),
 });

@@ -33,8 +33,19 @@ export class ProcessMenuImportUseCaseImpl implements ProcessMenuImportUseCase {
     private readonly logger: ILogger,
   ) {}
 
+  /**
+   * Processes a menu import by downloading the file, extracting text via OCR,
+   * and parsing it into structured menu data.
+   *
+   * Retry semantics:
+   * - BullMQ `attempts` = automatic infrastructure retries (transparent to domain).
+   *   If processing fails, this use case throws so BullMQ retries the job automatically.
+   *   The domain entity is marked FAILED but retryCount is NOT incremented.
+   * - `MenuImport.retryCount` = user-initiated manual retries via the retry endpoint.
+   *   Only incremented when a user explicitly triggers RetryMenuImportUseCase.
+   */
   async execute(input: ProcessMenuImportInput): Promise<void> {
-    const importEntity = await this.menuImportRepository.findByIdForUpdate(input.importId);
+    const importEntity = await this.menuImportRepository.findById(input.importId);
     if (!importEntity) {
       this.logger.error(`Menu import not found for ID: ${input.importId}`);
       return;

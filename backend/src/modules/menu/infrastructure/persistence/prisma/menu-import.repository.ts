@@ -1,4 +1,4 @@
-﻿import { injectable, inject } from 'tsyringe';
+import { injectable, inject } from 'tsyringe';
 import { InfrastructureTokens } from '../../../../../infrastructure/container/tokens/index.js';
 import type { PrismaExecutor } from '../../../../../infrastructure/database/prisma-client.type.js';
 import { BaseRepository } from '../../../../../infrastructure/database/base.repository.js';
@@ -20,12 +20,6 @@ export class MenuImportRepositoryImpl extends BaseRepository implements MenuImpo
     const raw = await this.execute(() => this.prisma.menuImport.findUnique({ where: { id } }));
     if (!raw) return null;
     return MenuImportMapper.toDomain(raw);
-  }
-
-  async findByIdForUpdate(id: string): Promise<MenuImport | null> {
-    // In Prisma, optimistic concurrency is better handled on update using `where: { id, version }`.
-    // But we still need to load it first.
-    return this.findById(id);
   }
 
   async create(menuImport: MenuImport): Promise<void> {

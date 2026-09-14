@@ -6,6 +6,7 @@ import type {
   RawMenuDocument,
 } from '../../application/contracts/menu-document-reader.interface.js';
 import { env } from '../../../../config/env.config.js';
+import { GEMINI_MENU_MODEL } from './gemini.constants.js';
 
 @injectable()
 export class GeminiMenuDocumentReader implements MenuDocumentReader {
@@ -21,7 +22,7 @@ export class GeminiMenuDocumentReader implements MenuDocumentReader {
     }
 
     const response = await this.ai.models.generateContent({
-      model: 'gemini-3.5-flash',
+      model: GEMINI_MENU_MODEL,
       contents: [
         {
           role: 'user',
@@ -48,7 +49,7 @@ export class GeminiMenuDocumentReader implements MenuDocumentReader {
     return {
       text,
       metadata: {
-        source: 'gemini-1.5-pro',
+        source: GEMINI_MENU_MODEL,
       },
     };
   }
