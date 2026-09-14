@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Infrastructure dependency registrations.
  *
  * This file connects infrastructure abstractions and tokens to
@@ -63,6 +63,7 @@ import { MenuImportJobProcessor } from '../../queue/jobs/menu-import/menu-import
 
 import { RateLimitService } from '../../security/rate-limit.service.js';
 import { R2FileStorage } from '../../storage/r2/r2.file-storage.js';
+import { PrismaOutboxEventRepository } from '../../queue/repositories/outbox.repository.js';
 
 /**
  * Registers all infrastructure dependencies.
@@ -237,5 +238,12 @@ export const registerInfrastructure = (): void => {
    */
   container.register(InfrastructureTokens.MenuImportJobProcessor, {
     useClass: MenuImportJobProcessor,
+  });
+
+  /**
+   * Register OutboxEventRepository.
+   */
+  container.register(InfrastructureTokens.OutboxEventRepository, {
+    useClass: PrismaOutboxEventRepository,
   });
 };

@@ -1,4 +1,4 @@
-﻿import 'reflect-metadata';
+import 'reflect-metadata';
 import { container } from 'tsyringe';
 import { config } from 'dotenv';
 import { DatabaseService } from '../infrastructure/database/database.service.js';
@@ -26,14 +26,21 @@ const redisService = container.resolve(RedisService);
 await databaseService.connectToDatabase();
 await redisService.connectToRedis();
 
-const prisma = container.resolve<PrismaClient>(InfrastructureTokens.PrismaClient);
+const repository = container.resolve<any>(InfrastructureTokens.OutboxEventRepository);
 
 // Import startOutboxWorker
 const { startOutboxWorker } = await import('../infrastructure/queue/workers/outbox.worker.js');
 
 // Start the polling logic
 // We capture the interval ID so we can shut it down gracefully
-const { stopOutboxWorker } = startOutboxWorker(prisma, logger);
+const { stopOutboxWorker } = startOutboxWorker(repository, logger, {
+  pollIntervalMs: Number(process.env.OUTBOX_POLL_INTERVAL_MS) || 5000,
+  batchSize: Number(process.env.OUTBOX_BATCH_SIZE) || 50,
+  claimTimeoutMs: Number(process.env.OUTBOX_CLAIM_TIMEOUT_MS) || 60000,
+  maxAttempts: Number(process.env.OUTBOX_MAX_ATTEMPTS) || 10,
+  baseRetryDelayMs: Number(process.env.OUTBOX_BASE_RETRY_DELAY_MS) || 1000,
+  maxRetryDelayMs: Number(process.env.OUTBOX_MAX_RETRY_DELAY_MS) || 300000,
+});
 logger.info('Outbox Worker started successfully');
 
 let isShuttingDown = false;
@@ -53,9 +60,10 @@ const shutdown = async (signal: NodeJS.Signals): Promise<void> => {
   }, 30000);
 
   try {
-    stopOutboxWorker();
+    await stopOutboxWorker();
 
     // Disconnect infrastructure
+    const prisma = container.resolve<PrismaClient>(InfrastructureTokens.PrismaClient);
     await prisma.$disconnect();
 
     clearTimeout(timeoutId);

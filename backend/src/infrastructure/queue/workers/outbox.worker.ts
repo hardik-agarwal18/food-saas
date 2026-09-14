@@ -1,6 +1,6 @@
-﻿import { PrismaClient } from '../../../generated/prisma/client.js';
 import { EventDispatcher } from '../../../shared/events/event-dispatcher.js';
 import { ILogger } from '../../../shared/logger/logger.interface.js';
+import { IOutboxEventRepository } from '../repositories/outbox.repository.js';
 
 // Domain Events
 import { OrderReadyEvent } from '../../../modules/ordering/domain/events/order-ready.event.js';
@@ -45,25 +45,75 @@ function deserializeEvent(eventName: string, payload: any): DomainEvent | null {
   }
 }
 
+export interface OutboxWorkerConfig {
+  pollIntervalMs: number;
+  batchSize: number;
+  claimTimeoutMs: number;
+  maxAttempts: number;
+  baseRetryDelayMs: number;
+  maxRetryDelayMs: number;
+}
+
 /**
  * Starts the Outbox Worker to process pending domain events.
  */
-export function startOutboxWorker(prisma: PrismaClient, logger: ILogger) {
+export function startOutboxWorker(
+  repository: IOutboxEventRepository,
+  logger: ILogger,
+  config: Partial<OutboxWorkerConfig> = {},
+) {
   logger.info('Outbox Worker started', { component: 'OutboxWorker' });
 
-  const pollOutbox = async () => {
-    try {
-      const pendingEvents = await prisma.outboxEvent.findMany({
-        where: { processedAt: null },
-        orderBy: { createdAt: 'asc' },
-        take: 50,
-      });
+  const workerConfig: OutboxWorkerConfig = {
+    pollIntervalMs: config.pollIntervalMs || 5000,
+    batchSize: config.batchSize || 50,
+    claimTimeoutMs: config.claimTimeoutMs || 60000,
+    maxAttempts: config.maxAttempts || 10,
+    baseRetryDelayMs: config.baseRetryDelayMs || 1000,
+    maxRetryDelayMs: config.maxRetryDelayMs || 300000,
+  };
 
-      if (pendingEvents.length === 0) return;
+  let isRunning = true;
+  let pollTimeout: NodeJS.Timeout | null = null;
+  let isPolling = false;
+
+  const calculateRetryDelay = (attemptCount: number): number => {
+    const delay = Math.min(
+      workerConfig.baseRetryDelayMs * Math.pow(2, Math.max(0, attemptCount - 1)),
+      workerConfig.maxRetryDelayMs,
+    );
+    const jitter = Math.random() * 500;
+    return delay + jitter;
+  };
+
+  const processBatch = async () => {
+    isPolling = true;
+    try {
+      const pendingEvents = await repository.claimBatch(
+        workerConfig.batchSize,
+        workerConfig.claimTimeoutMs,
+      );
+
+      if (pendingEvents.length === 0) {
+        return; // No events to process
+      }
 
       const dispatcher = EventDispatcher.getInstance();
 
       for (const record of pendingEvents) {
+        if (!isRunning) {
+          // If shutting down, release the claim so another worker can pick it up
+          await repository.releaseClaim(record.id);
+          continue;
+        }
+
+        logger.info(`Claimed outbox event ${record.id}`, {
+          component: 'OutboxWorker',
+          eventId: record.id,
+          eventType: record.eventName,
+          attemptCount: record.attemptCount,
+        });
+
         try {
           const event = deserializeEvent(record.eventName, record.payload);
 
@@ -71,39 +121,84 @@ export function startOutboxWorker(prisma: PrismaClient, logger: ILogger) {
             throw new Error(`Unknown event type: ${record.eventName}`);
           }
 
-          // Dispatch the event synchronously to guarantee ordering
+          const startMs = Date.now();
           await dispatcher.dispatch(event);
+          const durationMs = Date.now() - startMs;
 
-          // Mark as processed
-          await prisma.outboxEvent.update({
-            where: { id: record.id },
-            data: { processedAt: new Date() },
-          });
+          await repository.markProcessed(record.id);
 
           logger.info(`Processed outbox event ${record.id}`, {
             component: 'OutboxWorker',
-            eventName: record.eventName,
+            eventId: record.id,
+            eventType: record.eventName,
+            durationMs,
           });
         } catch (error: any) {
+          const errorMessage = error.message || 'Unknown error';
+
           logger.error(`Failed to process outbox event ${record.id}`, error, {
             component: 'OutboxWorker',
+            eventId: record.id,
+            eventType: record.eventName,
+            attemptCount: record.attemptCount,
           });
 
-          // Mark as failed
-          await prisma.outboxEvent.update({
-            where: { id: record.id },
-            data: { error: error.message || 'Unknown error' },
-          });
+          if (record.attemptCount >= workerConfig.maxAttempts) {
+            await repository.markDeadLettered(record.id, errorMessage);
+            logger.warn(`Dead-lettered outbox event ${record.id}`, {
+              component: 'OutboxWorker',
+              eventId: record.id,
+              eventType: record.eventName,
+              attemptCount: record.attemptCount,
+              error: errorMessage,
+            });
+          } else {
+            const delayMs = calculateRetryDelay(record.attemptCount);
+            const nextAttemptAt = new Date(Date.now() + delayMs);
+            await repository.scheduleRetry(record.id, nextAttemptAt, errorMessage);
+
+            logger.info(`Scheduled retry for outbox event ${record.id}`, {
+              component: 'OutboxWorker',
+              eventId: record.id,
+              eventType: record.eventName,
+              attemptCount: record.attemptCount,
+              nextAttemptAt,
+              error: errorMessage,
+            });
+          }
         }
       }
     } catch (error) {
       logger.error('Outbox polling error', error, { component: 'OutboxWorker' });
+    } finally {
+      isPolling = false;
     }
   };
 
-  const intervalId = setInterval(pollOutbox, 5000);
+  const pollLoop = async () => {
+    if (!isRunning) return;
+
+    await processBatch();
+
+    if (isRunning) {
+      pollTimeout = setTimeout(pollLoop, workerConfig.pollIntervalMs);
+    }
+  };
+
+  // Start the first poll immediately
+  setImmediate(pollLoop);
 
   return {
-    stopOutboxWorker: () => clearInterval(intervalId),
+    stopOutboxWorker: async () => {
+      isRunning = false;
+      if (pollTimeout) {
+        clearTimeout(pollTimeout);
+      }
+
+      // Wait for current polling cycle to finish gracefully
+      while (isPolling) {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+    },
   };
 }

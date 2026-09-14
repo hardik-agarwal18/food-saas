@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Infrastructure dependency tokens.
  *
  * This object contains the identifiers used by tsyringe to locate
@@ -132,4 +132,9 @@ export const InfrastructureTokens = {
    * Menu import job processor.
    */
   MenuImportJobProcessor: Symbol.for('Infrastructure.MenuImportJobProcessor'),
+
+  /**
+   * Outbox event repository.
+   */
+  OutboxEventRepository: Symbol.for('Infrastructure.OutboxEventRepository'),
 } as const;
