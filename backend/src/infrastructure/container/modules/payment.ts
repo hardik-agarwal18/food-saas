@@ -6,6 +6,7 @@ import { PrismaPaymentAttemptRepository } from '../../../modules/payment/infrast
 import { PaymentProviderResolver } from '../../../modules/payment/application/services/payment-provider.resolver.js';
 import { InitializePaymentUseCase } from '../../../modules/payment/application/use-cases/initialize-payment.use-case.js';
 import { ProcessWebhookUseCase } from '../../../modules/payment/application/use-cases/process-webhook.use-case.js';
+import { PaymentTransaction } from '../../../modules/payment/infrastructure/persistence/prisma/payment.transaction.js';
 
 export const registerPayment = (): void => {
   // Repositories
@@ -30,5 +31,10 @@ export const registerPayment = (): void => {
 
   container.register(PaymentTokens.ProcessWebhookUseCase, {
     useClass: ProcessWebhookUseCase,
+  });
+
+  // Transactions
+  container.register(PaymentTokens.PaymentTransaction, {
+    useClass: PaymentTransaction,
   });
 };

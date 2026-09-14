@@ -1,4 +1,4 @@
-﻿import express from 'express';
+import express from 'express';
 import { container } from 'tsyringe';
 import { AuthenticationMiddleware } from '../../../../app/middleware/authentication.middleware.js';
 import { validate } from '../../../../shared/validation/validate.js';
@@ -21,9 +21,13 @@ import { UpdateDriverLocationController } from '../controllers/update-driver-loc
 import { GetNearbyDriversController } from '../controllers/get-nearby-drivers.controller.js';
 import { GetDeliveryLocationController } from '../controllers/get-delivery-location.controller.js';
 
+import { AuthorizationMiddleware } from '../../../../app/middleware/authorization.middleware.js';
+import { Permission } from '../../../identity/domain/enums/permission.enum.js';
+
 const router = express.Router();
 
 const authenticationMiddleware = container.resolve(AuthenticationMiddleware);
+const authorizationMiddleware = container.resolve(AuthorizationMiddleware);
 
 const registerDriverController = container.resolve(RegisterDriverController);
 const toggleDriverAvailabilityController = container.resolve(ToggleDriverAvailabilityController);
@@ -45,22 +49,29 @@ router.post(
   registerDriverController.handle.bind(registerDriverController),
 );
 
-router.get('/drivers/me', getDriverProfileController.handle.bind(getDriverProfileController));
+router.get(
+  '/drivers/me',
+  authorizationMiddleware.authorize(Permission.DRIVER_READ),
+  getDriverProfileController.handle.bind(getDriverProfileController),
+);
 
 router.patch(
   '/drivers/me/availability',
+  authorizationMiddleware.authorize(Permission.DRIVER_UPDATE),
   validate({ body: toggleDriverAvailabilitySchema }),
   toggleDriverAvailabilityController.handle.bind(toggleDriverAvailabilityController),
 );
 
 router.patch(
   '/drivers/me/location',
+  authorizationMiddleware.authorize(Permission.DRIVER_UPDATE),
   validate({ body: updateDriverLocationSchema }),
   updateDriverLocationController.handle.bind(updateDriverLocationController),
 );
 
 router.get(
   '/drivers/nearby',
+  authorizationMiddleware.authorize(Permission.DRIVER_READ),
   validate({ query: getNearbyDriversSchema }),
   getNearbyDriversController.execute.bind(getNearbyDriversController),
 );
@@ -68,20 +79,25 @@ router.get(
 // Delivery assignment routes
 router.get(
   '/deliveries/available',
+  authorizationMiddleware.authorize(Permission.DELIVERY_UPDATE), // or DELIVERY_ASSIGN
   getAvailableDeliveriesController.handle.bind(getAvailableDeliveriesController),
 );
 
 router.get(
   '/deliveries/my-active',
+  authorizationMiddleware.authorize(Permission.DELIVERY_UPDATE),
   getDriverAssignmentsController.handle.bind(getDriverAssignmentsController),
 );
+
 router.post(
   '/deliveries/:assignmentId/claim',
+  authorizationMiddleware.authorize(Permission.DELIVERY_UPDATE),
   claimDeliveryAssignmentController.handle.bind(claimDeliveryAssignmentController),
 );
 
 router.patch(
   '/deliveries/:assignmentId/status',
+  authorizationMiddleware.authorize(Permission.DELIVERY_UPDATE),
   validate({ body: updateDeliveryStatusSchema }),
   updateDeliveryStatusController.handle.bind(updateDeliveryStatusController),
 );

@@ -14,9 +14,14 @@ export class GetRestaurantAnalyticsController {
 
   public execute = async (req: Request, res: Response): Promise<void> => {
     try {
+      const userId = req.user?.id;
+      if (!userId) {
+        throw new AppError('Unauthorized', 401, 'UNAUTHORIZED', true);
+      }
+
       const restaurantId = req.params.restaurantId as string;
 
-      const analytics = await this.getAnalyticsUseCase.execute(restaurantId);
+      const analytics = await this.getAnalyticsUseCase.execute(userId, restaurantId);
 
       res.status(200).json(analytics);
     } catch (error: any) {

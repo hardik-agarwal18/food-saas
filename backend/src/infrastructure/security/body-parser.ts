@@ -1,4 +1,4 @@
-﻿import express, { RequestHandler } from 'express';
+import express, { RequestHandler } from 'express';
 
 /**
  * Parses JSON request bodies.
@@ -19,6 +19,11 @@
 const jsonMiddleware = express.json({
   limit: '100kb',
   strict: true,
+  verify: (req: any, res, buf) => {
+    if (req.originalUrl.includes('/webhooks/stripe')) {
+      req.rawBody = buf;
+    }
+  },
 });
 
 /**

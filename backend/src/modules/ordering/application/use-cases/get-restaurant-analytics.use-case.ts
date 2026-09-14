@@ -5,5 +5,5 @@ export interface RestaurantAnalyticsDto {
 }
 
 export interface IGetRestaurantAnalyticsUseCase {
-  execute(restaurantId: string): Promise<RestaurantAnalyticsDto>;
+  execute(userId: string, restaurantId: string): Promise<RestaurantAnalyticsDto>;
 }

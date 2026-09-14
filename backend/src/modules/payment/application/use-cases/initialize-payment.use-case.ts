@@ -1,4 +1,4 @@
-﻿import { injectable, inject } from 'tsyringe';
+import { injectable, inject } from 'tsyringe';
 
 import type { IPaymentAttemptRepository } from '../ports/payment-attempt.repository.interface.js';
 import { PaymentProviderResolver } from '../services/payment-provider.resolver.js';
@@ -28,7 +28,8 @@ export class InitializePaymentUseCase {
     const grandTotal =
       Number(orderResponse.subtotal) +
       Number(orderResponse.deliveryFee) +
-      Number(orderResponse.taxAmount);
+      Number(orderResponse.taxAmount) -
+      Number(orderResponse.discountAmount || 0);
     const amountInCents = Math.round(grandTotal * 100);
 
     // 2. Resolve Payment Provider

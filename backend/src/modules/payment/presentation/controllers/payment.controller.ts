@@ -44,7 +44,8 @@ export class PaymentController {
       }
 
       // Note: express must be configured to pass raw body for this route
-      await this.processWebhookUseCase.execute(req.body, signature as string);
+      const rawBody = (req as any).rawBody || req.body;
+      await this.processWebhookUseCase.execute(rawBody, signature as string);
 
       res.status(200).send('Webhook processed');
     } catch (error: any) {

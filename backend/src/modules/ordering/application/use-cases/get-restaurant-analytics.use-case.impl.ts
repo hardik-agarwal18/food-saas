@@ -18,10 +18,14 @@ export class GetRestaurantAnalyticsUseCaseImpl implements IGetRestaurantAnalytic
     private readonly restaurantRepo: IRestaurantRepository,
   ) {}
 
-  async execute(restaurantId: string): Promise<RestaurantAnalyticsDto> {
+  async execute(userId: string, restaurantId: string): Promise<RestaurantAnalyticsDto> {
     const restaurant = await this.restaurantRepo.findById(restaurantId);
     if (!restaurant) {
       throw new OrderingDomainError('Restaurant not found');
+    }
+
+    if (restaurant.getOwnerId() !== userId) {
+      throw new OrderingDomainError('Not authorized to access these analytics');
     }
 
     const today = new Date();
