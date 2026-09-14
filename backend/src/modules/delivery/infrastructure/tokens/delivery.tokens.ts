@@ -1,4 +1,4 @@
-﻿export const DeliveryTokens = {
+export const DeliveryTokens = {
   DriverRepository: Symbol('IDriverRepository'),
   DeliveryAssignmentRepository: Symbol('IDeliveryAssignmentRepository'),
   RegisterDriverUseCase: Symbol('IRegisterDriverUseCase'),
@@ -14,4 +14,5 @@
   MqttBroadcasterService: Symbol('IMqttBroadcasterService'),
   DispatchOrderUseCase: Symbol('IDispatchOrderUseCase'),
   RouteService: Symbol('IRouteService'),
+  GetDeliveryLocationUseCase: Symbol('IGetDeliveryLocationUseCase'),
 };

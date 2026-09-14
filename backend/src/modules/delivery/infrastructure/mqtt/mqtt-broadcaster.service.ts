@@ -1,8 +1,9 @@
-﻿import mqtt, { MqttClient } from 'mqtt';
+import mqtt, { MqttClient } from 'mqtt';
 import { injectable } from 'tsyringe';
 import { logger } from '../../../../infrastructure/observability/logger/pino.js';
 import fs from 'fs';
 import path from 'path';
+import { env } from '../../../../config/env.config.js';
 
 export interface IMqttBroadcasterService {
   broadcastDeliveryOffer(
@@ -28,14 +29,18 @@ export class MqttBroadcasterService implements IMqttBroadcasterService {
 
   private init() {
     try {
-      const brokerUrl = process.env.MQTT_URL || 'mqtts://localhost:8883';
+      const brokerUrl = env.MQTT_URL || 'mqtts://localhost:8883';
       const ca = fs.readFileSync(path.join(process.cwd(), 'mosquitto', 'certs', 'ca.crt'));
+
+      if (env.NODE_ENV === 'production' && !env.MQTT_TLS_REJECT_UNAUTHORIZED) {
+        throw new Error('MQTT_TLS_REJECT_UNAUTHORIZED must be true in production');
+      }
 
       this.client = mqtt.connect(brokerUrl, {
         ca,
-        rejectUnauthorized: false,
-        username: 'driver', // In production, we'd use an admin/backend specific credential
-        password: 'driver_password',
+        rejectUnauthorized: env.MQTT_TLS_REJECT_UNAUTHORIZED,
+        username: env.MQTT_USERNAME,
+        password: env.MQTT_PASSWORD,
       });
 
       this.client.on('connect', () => {

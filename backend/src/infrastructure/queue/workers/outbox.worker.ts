@@ -1,5 +1,8 @@
 import { EventDispatcher } from '../../../shared/events/event-dispatcher.js';
+import { IdempotentDispatcher } from '../../../shared/events/idempotent-dispatcher.js';
 import { ILogger } from '../../../shared/logger/logger.interface.js';
+import { DomainEvent } from '../../../shared/events/domain-event.js';
+import { PrismaClient } from '../../../generated/prisma/client.js';
 import { IOutboxEventRepository } from '../repositories/outbox.repository.js';
 
 // Domain Events
@@ -7,38 +10,39 @@ import { OrderReadyEvent } from '../../../modules/ordering/domain/events/order-r
 import { DeliveryPickedUpEvent } from '../../../modules/delivery/domain/events/delivery-picked-up.event.js';
 import { DeliveryDeliveredEvent } from '../../../modules/delivery/domain/events/delivery-delivered.event.js';
 import { OrderPlacedEvent } from '../../../modules/ordering/domain/events/order-placed.event.js';
-import { DomainEvent } from '../../../shared/events/domain-event.js';
-
+import { container } from 'tsyringe';
+import { InfrastructureTokens } from '../../container/tokens/index.js';
+import { OrderType } from '../../../generated/prisma/client.js';
 /**
  * Reconstructs a DomainEvent instance from its JSON payload.
  */
-function deserializeEvent(eventName: string, payload: any): DomainEvent | null {
+function deserializeEvent(eventName: string, payload: Record<string, unknown>): DomainEvent | null {
   switch (eventName) {
     case 'OrderReadyEvent':
       return new OrderReadyEvent(
-        payload.orderId,
-        payload.restaurantId,
-        payload.orderType,
-        payload.deliveryFee,
+        payload.orderId as string,
+        payload.restaurantId as string,
+        payload.orderType as OrderType,
+        payload.deliveryFee as number,
       );
     case 'OrderPlacedEvent':
       return new OrderPlacedEvent(
-        payload.orderId,
-        payload.restaurantId,
-        payload.orderType,
-        payload.deliveryFeeAmount,
+        payload.orderId as string,
+        payload.restaurantId as string,
+        payload.orderType as OrderType,
+        payload.deliveryFeeAmount as number,
       );
     case 'DeliveryPickedUpEvent':
       return new DeliveryPickedUpEvent(
-        payload.deliveryAssignmentId,
-        payload.orderId,
-        payload.driverId,
+        payload.deliveryAssignmentId as string,
+        payload.orderId as string,
+        payload.driverId as string,
       );
     case 'DeliveryDeliveredEvent':
       return new DeliveryDeliveredEvent(
-        payload.deliveryAssignmentId,
-        payload.orderId,
-        payload.driverId,
+        payload.deliveryAssignmentId as string,
+        payload.orderId as string,
+        payload.driverId as string,
       );
     default:
       return null;
@@ -115,14 +119,21 @@ export function startOutboxWorker(
         });
 
         try {
-          const event = deserializeEvent(record.eventName, record.payload);
+          const event = deserializeEvent(
+            record.eventName,
+            record.payload as Record<string, unknown>,
+          );
 
           if (!event) {
             throw new Error(`Unknown event type: ${record.eventName}`);
           }
 
           const startMs = Date.now();
-          await dispatcher.dispatch(event);
+          const handlers = dispatcher.getHandlers(event.eventName);
+          const prismaClient = container.resolve<PrismaClient>(InfrastructureTokens.PrismaClient);
+          const idempotentDispatcher = new IdempotentDispatcher(prismaClient, record.id);
+
+          await idempotentDispatcher.dispatchWithIdempotency(event, handlers);
           const durationMs = Date.now() - startMs;
 
           await repository.markProcessed(record.id);
@@ -133,8 +144,8 @@ export function startOutboxWorker(
             eventType: record.eventName,
             durationMs,
           });
-        } catch (error: any) {
-          const errorMessage = error.message || 'Unknown error';
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
           logger.error(`Failed to process outbox event ${record.id}`, error, {
             component: 'OutboxWorker',

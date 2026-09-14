@@ -6,6 +6,7 @@ import { RedisService } from '../infrastructure/cache/redis.service.js';
 import { ILogger } from '../shared/logger/logger.interface.js';
 import { InfrastructureTokens } from '../infrastructure/container/tokens/infrastructure.tokens.js';
 import { PrismaClient } from '../generated/prisma/client.js';
+import { IOutboxEventRepository } from '../infrastructure/queue/repositories/outbox.repository.js';
 
 // We need to import registration to ensure all handlers are bound to the container
 import { registerWorkerDependencies } from '../infrastructure/container/worker-registration.js';
@@ -26,7 +27,9 @@ const redisService = container.resolve(RedisService);
 await databaseService.connectToDatabase();
 await redisService.connectToRedis();
 
-const repository = container.resolve<any>(InfrastructureTokens.OutboxEventRepository);
+const repository = container.resolve<IOutboxEventRepository>(
+  InfrastructureTokens.OutboxEventRepository,
+);
 
 // Import startOutboxWorker
 const { startOutboxWorker } = await import('../infrastructure/queue/workers/outbox.worker.js');

@@ -50,6 +50,7 @@ export const envSchema = z.object({
   MQTT_URL: z.string().url().optional(),
   MQTT_USERNAME: z.string().optional(),
   MQTT_PASSWORD: z.string().optional(),
+  MQTT_TLS_REJECT_UNAUTHORIZED: z.coerce.boolean().default(true),
   STRIPE_SECRET_KEY: z.string().optional(),
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
   GEMINI_API_KEY: z.string().optional(),

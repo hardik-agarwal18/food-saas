@@ -104,11 +104,13 @@ router.patch(
 
 router.get(
   '/deliveries/:assignmentId/location',
+  authorizationMiddleware.authorize(Permission.ORDER_READ),
   getDeliveryLocationController.handle.bind(getDeliveryLocationController),
 );
 
 router.get(
   '/deliveries/order/:orderId/location',
+  authorizationMiddleware.authorize(Permission.ORDER_READ),
   getDeliveryLocationController.handleByOrderId.bind(getDeliveryLocationController),
 );
 

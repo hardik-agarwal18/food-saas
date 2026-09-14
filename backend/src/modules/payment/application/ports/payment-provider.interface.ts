@@ -1,4 +1,4 @@
-﻿import { PaymentProvider } from '../../../../generated/prisma/client.js';
+import { PaymentProvider } from '../../../../generated/prisma/client.js';
 
 export type CreatePaymentInput = {
   orderId: string;
@@ -25,6 +25,7 @@ export type RefundPaymentResult = {
 };
 
 export type WebhookEvent = {
+  eventId: string;
   type: 'PAYMENT_SUCCEEDED' | 'PAYMENT_FAILED' | 'UNKNOWN';
   providerPaymentId: string;
   orderId?: string;

@@ -28,7 +28,13 @@ export class GetRestaurantAnalyticsUseCaseImpl implements IGetRestaurantAnalytic
       throw new OrderingDomainError('Not authorized to access these analytics');
     }
 
-    const today = new Date();
+    // TODO: A proper fix would use `restaurant.timezone` to calculate local business-day boundaries
+    // and then convert them to UTC for the database query.
+    const now = new Date();
+    const today = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0, 0),
+    );
+
     const analytics = await this.orderRepo.getAnalytics(restaurantId, today);
 
     return analytics;

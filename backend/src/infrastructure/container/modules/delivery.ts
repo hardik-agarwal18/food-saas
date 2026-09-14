@@ -1,4 +1,4 @@
-﻿import { container } from 'tsyringe';
+import { container } from 'tsyringe';
 import { DeliveryTokens } from '../../../modules/delivery/infrastructure/tokens/delivery.tokens.js';
 import { DriverRepositoryImpl } from '../../../modules/delivery/infrastructure/persistence/prisma/driver.repository.js';
 import { DeliveryAssignmentRepositoryImpl } from '../../../modules/delivery/infrastructure/persistence/prisma/delivery-assignment.repository.js';
@@ -10,6 +10,7 @@ import { UpdateDeliveryStatusUseCaseImpl } from '../../../modules/delivery/appli
 import { GetAvailableDeliveriesUseCaseImpl } from '../../../modules/delivery/application/use-cases/get-available-deliveries.use-case.impl.js';
 import { GetDriverAssignmentsUseCaseImpl } from '../../../modules/delivery/application/use-cases/get-driver-assignments.use-case.impl.js';
 import { UpdateDriverLocationUseCaseImpl } from '../../../modules/delivery/application/use-cases/update-driver-location.use-case.impl.js';
+import { GetDeliveryLocationUseCaseImpl } from '../../../modules/delivery/application/use-cases/get-delivery-location.use-case.impl.js';
 import { OnOrderReadyHandler } from '../../../modules/delivery/application/event-handlers/on-order-ready.handler.js';
 import { DispatchOrderUseCase } from '../../../modules/delivery/application/use-cases/dispatch-order.use-case.js';
 import { MqttBroadcasterService } from '../../../modules/delivery/infrastructure/mqtt/mqtt-broadcaster.service.js';
@@ -55,6 +56,10 @@ export function registerDeliveryModule() {
   container.registerSingleton(
     DeliveryTokens.UpdateDriverLocationUseCase,
     UpdateDriverLocationUseCaseImpl,
+  );
+  container.registerSingleton(
+    DeliveryTokens.GetDeliveryLocationUseCase,
+    GetDeliveryLocationUseCaseImpl,
   );
   container.registerSingleton(DeliveryTokens.DriverLocationService, DriverLocationService);
   container.registerSingleton(DeliveryTokens.MqttBroadcasterService, MqttBroadcasterService);

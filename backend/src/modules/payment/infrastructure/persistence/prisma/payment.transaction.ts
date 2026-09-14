@@ -23,6 +23,7 @@ export class PaymentTransaction implements IPaymentTransaction {
       return operation({
         paymentAttemptRepo,
         orderRepo,
+        tx,
       });
     });
   }

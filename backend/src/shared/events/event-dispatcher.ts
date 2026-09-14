@@ -1,4 +1,4 @@
-﻿import { DomainEvent } from './domain-event.js';
+import { DomainEvent } from './domain-event.js';
 
 export interface EventHandler<T extends DomainEvent = DomainEvent> {
   handle(event: T): Promise<void> | void;
@@ -21,6 +21,10 @@ export class EventDispatcher {
     const handlers = this.handlers.get(eventName) ?? [];
     handlers.push(handler as EventHandler);
     this.handlers.set(eventName, handlers);
+  }
+
+  public getHandlers(eventName: string): EventHandler[] {
+    return this.handlers.get(eventName) ?? [];
   }
 
   public async dispatch(event: DomainEvent): Promise<void> {

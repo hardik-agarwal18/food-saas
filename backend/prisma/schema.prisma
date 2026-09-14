@@ -585,3 +585,32 @@ model OutboxEvent {
   @@index([processedAt, deadLetteredAt, nextAttemptAt, claimedAt], name: "idx_outbox_polling")
   @@map("outbox_events")
 }
+
+// ─── IDEMPOTENCY ────────────────────────────────────────────────────────────
+
+enum EventHandlerExecutionStatus {
+  PROCESSING
+  SUCCEEDED
+}
+
+model EventHandlerExecution {
+  eventId      String                        @db.Uuid
+  handlerName  String                        @map("handler_name")
+  status       EventHandlerExecutionStatus   @default(PROCESSING)
+  attemptCount Int                           @default(0) @map("attempt_count")
+  claimedAt    DateTime?                     @map("claimed_at")
+  completedAt  DateTime?                     @map("completed_at")
+  lastError    String?                       @map("last_error")
+
+  @@id([eventId, handlerName])
+  @@map("event_handler_executions")
+}
+
+model ProcessedWebhook {
+  provider    String
+  eventId     String
+  processedAt DateTime @default(now()) @map("processed_at")
+
+  @@unique([provider, eventId])
+  @@map("processed_webhooks")
+}

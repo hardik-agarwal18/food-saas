@@ -17,13 +17,26 @@ export class ProcessWebhookUseCase {
     const provider = this.providerResolver.resolve();
 
     // Verify signature and parse the event
-    const event = await provider.verifyWebhook(payload, signature);
+    const event = await provider.verifyWebhook(payload as Buffer, signature);
 
     if (event.type === 'UNKNOWN') {
       return; // Ignore unsupported events
     }
 
-    await this.transaction.execute(async ({ paymentAttemptRepo, orderRepo }) => {
+    await this.transaction.execute(async ({ paymentAttemptRepo, orderRepo, tx }) => {
+      // 1. Deduplicate by provider and eventId
+      // We use $executeRaw to safely do ON CONFLICT DO NOTHING and check affected rows
+      const insertedRows = await tx.$executeRaw`
+        INSERT INTO processed_webhooks (provider, "eventId", processed_at)
+        VALUES (${provider.getProviderName()}, ${event.eventId}, NOW())
+        ON CONFLICT DO NOTHING
+      `;
+
+      if (insertedRows === 0) {
+        console.log(`Webhook already processed: ${event.eventId}`);
+        return;
+      }
+
       // Find the corresponding payment attempt
       const paymentAttempt = await paymentAttemptRepo.findByProviderId(
         provider.getProviderName(),

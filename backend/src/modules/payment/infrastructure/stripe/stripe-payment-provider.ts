@@ -1,4 +1,4 @@
-﻿import Stripe from 'stripe';
+import Stripe from 'stripe';
 import { PaymentProvider } from '../../../../generated/prisma/client.js';
 import {
   IPaymentProvider,
@@ -86,6 +86,7 @@ export class StripePaymentProvider implements IPaymentProvider {
         case 'payment_intent.succeeded': {
           const paymentIntent = event.data.object as Stripe.PaymentIntent;
           return {
+            eventId: event.id,
             type: 'PAYMENT_SUCCEEDED',
             providerPaymentId: paymentIntent.id,
             orderId: paymentIntent.metadata?.orderId,
@@ -95,6 +96,7 @@ export class StripePaymentProvider implements IPaymentProvider {
         case 'payment_intent.payment_failed': {
           const paymentIntent = event.data.object as Stripe.PaymentIntent;
           return {
+            eventId: event.id,
             type: 'PAYMENT_FAILED',
             providerPaymentId: paymentIntent.id,
             orderId: paymentIntent.metadata?.orderId,
@@ -105,6 +107,7 @@ export class StripePaymentProvider implements IPaymentProvider {
         }
         default:
           return {
+            eventId: event.id,
             type: 'UNKNOWN',
             providerPaymentId: (event.data.object as any).id || 'unknown',
           };
