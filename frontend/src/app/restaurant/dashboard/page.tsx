@@ -1,20 +1,30 @@
 'use client';
 
 import { useMyRestaurants } from '@/features/restaurant/menu/queries';
-import { useRestaurantOrders } from '@/features/restaurant/orders/queries';
+import { useRestaurantOrders, useRestaurantAnalytics } from '@/features/restaurant/orders/queries';
 import { useUpdateOrderStatusMutation } from '@/features/restaurant/orders/mutations';
+import { useOrderNotifications } from '@/features/restaurant/orders/hooks/useOrderNotifications';
 import { OrderStatus } from '@/types/api.types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { useState, useMemo } from 'react';
 import { OrderItem } from '@/types/api.types';
+import { DollarSign, ShoppingBag, CheckCircle, Volume2, VolumeX } from 'lucide-react';
 
 export default function RestaurantDashboard() {
   const { data: restaurants, isLoading: isLoadingRest } = useMyRestaurants();
   const restaurantId = restaurants?.[0]?.id || null;
   const { data: orders, isLoading: isLoadingOrders } = useRestaurantOrders(restaurantId || "");
+  const { data: analytics, isLoading: isLoadingAnalytics } = useRestaurantAnalytics(restaurantId || "");
   const updateStatusMutation = useUpdateOrderStatusMutation();
+
+  const [isSoundEnabled, setIsSoundEnabled] = useState(false);
+
+  // Hook for audio and toast notifications
+  useOrderNotifications(orders, isSoundEnabled);
 
   const handleUpdateStatus = (orderId: string, status: string) => {
     if (!restaurantId) return;
@@ -33,23 +43,82 @@ export default function RestaurantDashboard() {
     return ordersList.filter((o: any) => ['DELIVERED', 'CANCELLED'].includes(o.status));
   }, [orders]);
 
-  if (isLoadingRest) return <div className="p-8">Loading...</div>;
+  if (isLoadingRest) return <div className="p-8 flex justify-center mt-20"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>;
   if (!restaurants || restaurants.length === 0) {
     return (
-      <div className="p-8 text-center">
+      <div className="p-8 text-center max-w-md mx-auto mt-20">
         <h2 className="text-2xl font-bold mb-4">Welcome to the Restaurant Portal</h2>
-        <p className="text-muted-foreground">It looks like you don't have any restaurants yet. Contact admin to set up.</p>
+        <p className="text-muted-foreground mb-6">It looks like you don't have any restaurants yet. Let's set one up!</p>
+        <Button onClick={() => window.location.href = '/restaurant/setup'}>Setup Restaurant</Button>
       </div>
     );
   }
 
   return (
     <div className="p-8 max-w-6xl mx-auto space-y-8">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Dashboard - {restaurants[0].name}</h1>
-        <Badge variant={restaurants[0].status === 'ACTIVE' ? 'default' : 'secondary'}>
-          {restaurants[0].status}
-        </Badge>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold flex items-center gap-3">
+            Dashboard - {restaurants[0].name}
+            <Badge variant={restaurants[0].status === 'ACTIVE' ? 'default' : 'secondary'}>
+              {restaurants[0].status}
+            </Badge>
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">Updates automatically every 10 seconds</p>
+        </div>
+        
+        <div className="flex items-center space-x-2 bg-slate-50 p-2 rounded-lg border">
+          {isSoundEnabled ? <Volume2 className="h-4 w-4 text-primary" /> : <VolumeX className="h-4 w-4 text-muted-foreground" />}
+          <Label htmlFor="sound-alerts" className="text-sm font-medium cursor-pointer">Order Alerts</Label>
+          <Switch 
+            id="sound-alerts" 
+            checked={isSoundEnabled}
+            onCheckedChange={setIsSoundEnabled}
+          />
+        </div>
+      </div>
+
+      {/* Analytics Summary */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Revenue Today</CardTitle>
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            {isLoadingAnalytics ? (
+               <div className="h-8 w-24 bg-slate-200 animate-pulse rounded"></div>
+            ) : (
+              <div className="text-2xl font-bold">${Number(analytics?.totalRevenue || 0).toFixed(2)}</div>
+            )}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Orders</CardTitle>
+            <ShoppingBag className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            {isLoadingAnalytics ? (
+               <div className="h-8 w-16 bg-slate-200 animate-pulse rounded"></div>
+            ) : (
+              <div className="text-2xl font-bold">{analytics?.activeOrdersCount || 0}</div>
+            )}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Completed Today</CardTitle>
+            <CheckCircle className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            {isLoadingAnalytics ? (
+               <div className="h-8 w-16 bg-slate-200 animate-pulse rounded"></div>
+            ) : (
+              <div className="text-2xl font-bold">{analytics?.completedOrdersCount || 0}</div>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       <div className="space-y-6">

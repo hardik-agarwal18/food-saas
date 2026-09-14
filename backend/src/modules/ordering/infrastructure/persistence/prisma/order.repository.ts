@@ -1,4 +1,4 @@
-﻿import { injectable, inject } from 'tsyringe';
+import { injectable, inject } from 'tsyringe';
 import { InfrastructureTokens } from '../../../../../infrastructure/container/tokens/index.js';
 import type { PrismaExecutor } from '../../../../../infrastructure/database/prisma-client.type.js';
 import { BaseRepository } from '../../../../../infrastructure/database/base.repository.js';
@@ -152,6 +152,54 @@ export class OrderRepositoryImpl extends BaseRepository implements IOrderReposit
       page,
       limit,
       totalPages: Math.ceil(total / limit),
+    };
+  }
+  async getAnalytics(
+    restaurantId: string,
+    date: Date,
+  ): Promise<{
+    totalRevenue: number;
+    activeOrdersCount: number;
+    completedOrdersCount: number;
+  }> {
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const [revenueResult, activeOrdersCount, completedOrdersCount] = await this.execute(() =>
+      Promise.all([
+        this.prisma.order.aggregate({
+          where: {
+            restaurantId,
+            createdAt: { gte: startOfDay, lte: endOfDay },
+            status: 'DELIVERED', // Count revenue only for completed orders (or PAID, but DELIVERED is safer for realized revenue)
+          },
+          _sum: {
+            totalAmount: true,
+          },
+        }),
+        this.prisma.order.count({
+          where: {
+            restaurantId,
+            status: { notIn: ['DELIVERED', 'CANCELLED'] },
+          },
+        }),
+        this.prisma.order.count({
+          where: {
+            restaurantId,
+            createdAt: { gte: startOfDay, lte: endOfDay },
+            status: 'DELIVERED',
+          },
+        }),
+      ]),
+    );
+
+    return {
+      totalRevenue: Number(revenueResult._sum.totalAmount || 0),
+      activeOrdersCount,
+      completedOrdersCount,
     };
   }
 }

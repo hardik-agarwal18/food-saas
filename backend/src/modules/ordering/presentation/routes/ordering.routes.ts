@@ -1,4 +1,4 @@
-﻿import { Router } from 'express';
+import { Router } from 'express';
 import { container } from 'tsyringe';
 import { AuthenticationMiddleware } from '../../../../app/middleware/authentication.middleware.js';
 import { AuthorizationMiddleware } from '../../../../app/middleware/authorization.middleware.js';
@@ -9,6 +9,7 @@ import { GetCustomerOrdersController } from '../controllers/get-customer-orders.
 import { GetRestaurantOrdersController } from '../controllers/get-restaurant-orders.controller.js';
 import { UpdateOrderStatusController } from '../controllers/update-order-status.controller.js';
 import { GetOrderByIdController } from '../controllers/get-order-by-id.controller.js';
+import { GetRestaurantAnalyticsController } from '../controllers/get-restaurant-analytics.controller.js';
 import {
   placeOrderSchema,
   updateOrderStatusSchema,
@@ -25,6 +26,7 @@ const getCustomerOrdersController = container.resolve(GetCustomerOrdersControlle
 const getRestaurantOrdersController = container.resolve(GetRestaurantOrdersController);
 const updateOrderStatusController = container.resolve(UpdateOrderStatusController);
 const getOrderByIdController = container.resolve(GetOrderByIdController);
+const getRestaurantAnalyticsController = container.resolve(GetRestaurantAnalyticsController);
 
 // Customer Routes
 router.post(
@@ -57,6 +59,13 @@ router.get(
   authz.authorize(Permission.ORDER_READ),
   validate({ query: paginationQuerySchema }),
   getRestaurantOrdersController.handle.bind(getRestaurantOrdersController),
+);
+
+router.get(
+  '/restaurants/:restaurantId/analytics',
+  auth.authenticate,
+  authz.authorize(Permission.ORDER_READ),
+  getRestaurantAnalyticsController.execute.bind(getRestaurantAnalyticsController),
 );
 
 router.patch(
