@@ -36,9 +36,9 @@ services:
       - redis
     restart: unless-stopped
     
-  avatar-worker:
+  image-worker:
     image: food-saas-backend:v1
-    command: ["node", "dist/workers/avatar.worker.main.js"]
+    command: ["node", "dist/workers/image.worker.main.js"]
     env_file:
       - .env
     networks:

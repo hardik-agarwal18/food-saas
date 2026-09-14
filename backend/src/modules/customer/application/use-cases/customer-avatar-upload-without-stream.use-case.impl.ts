@@ -1,4 +1,4 @@
-﻿import { injectable, inject } from 'tsyringe';
+import { injectable, inject } from 'tsyringe';
 import { IdentityTokens } from '../../../identity/infrastructure/persistence/tokens/identity.tokens.js';
 import type { IUserRepository } from '../../../identity/domain/repositories/user.repository.js';
 import { CustomerTokens } from '../../infrastructure/persistence/tokens/customer.tokens.js';
@@ -11,7 +11,8 @@ import { AuthenticationError } from '../../../../shared/errors/AuthenticationErr
 import { CustomerNotFoundError } from '../../domain/errors/customer-not-found.error.js';
 import { validateCustomerAvatar } from '../../validators/customer-avatar.validator.js';
 import type { ILogger } from '../../../../shared/logger/logger.interface.js';
-import { addAvatarUploadJob } from '../../../../infrastructure/queue/queues/avatar.queue.js';
+import { addImageProcessingJob } from '../../../../infrastructure/queue/queues/image.queue.js';
+import { PrismaClient, MediaProcessingStatus } from '../../../../generated/prisma/client.js';
 
 @injectable()
 export class CustomerAvatarUploadWithoutStreamUseCaseImpl implements CustomerAvatarUploadWithoutStreamUseCase {
@@ -24,6 +25,9 @@ export class CustomerAvatarUploadWithoutStreamUseCaseImpl implements CustomerAva
 
     @inject(InfrastructureTokens.FileStorage)
     private readonly fileStorage: FileStorage,
+
+    @inject(InfrastructureTokens.PrismaClient)
+    private readonly prisma: PrismaClient,
 
     @inject(InfrastructureTokens.Logger)
     private readonly logger: ILogger,
@@ -52,28 +56,50 @@ export class CustomerAvatarUploadWithoutStreamUseCaseImpl implements CustomerAva
 
     const filename = input.file.originalname;
     const extension = this.getExtension(filename);
-    const tempKey = `avatar-temp/${crypto.randomUUID()}${extension}`;
+    const finalKey = `images/users/${customer.getId()}/avatar/original${extension}`;
 
     try {
-      // Upload temporary object
+      // 1. Upload original object
       await this.fileStorage.upload({
-        key: tempKey,
+        key: finalKey,
         body: input.file.buffer,
         contentType: input.file.mimetype,
         contentLength: input.file.size,
       });
 
-      // Enqueue job for background processing
-      await addAvatarUploadJob({
-        userId,
-        tempObjectKey: tempKey,
-        originalName: filename,
-        mimeType: input.file.mimetype,
+      // 2. Create Media record
+      const media = await this.prisma.media.create({
+        data: {
+          originalKey: finalKey,
+          mimeType: input.file.mimetype,
+          sizeBytes: input.file.size,
+          processingStatus: MediaProcessingStatus.PENDING,
+        },
       });
 
-      this.logger.info('Temporary avatar uploaded and job enqueued', { userId, tempKey });
+      // 3. Update customer.avatarMediaId
+      await this.prisma.customer.update({
+        where: { id: customer.getId() },
+        data: { avatarMediaId: media.id },
+      });
+
+      // 4. Enqueue job for background processing
+      await addImageProcessingJob({
+        mediaId: media.id,
+        sourceKey: finalKey,
+        purpose: 'USER_AVATAR',
+        entityId: customer.getId(),
+        mimeType: input.file.mimetype,
+        requestedVariants: ['thumbnail', 'small'], // Avatar needs these variants
+      });
+
+      this.logger.info('Avatar original uploaded and image processing job enqueued', {
+        userId,
+        finalKey,
+        mediaId: media.id,
+      });
     } catch (error) {
-      this.logger.error('Failed to upload temp avatar or enqueue job', error, { userId });
+      this.logger.error('Failed to upload avatar or enqueue job', error, { userId });
       throw error;
     }
   }

@@ -1,4 +1,4 @@
-﻿import { injectable, inject } from 'tsyringe';
+import { injectable, inject } from 'tsyringe';
 import { ICustomerRepository } from '../../../domain/repositories/customer.repository.js';
 import { InfrastructureTokens } from '../../../../../infrastructure/container/tokens/index.js';
 import type { PrismaExecutor } from '../../../../../infrastructure/database/prisma-client.type.js';
@@ -18,8 +18,11 @@ export class CustomerRepository extends BaseRepository implements ICustomerRepos
   async findById(id: string): Promise<Customer | null> {
     const customer = await this.execute(() =>
       this.prisma.customer.findUnique({
-        where: {
-          id,
+        where: { id },
+        include: {
+          avatarMedia: {
+            include: { variants: true },
+          },
         },
       }),
     );
@@ -28,14 +31,17 @@ export class CustomerRepository extends BaseRepository implements ICustomerRepos
       return null;
     }
 
-    return CustomerMapper.toDomain(customer);
+    return CustomerMapper.toDomain(customer as any);
   }
 
   async findByUserId(userId: string): Promise<Customer | null> {
     const customer = await this.execute(() =>
       this.prisma.customer.findUnique({
-        where: {
-          userId,
+        where: { userId },
+        include: {
+          avatarMedia: {
+            include: { variants: true },
+          },
         },
       }),
     );
@@ -44,7 +50,7 @@ export class CustomerRepository extends BaseRepository implements ICustomerRepos
       return null;
     }
 
-    return CustomerMapper.toDomain(customer);
+    return CustomerMapper.toDomain(customer as any);
   }
 
   async create(customer: Customer): Promise<Customer> {

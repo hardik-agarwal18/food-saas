@@ -124,9 +124,14 @@ export const InfrastructureTokens = {
   FileStorage: Symbol.for('Infrastructure.FileStorage'),
 
   /**
-   * Avatar job processor.
+   * Image job processor.
    */
-  AvatarJobProcessor: Symbol.for('Infrastructure.AvatarJobProcessor'),
+  ImageJobProcessor: Symbol.for('Infrastructure.ImageJobProcessor'),
+
+  /**
+   * Image processing service.
+   */
+  ImageProcessingService: Symbol.for('Infrastructure.ImageProcessingService'),
 
   /**
    * Menu import job processor.

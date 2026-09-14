@@ -1,4 +1,4 @@
-﻿import 'reflect-metadata';
+import 'reflect-metadata';
 import { registerWorkerDependencies } from '../infrastructure/container/worker-registration.js';
 import { container } from 'tsyringe';
 import { InfrastructureTokens } from '../infrastructure/container/tokens/infrastructure.tokens.js';
@@ -7,11 +7,11 @@ import type { ILogger } from '../shared/logger/logger.interface.js';
 registerWorkerDependencies();
 
 const baseLogger = container.resolve<ILogger>(InfrastructureTokens.Logger);
-const logger = baseLogger.child({ component: 'AvatarWorkerMain' });
+const logger = baseLogger.child({ component: 'ImageWorkerMain' });
 
-const { avatarWorker } = await import('../infrastructure/queue/workers/avatar.worker.js');
+const { imageWorker } = await import('../infrastructure/queue/workers/image.worker.js');
 
-logger.info('Avatar worker started successfully');
+logger.info('Image worker started successfully');
 
 let isShuttingDown = false;
 
@@ -22,7 +22,7 @@ const shutdown = async (signal: NodeJS.Signals): Promise<void> => {
   }
   isShuttingDown = true;
 
-  logger.info(`Received ${signal}. Shutting down avatar worker gracefully...`);
+  logger.info(`Received ${signal}. Shutting down image worker gracefully...`);
 
   const timeoutId = setTimeout(() => {
     logger.error('Graceful shutdown timed out. Forcing exit.');
@@ -30,13 +30,13 @@ const shutdown = async (signal: NodeJS.Signals): Promise<void> => {
   }, 30000);
 
   try {
-    await avatarWorker.close();
+    await imageWorker.close();
     clearTimeout(timeoutId);
-    logger.info('Avatar worker shutdown complete');
+    logger.info('Image worker shutdown complete');
     process.exit(0);
   } catch (error) {
     clearTimeout(timeoutId);
-    logger.error('Error during avatar worker shutdown', error);
+    logger.error('Error during image worker shutdown', error);
     process.exit(1);
   }
 };

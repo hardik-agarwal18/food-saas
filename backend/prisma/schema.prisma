@@ -46,19 +46,21 @@ model User {
 }
 
 model Customer {
-  id          String   @id @default(uuid()) @db.Uuid
-  userId      String   @unique @db.Uuid
-  firstName   String   @map("first_name")
-  lastName    String   @map("last_name")
-  phone       String
-  preferences Json?
-  avatarUrl   String?  @map("avatar_url")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id            String   @id @default(uuid()) @db.Uuid
+  userId        String   @unique @db.Uuid
+  firstName     String   @map("first_name")
+  lastName      String   @map("last_name")
+  phone         String
+  preferences   Json?
+  avatarUrl     String?  @map("avatar_url")
+  avatarMediaId String?  @map("avatar_media_id") @db.Uuid
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
 
-  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  orders    Order[]
-  addresses CustomerAddress[]
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  orders      Order[]
+  addresses   CustomerAddress[]
+  avatarMedia Media?            @relation("CustomerAvatar", fields: [avatarMediaId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@map("customers")
@@ -155,7 +157,9 @@ model Restaurant {
   name          String
   description   String?
   logoUrl       String? @map("logo_url")
+  logoMediaId   String? @map("logo_media_id") @db.Uuid
   coverImageUrl String? @map("cover_image_url")
+  coverMediaId  String? @map("cover_media_id") @db.Uuid
   phoneNumber   String  @map("phone_number")
   email         String
 
@@ -175,6 +179,8 @@ model Restaurant {
   deletedAt DateTime?        @map("deleted_at")
 
   owner              User                @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  logoMedia          Media?              @relation("RestaurantLogo", fields: [logoMediaId], references: [id], onDelete: SetNull)
+  coverMedia         Media?              @relation("RestaurantCover", fields: [coverMediaId], references: [id], onDelete: SetNull)
   menuCategories     MenuCategory[]
   menuItems          MenuItem[]
   menuModifierGroups MenuModifierGroup[]
@@ -196,6 +202,7 @@ model MenuCategory {
   restaurantId String    @map("restaurant_id") @db.Uuid
   name         String
   description  String?
+  imageMediaId String?   @map("image_media_id") @db.Uuid
   sortOrder    Int       @default(0) @map("sort_order")
   isActive     Boolean   @default(true) @map("is_active")
   createdAt    DateTime  @default(now()) @map("created_at")
@@ -203,6 +210,7 @@ model MenuCategory {
   deletedAt    DateTime? @map("deleted_at")
 
   restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  imageMedia Media?     @relation("MenuCategoryImage", fields: [imageMediaId], references: [id], onDelete: SetNull)
   items      MenuItem[]
 
   @@index([restaurantId])
@@ -224,6 +232,7 @@ model MenuItem {
   description       String?
   price             Decimal
   imageUrl          String?           @map("image_url")
+  imageMediaId      String?           @map("image_media_id") @db.Uuid
   isAvailable       Boolean           @default(true) @map("is_available")
   sortOrder         Int               @default(0) @map("sort_order")
   dietaryPreference DietaryPreference @default(VEG) @map("dietary_preference")
@@ -233,6 +242,7 @@ model MenuItem {
 
   restaurant     Restaurant                @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   category       MenuCategory?             @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  imageMedia     Media?                    @relation("MenuItemImage", fields: [imageMediaId], references: [id], onDelete: SetNull)
   modifierGroups MenuItemToModifierGroup[]
   orderItems     OrderItem[]
 
@@ -614,4 +624,51 @@ model ProcessedWebhook {
 
   @@unique([provider, eventId])
   @@map("processed_webhooks")
+}
+
+// ─── MEDIA ────────────────────────────────────────────────────────────
+
+enum MediaProcessingStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model Media {
+  id               String                @id @default(uuid()) @db.Uuid
+  originalKey      String                @map("original_key")
+  mimeType         String                @map("mime_type")
+  sizeBytes        Int                   @map("size_bytes")
+  width            Int?
+  height           Int?
+  processingStatus MediaProcessingStatus @default(PENDING) @map("processing_status")
+  createdAt        DateTime              @default(now()) @map("created_at")
+  updatedAt        DateTime              @updatedAt @map("updated_at")
+
+  variants           MediaVariant[]
+  customersAvatar    Customer[]     @relation("CustomerAvatar")
+  restaurantLogos    Restaurant[]   @relation("RestaurantLogo")
+  restaurantCovers   Restaurant[]   @relation("RestaurantCover")
+  menuItemsImages    MenuItem[]     @relation("MenuItemImage")
+  menuCategoryImages MenuCategory[] @relation("MenuCategoryImage")
+
+  @@map("media")
+}
+
+model MediaVariant {
+  id        String   @id @default(uuid()) @db.Uuid
+  mediaId   String   @map("media_id") @db.Uuid
+  name      String
+  objectKey String   @map("object_key")
+  width     Int?
+  height    Int?
+  sizeBytes Int      @map("size_bytes")
+  mimeType  String   @map("mime_type")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  media Media @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@unique([mediaId, name])
+  @@map("media_variants")
 }

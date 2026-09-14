@@ -1,4 +1,4 @@
-﻿import { injectable } from 'tsyringe';
+import { injectable } from 'tsyringe';
 import {
   CompleteMultipartUploadInput,
   CreateMultipartUploadInput,
@@ -17,6 +17,7 @@ import {
   PutObjectCommand,
   UploadPartCommand,
   CopyObjectCommand,
+  GetObjectCommand,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { r2Config } from './r2.config.js';
@@ -137,6 +138,19 @@ export class R2FileStorage implements FileStorage {
       key: destinationKey,
       url: this.getUrl(destinationKey),
     };
+  }
+
+  async download(key: string): Promise<Buffer> {
+    const command = new GetObjectCommand({
+      Bucket: r2Config.bucketName,
+      Key: key,
+    });
+
+    const response = await r2Client.send(command);
+    if (!response.Body) {
+      throw new Error('Failed to download object: Body is empty');
+    }
+    return Buffer.from(await response.Body.transformToByteArray());
   }
 
   getUrl(key: string): string {

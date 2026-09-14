@@ -1,4 +1,4 @@
-﻿export interface UploadFileInput {
+export interface UploadFileInput {
   key: string;
   body: Buffer;
   contentType: string;
@@ -56,6 +56,8 @@ export interface FileStorage {
   delete(key: string): Promise<void>;
 
   copy(sourceKey: string, destinationKey: string): Promise<StoredFile>;
+
+  download(key: string): Promise<Buffer>;
 
   getUrl(key: string): string;
 }

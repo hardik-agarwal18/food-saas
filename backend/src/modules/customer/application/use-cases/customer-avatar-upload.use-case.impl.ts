@@ -1,4 +1,4 @@
-﻿import { injectable, inject } from 'tsyringe';
+import { injectable, inject } from 'tsyringe';
 import { CustomerAvatarUploadUseCase } from './customer-avatar-upload.use-case.js';
 import { CustomerTokens } from '../../infrastructure/persistence/tokens/customer.tokens.js';
 import type { ICustomerRepository } from '../../domain/repositories/customer.repository.js';
@@ -13,8 +13,9 @@ import { CustomerAvatarUploadInput } from '../dto/customer-avatar-upload.dto.js'
 import { validateCustomerAvatar } from '../../validators/customer-avatar.validator.js';
 import { AuthenticationError } from '../../../../shared/errors/AuthenticationError.js';
 import { CustomerNotFoundError } from '../../domain/errors/customer-not-found.error.js';
-import { CustomerAvatarUrl } from '../../domain/value-objects/customer-avatar.vo.js';
 import type { ILogger } from '../../../../shared/logger/logger.interface.js';
+import { addImageProcessingJob } from '../../../../infrastructure/queue/queues/image.queue.js';
+import { PrismaClient, MediaProcessingStatus } from '../../../../generated/prisma/client.js';
 
 const PART_SIZE = 2 * 1024 * 1024;
 
@@ -29,6 +30,9 @@ export class CustomerAvatarUploadUseCaseImpl implements CustomerAvatarUploadUseC
 
     @inject(InfrastructureTokens.FileStorage)
     private readonly fileStorage: FileStorage,
+
+    @inject(InfrastructureTokens.PrismaClient)
+    private readonly prisma: PrismaClient,
 
     @inject(InfrastructureTokens.Logger)
     private readonly logger: ILogger,
@@ -55,11 +59,8 @@ export class CustomerAvatarUploadUseCaseImpl implements CustomerAvatarUploadUseC
       throw new CustomerNotFoundError();
     }
 
-    const oldAvatarUrl = customer.getAvatarUrl();
-
     const extension = this.getExtension(input.file.originalname);
-
-    const key = `customers/${input.userId}/avatar/${crypto.randomUUID()}${extension}`;
+    const key = `images/users/${customer.getId()}/avatar/original${extension}`;
 
     let uploadId: string | null = null;
 
@@ -74,123 +75,100 @@ export class CustomerAvatarUploadUseCaseImpl implements CustomerAvatarUploadUseC
 
       // split avatar into parts
       const parts = this.splitIntoParts(input.file.buffer);
-
       const completedParts: CompletedPart[] = [];
 
       // upload each part
       for (let index = 0; index < parts.length; index++) {
         const partNumber = index + 1;
-
         const part = parts[index];
 
-        // generate the presigned url
         const presigned = await this.fileStorage.createPresignedUploadPartUrl({
           key,
           uploadId,
           partNumber,
         });
 
-        // upload the part to R2
         const response = await fetch(presigned.url, {
           method: 'PUT',
           headers: {
             'Content-Type': input.file.mimetype,
           },
-          body: new Uint8Array(part), // fetch does not support buffer in body
+          body: new Uint8Array(part),
         });
 
         if (!response.ok) {
           throw new Error(`Failed to upload avatar part: ${response.status}`);
         }
 
-        // R2 returns flag
         const etag = response.headers.get('etag');
 
         if (!etag) {
           throw new Error(`Missing Etag for avatar part ${partNumber}`);
         }
 
-        completedParts.push({
-          partNumber,
-          etag,
-        });
+        completedParts.push({ partNumber, etag });
       }
 
       // Complete multipart upload
-      const storedFile = await this.fileStorage.completeMultipartUpload({
+      await this.fileStorage.completeMultipartUpload({
         key,
         uploadId,
         parts: completedParts,
       });
 
-      customer.removeAvatarUrl();
+      // 2. Create Media record
+      const media = await this.prisma.media.create({
+        data: {
+          originalKey: key,
+          mimeType: input.file.mimetype,
+          sizeBytes: input.file.size,
+          processingStatus: MediaProcessingStatus.PENDING,
+        },
+      });
 
-      customer.changeAvatarUrl(CustomerAvatarUrl.create(storedFile.url));
+      // 3. Update customer.avatarMediaId
+      await this.prisma.customer.update({
+        where: { id: customer.getId() },
+        data: { avatarMediaId: media.id },
+      });
 
-      // Persist customer
-      await this.customerRepo.update(customer);
+      // 4. Enqueue processing job
+      await addImageProcessingJob({
+        mediaId: media.id,
+        sourceKey: key,
+        purpose: 'USER_AVATAR',
+        entityId: customer.getId(),
+        mimeType: input.file.mimetype,
+        requestedVariants: ['thumbnail', 'small'],
+      });
 
-      this.logger.info('Multipart avatar uploaded successfully', { userId, key });
-
-      // delete the old avatar
-      if (!oldAvatarUrl) {
-        return;
-      }
-
-      const oldAvatarUrlValue = oldAvatarUrl.getValue();
-
-      if (!oldAvatarUrlValue) {
-        return;
-      }
-
-      const oldAvatarKey = this.extractStorageKey(oldAvatarUrlValue);
-
-      if (oldAvatarKey) {
-        try {
-          await this.fileStorage.delete(oldAvatarKey);
-        } catch {}
-      }
+      this.logger.info('Multipart avatar original uploaded and processing enqueued', {
+        userId,
+        key,
+      });
     } catch (error) {
       if (uploadId) {
         await this.safeAbort(key, uploadId);
       }
-
       this.logger.error('Failed to upload avatar via multipart', error, { userId });
-
       throw error;
     }
   }
 
   private splitIntoParts(buffer: Buffer): Buffer[] {
     const parts: Buffer[] = [];
-
     for (let offset = 0; offset < buffer.length; offset += PART_SIZE) {
       parts.push(buffer.subarray(offset, Math.min(offset + PART_SIZE, buffer.length)));
     }
-
     return parts;
   }
 
   private getExtension(filename: string): string {
     const index = filename.lastIndexOf('.');
-
     if (index === -1) {
       return '';
     }
-
     return filename.slice(index).toLowerCase();
-  }
-
-  private extractStorageKey(avatarUrl: string): string | null {
-    try {
-      const url = new URL(avatarUrl);
-
-      const key = url.pathname.replace(/^\/+/, '');
-
-      return key ? decodeURIComponent(key) : null;
-    } catch {
-      return null;
-    }
   }
 
   private async safeAbort(key: string, uploadId: string): Promise<void> {

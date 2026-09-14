@@ -58,7 +58,8 @@ import { RequestContextMiddleware } from '../../observability/request-context/re
 import { ErrorHandlerMiddleware } from '../../../app/middleware/error-handler.middleware.js';
 import { SmtpService } from '../../email/smtp.email.service.js';
 import { EmailJobProcessor } from '../../queue/jobs/email/email.job.processor.js';
-import { AvatarJobProcessor } from '../../queue/jobs/avatar/avatar.job.processor.js';
+import { ImageJobProcessor } from '../../queue/jobs/image/image.job.processor.js';
+import { ImageProcessingService } from '../../media/image-processing.service.js';
 import { MenuImportJobProcessor } from '../../queue/jobs/menu-import/menu-import.job.processor.js';
 
 import { RateLimitService } from '../../security/rate-limit.service.js';
@@ -227,10 +228,15 @@ export const registerInfrastructure = (): void => {
   container.registerSingleton(InfrastructureTokens.FileStorage, R2FileStorage);
 
   /**
-   * Register AvatarJobProcessor.
+   * Register ImageProcessingService.
    */
-  container.register(InfrastructureTokens.AvatarJobProcessor, {
-    useClass: AvatarJobProcessor,
+  container.registerSingleton(InfrastructureTokens.ImageProcessingService, ImageProcessingService);
+
+  /**
+   * Register ImageJobProcessor.
+   */
+  container.register(InfrastructureTokens.ImageJobProcessor, {
+    useClass: ImageJobProcessor,
   });
 
   /**

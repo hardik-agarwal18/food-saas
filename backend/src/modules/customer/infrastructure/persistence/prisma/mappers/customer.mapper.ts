@@ -1,4 +1,5 @@
-﻿import { Prisma } from '../../../../../../../src/generated/prisma/client.js';
+import { Prisma } from '../../../../../../../src/generated/prisma/client.js';
+import { env } from '../../../../../../config/env.config.js';
 import { Customer } from '../../../../domain/entities/index.js';
 import { InvalidCustomerPreferencesError } from '../../../../domain/errors/invalid-customer-preferences.error.js';
 import {
@@ -38,11 +39,23 @@ export class CustomerMapper {
     };
   }
 
-  public static toDomain(data: Prisma.CustomerGetPayload<{}>): Customer {
+  public static toDomain(data: any): Customer {
     const preferences =
       data.preferences === null
         ? CustomerPreferences.default()
         : CustomerPreferences.create(this.parsePreferences(data.preferences));
+
+    let resolvedAvatarUrl = data.avatarUrl;
+
+    // Use media variants if available (e.g. thumbnail -> small -> original)
+    if (data.avatarMedia?.variants?.length > 0) {
+      const variants = data.avatarMedia.variants;
+      const thumbnail = variants.find((v: any) => v.name === 'thumbnail');
+      const small = variants.find((v: any) => v.name === 'small');
+
+      const bestVariant = thumbnail || small || variants[0];
+      resolvedAvatarUrl = `${env.R2_PUBLIC_URL}/${bestVariant.objectKey}`;
+    }
 
     return Customer.rehydrate({
       id: data.id,
@@ -50,7 +63,7 @@ export class CustomerMapper {
       firstName: CustomerFirstName.create(data.firstName),
       lastName: CustomerLastName.create(data.lastName),
       phone: CustomerPhoneNumber.create(data.phone),
-      avatarUrl: data.avatarUrl ? CustomerAvatarUrl.create(data.avatarUrl) : null,
+      avatarUrl: resolvedAvatarUrl ? CustomerAvatarUrl.create(resolvedAvatarUrl) : null,
       preferences,
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
@@ -106,6 +119,8 @@ export class CustomerMapper {
         },
       },
       avatarUrl: primitives.avatarUrl,
+      // If avatarUrl is being set to null, we also want to disconnect the media record
+      ...(primitives.avatarUrl === null ? { avatarMediaId: null } : {}),
       updatedAt: primitives.updatedAt,
     };
   }

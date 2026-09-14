@@ -1,8 +1,8 @@
-﻿import { Queue } from 'bullmq';
+import { Queue } from 'bullmq';
 import { redisConnection } from '../../../config/redis.js';
-import { AvatarJobName, type UploadAvatarJobData } from '../types/avatar.job.types.js';
+import { ImageJobName, type ImageProcessingJobData } from '../types/image.job.types.js';
 
-export const avatarQueue = new Queue('avatar', {
+export const imageQueue = new Queue('image', {
   connection: redisConnection,
   prefix: process.env.NODE_ENV === 'test' ? 'test-bull' : 'bull',
 
@@ -26,6 +26,6 @@ export const avatarQueue = new Queue('avatar', {
   },
 });
 
-export const addAvatarUploadJob = async (data: UploadAvatarJobData) => {
-  return avatarQueue.add(AvatarJobName.UPLOAD_AVATAR, data);
+export const addImageProcessingJob = async (data: ImageProcessingJobData) => {
+  return imageQueue.add(ImageJobName.PROCESS_IMAGE, data);
 };
