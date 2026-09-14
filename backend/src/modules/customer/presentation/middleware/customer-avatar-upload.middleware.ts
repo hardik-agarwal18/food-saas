@@ -1,4 +1,4 @@
-import multer from 'multer';
+﻿import multer from 'multer';
 import mime from 'mime-types';
 
 const MAX_AVATAR_SIZE = 5 * 1024 * 1024;

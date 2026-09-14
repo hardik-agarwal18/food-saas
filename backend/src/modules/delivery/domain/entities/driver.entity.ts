@@ -1,4 +1,4 @@
-import { DeliveryDomainError } from '../errors/delivery-domain.error.js';
+﻿import { DeliveryDomainError } from '../errors/delivery-domain.error.js';
 
 export enum DriverStatus {
   OFFLINE = 'OFFLINE',
@@ -41,7 +41,7 @@ export class Driver {
     return new Driver(props);
   }
 
-  /** Use this when loading from persistence — bypasses any creation-time guards */
+  /** Use this when loading from persistence â€” bypasses any creation-time guards */
   static rehydrate(props: DriverProps): Driver {
     return new Driver(props);
   }

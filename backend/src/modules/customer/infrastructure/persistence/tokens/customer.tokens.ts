@@ -1,4 +1,4 @@
-export const CustomerTokens = {
+﻿export const CustomerTokens = {
   CustomerRepository: Symbol.for('Customer.CustomerRepository'),
   CustomerAddressRepository: Symbol.for('Customer.CustomerAddressRepository'),
 

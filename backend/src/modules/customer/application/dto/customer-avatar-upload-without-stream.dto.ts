@@ -1,4 +1,4 @@
-export interface CustomerAvatarUploadWithoutStreamInput {
+﻿export interface CustomerAvatarUploadWithoutStreamInput {
   userId: string;
 
   file: {

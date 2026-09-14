@@ -1,4 +1,4 @@
-export interface ConfirmMenuImportInput {
+﻿export interface ConfirmMenuImportInput {
   importId: string;
   restaurantId: string;
   actorId: string;

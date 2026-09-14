@@ -1,4 +1,4 @@
-export interface RegisterDriverDto {
+﻿export interface RegisterDriverDto {
   userId: string;
   firstName: string;
   lastName: string;

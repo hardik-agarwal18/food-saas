@@ -1,4 +1,4 @@
-import { Coordinates } from '../../../location/domain/value-objects/coordinates.vo.js';
+﻿import { Coordinates } from '../../../location/domain/value-objects/coordinates.vo.js';
 
 export interface RouteResult {
   driverId: string;

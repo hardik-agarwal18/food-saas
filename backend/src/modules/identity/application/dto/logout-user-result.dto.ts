@@ -1,3 +1,3 @@
-export interface LogoutUserResult {
+﻿export interface LogoutUserResult {
   success: boolean;
 }

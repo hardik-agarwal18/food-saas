@@ -1,4 +1,4 @@
-export interface MenuModifierItemResponseDto {
+﻿export interface MenuModifierItemResponseDto {
   id: string;
   modifierGroupId: string;
   name: string;

@@ -1,4 +1,4 @@
-import { injectable, inject } from 'tsyringe';
+﻿import { injectable, inject } from 'tsyringe';
 import * as h3 from 'h3-js';
 import { InfrastructureTokens } from '../../../../../infrastructure/container/tokens/index.js';
 import type { PrismaExecutor } from '../../../../../infrastructure/database/prisma-client.type.js';
@@ -69,7 +69,7 @@ export class RestaurantRepositoryImpl extends BaseRepository implements IRestaur
 
     if (params.status) where.status = params.status;
     if (params.city) where.city = params.city;
-    
+
     if (params.search) {
       where.OR = [
         { name: { contains: params.search, mode: 'insensitive' } },

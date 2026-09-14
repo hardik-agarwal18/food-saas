@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Identity module dependency registrations.
  *
  * This file connects Identity repository interfaces/tokens to

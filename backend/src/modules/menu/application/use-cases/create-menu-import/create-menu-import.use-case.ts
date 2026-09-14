@@ -1,4 +1,4 @@
-export interface CreateMenuImportInput {
+﻿export interface CreateMenuImportInput {
   restaurantId: string;
   actorId: string;
   mimeType: string;

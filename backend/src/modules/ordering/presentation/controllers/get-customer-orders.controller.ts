@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+﻿import { Request, Response, NextFunction } from 'express';
 import { injectable, inject } from 'tsyringe';
 import { OrderingTokens } from '../../infrastructure/tokens/ordering.tokens.js';
 import type { IGetCustomerOrdersUseCase } from '../../application/use-cases/get-customer-orders.use-case.js';
@@ -7,7 +7,7 @@ import { sendResponse } from '../../../../shared/utils/AppResponse.js';
 @injectable()
 export class GetCustomerOrdersController {
   constructor(
-    @inject((OrderingTokens as any).GetCustomerOrdersUseCase)
+    @inject(OrderingTokens.GetCustomerOrdersUseCase)
     private readonly getCustomerOrdersUseCase: IGetCustomerOrdersUseCase,
   ) {}
 

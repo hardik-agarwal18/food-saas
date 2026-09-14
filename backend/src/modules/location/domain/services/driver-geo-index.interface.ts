@@ -1,4 +1,4 @@
-import { GeoCell } from '../value-objects/geo-cell.vo.js';
+﻿import { GeoCell } from '../value-objects/geo-cell.vo.js';
 
 export interface IDriverGeoIndex {
   /**

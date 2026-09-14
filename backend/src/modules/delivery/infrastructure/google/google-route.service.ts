@@ -1,4 +1,4 @@
-import { injectable } from 'tsyringe';
+﻿import { injectable } from 'tsyringe';
 import { IRouteService, RouteResult } from '../../domain/services/route.service.interface.js';
 import { Coordinates } from '../../../location/domain/value-objects/coordinates.vo.js';
 import { logger } from '../../../../infrastructure/observability/logger/pino.js';

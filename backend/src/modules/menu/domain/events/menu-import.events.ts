@@ -1,4 +1,4 @@
-import type { DomainEvent } from '../../../../shared/events/domain-event.js';
+﻿import type { DomainEvent } from '../../../../shared/events/domain-event.js';
 
 export class MenuImportCreatedEvent implements DomainEvent {
   public readonly eventName = 'MenuImportCreated';

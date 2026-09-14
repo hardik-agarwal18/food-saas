@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+﻿import { Request, Response, NextFunction } from 'express';
 import { injectable, inject } from 'tsyringe';
 import { OrderingTokens } from '../../infrastructure/tokens/ordering.tokens.js';
 import type { IUpdateOrderStatusUseCase } from '../../application/use-cases/update-order-status.use-case.js';
@@ -7,7 +7,7 @@ import { sendResponse } from '../../../../shared/utils/AppResponse.js';
 @injectable()
 export class UpdateOrderStatusController {
   constructor(
-    @inject((OrderingTokens as any).UpdateOrderStatusUseCase)
+    @inject(OrderingTokens.UpdateOrderStatusUseCase)
     private readonly updateOrderStatusUseCase: IUpdateOrderStatusUseCase,
   ) {}
 

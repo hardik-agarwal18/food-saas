@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Application bootstrap file.
  *
  * This file prepares external infrastructure dependencies before
@@ -16,10 +16,10 @@
  * Startup sequence:
  *
  * main.ts
- *   → bootstrap()
- *       → Database connection
- *       → Redis connection
- *   → createServer()
+ *   â†’ bootstrap()
+ *       â†’ Database connection
+ *       â†’ Redis connection
+ *   â†’ createServer()
  */
 
 import { container } from 'tsyringe';

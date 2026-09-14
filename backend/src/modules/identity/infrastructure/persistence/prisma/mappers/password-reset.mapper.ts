@@ -1,4 +1,4 @@
-import { PasswordReset as PrismaPasswordReset } from '../../../../../../generated/prisma/client.js';
+﻿import { PasswordReset as PrismaPasswordReset } from '../../../../../../generated/prisma/client.js';
 import { ResetPasswordEntity } from '../../../../domain/entities/reset-password.entity.js';
 
 export class PasswordResetMapper {

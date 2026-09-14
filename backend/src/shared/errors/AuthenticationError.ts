@@ -1,4 +1,4 @@
-import { AppError } from './AppError.js';
+﻿import { AppError } from './AppError.js';
 
 /**
  * Represents a request made without valid authentication.

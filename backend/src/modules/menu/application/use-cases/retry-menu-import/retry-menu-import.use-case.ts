@@ -1,4 +1,4 @@
-export interface RetryMenuImportInput {
+﻿export interface RetryMenuImportInput {
   importId: string;
   restaurantId: string;
   actorId: string;

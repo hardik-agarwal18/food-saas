@@ -1,4 +1,4 @@
-import { InvalidEmailError } from '../errors/index.js';
+﻿import { InvalidEmailError } from '../errors/index.js';
 
 export class Email {
   private static readonly EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

@@ -1,4 +1,4 @@
-import { MenuDomainError } from '../errors/menu-domain.error.js';
+﻿import { MenuDomainError } from '../errors/menu-domain.error.js';
 
 export class Money {
   private constructor(private readonly amount: number) {

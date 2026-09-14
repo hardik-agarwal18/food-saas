@@ -1,4 +1,4 @@
-import { InvalidCoordinatesError } from '../errors/location.errors.js';
+﻿import { InvalidCoordinatesError } from '../errors/location.errors.js';
 
 export interface CoordinatesProps {
   latitude: number;

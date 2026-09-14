@@ -1,4 +1,4 @@
-import { EmailVerification as PrismaVerifyEmail } from '../../../../../../generated/prisma/client.js';
+﻿import { EmailVerification as PrismaVerifyEmail } from '../../../../../../generated/prisma/client.js';
 import { VerifyEmail } from '../../../../domain/entities/index.js';
 
 export class VerifyEmailMapper {

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Graceful shutdown file.
  *
  * This file closes the application safely when the process receives

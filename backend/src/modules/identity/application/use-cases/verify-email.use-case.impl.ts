@@ -1,4 +1,4 @@
-import { injectable, inject } from 'tsyringe';
+﻿import { injectable, inject } from 'tsyringe';
 import { VerifyEmailUseCase } from './verify-email.use-case.js';
 import { VerifyEmailInput } from '../dto/verify-email.dto.js';
 import { IdentityTokens } from '../../infrastructure/persistence/tokens/identity.tokens.js';

@@ -1,4 +1,4 @@
-import { injectable } from 'tsyringe';
+﻿import { injectable } from 'tsyringe';
 import {
   MenuDocument,
   MenuDocumentReader,
@@ -16,16 +16,16 @@ export class StubMenuDocumentReader implements MenuDocumentReader {
 Starters
 Paneer Tikka
 Charcoal grilled cottage cheese
-₹250
+â‚¹250
 
 Samosa
 Crispy pastry filled with spiced potatoes
-₹100
+â‚¹100
 
 Main Course
 Butter Chicken
 Creamy tomato curry with tandoori chicken
-₹450
+â‚¹450
 `;
 
     return {

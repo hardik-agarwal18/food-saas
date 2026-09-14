@@ -1,4 +1,4 @@
-import SMTPTransport from 'nodemailer/lib/smtp-transport/index.js';
+﻿import SMTPTransport from 'nodemailer/lib/smtp-transport/index.js';
 import { env } from './env.config.js';
 
 export const smtpConfig = {

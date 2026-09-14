@@ -1,4 +1,4 @@
-import { AppError } from './AppError.js';
+﻿import { AppError } from './AppError.js';
 import { ErrorResponse } from './error-response.js';
 import { ValidationError } from './ValidationError.js';
 

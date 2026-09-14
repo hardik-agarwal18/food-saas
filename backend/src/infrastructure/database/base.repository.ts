@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Base repository.
  *
  * This abstract class contains shared functionality for repositories

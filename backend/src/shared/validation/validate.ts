@@ -1,4 +1,4 @@
-import { NextFunction, Request, RequestHandler, Response } from 'express';
+﻿import { NextFunction, Request, RequestHandler, Response } from 'express';
 
 import { ValidationSchema } from './validation-schema.js';
 import { ValidationError } from '../errors/ValidationError.js';
@@ -95,7 +95,7 @@ export const validate = (schema: ValidationSchema): RequestHandler => {
       }
 
       // Merge validated query values into the existing req.query object.
-      // req.query is getter-only in Express — direct assignment throws a TypeError.
+      // req.query is getter-only in Express â€” direct assignment throws a TypeError.
       Object.assign(req.query, result.data);
     }
 

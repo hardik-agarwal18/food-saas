@@ -1,4 +1,4 @@
-import { UpdateRestaurantDto, RestaurantResponseDto } from '../dto/restaurant.dto.js';
+﻿import { UpdateRestaurantDto, RestaurantResponseDto } from '../dto/restaurant.dto.js';
 
 export interface IUpdateRestaurantUseCase {
   execute(

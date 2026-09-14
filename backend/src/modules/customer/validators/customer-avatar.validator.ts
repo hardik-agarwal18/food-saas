@@ -1,4 +1,4 @@
-import { BadRequestError } from '../../../shared/errors/BadRequestError.js';
+﻿import { BadRequestError } from '../../../shared/errors/BadRequestError.js';
 import { fileTypeFromBuffer } from 'file-type';
 
 const MAX_AVATAR_SIZE = 5 * 1024 * 1024;

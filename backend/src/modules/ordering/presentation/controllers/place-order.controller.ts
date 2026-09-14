@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+﻿import { Request, Response, NextFunction } from 'express';
 import { injectable, inject } from 'tsyringe';
 import { OrderingTokens } from '../../infrastructure/tokens/ordering.tokens.js';
 import type { IPlaceOrderUseCase } from '../../application/use-cases/place-order.use-case.js';
@@ -7,7 +7,7 @@ import { sendResponse } from '../../../../shared/utils/AppResponse.js';
 @injectable()
 export class PlaceOrderController {
   constructor(
-    @inject((OrderingTokens as any).PlaceOrderUseCase)
+    @inject(OrderingTokens.PlaceOrderUseCase)
     private readonly placeOrderUseCase: IPlaceOrderUseCase,
   ) {}
 

@@ -1,4 +1,4 @@
-import { VerifyEmail } from '../entities/verify-email.entity.js';
+﻿import { VerifyEmail } from '../entities/verify-email.entity.js';
 
 export interface IVerifyEmailRepository {
   findByToken(tokenHash: string): Promise<VerifyEmail | null>;

@@ -1,4 +1,4 @@
-import { injectable, inject } from 'tsyringe';
+﻿import { injectable, inject } from 'tsyringe';
 import { IdentityTokens } from '../../modules/identity/infrastructure/persistence/tokens/identity.tokens.js';
 import type { IAuthorizationService } from '../../modules/identity/domain/authorization/authorization.service.js';
 import { Permission } from '../../modules/identity/domain/enums/permission.enum.js';

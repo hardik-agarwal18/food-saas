@@ -1,4 +1,4 @@
-import { DomainError } from './domain.error.js';
+﻿import { DomainError } from './domain.error.js';
 
 /**
  * Error thrown when an email address is invalid.

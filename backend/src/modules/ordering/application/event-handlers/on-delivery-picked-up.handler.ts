@@ -1,4 +1,4 @@
-import { EventHandler } from '../../../../shared/events/event-dispatcher.js';
+﻿import { EventHandler } from '../../../../shared/events/event-dispatcher.js';
 import { DeliveryPickedUpEvent } from '../../../delivery/domain/events/delivery-picked-up.event.js';
 import type { IOrderRepository } from '../../../ordering/domain/repositories/order.repository.js';
 import { inject, injectable } from 'tsyringe';

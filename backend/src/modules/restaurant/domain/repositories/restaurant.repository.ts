@@ -1,4 +1,4 @@
-import { Restaurant, RestaurantStatus } from '../entities/restaurant.entity.js';
+﻿import { Restaurant, RestaurantStatus } from '../entities/restaurant.entity.js';
 
 export interface IRestaurantRepository {
   save(restaurant: Restaurant): Promise<void>;

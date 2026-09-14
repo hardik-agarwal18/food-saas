@@ -1,4 +1,4 @@
-export * from './customer-domain.error.js';
+﻿export * from './customer-domain.error.js';
 export * from './invalid-customer-avatar-url.error.js';
 export * from './invalid-customer-first-name.error.js';
 export * from './invalid-customer-last-name.error.js';

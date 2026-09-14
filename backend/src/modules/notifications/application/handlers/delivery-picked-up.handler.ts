@@ -1,4 +1,4 @@
-import { injectable, inject } from 'tsyringe';
+﻿import { injectable, inject } from 'tsyringe';
 import { EventHandler } from '../../../../shared/events/event-dispatcher.js';
 import { DeliveryPickedUpEvent } from '../../../delivery/domain/events/delivery-picked-up.event.js';
 import type { EmailService } from '../../../../infrastructure/email/email.service.js';

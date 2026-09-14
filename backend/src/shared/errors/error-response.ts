@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Describes one validation problem.
  *
  * The path identifies the field or location where the validation

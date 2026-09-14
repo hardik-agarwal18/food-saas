@@ -1,4 +1,4 @@
-import { Role } from '../../domain/enums/role.enum.js';
+﻿import { Role } from '../../domain/enums/role.enum.js';
 import { UserStatus } from '../../domain/enums/user-status.enum.js';
 
 export interface RefreshTokenResult {

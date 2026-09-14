@@ -1,4 +1,4 @@
-import { injectable, inject } from 'tsyringe';
+﻿import { injectable, inject } from 'tsyringe';
 import type { ICreateMenuModifierItemUseCase } from './create-menu-modifier-item.use-case.js';
 import {
   CreateMenuModifierItemDto,

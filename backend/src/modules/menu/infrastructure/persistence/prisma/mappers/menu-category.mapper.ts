@@ -1,4 +1,4 @@
-import { Prisma } from '../../../../../../generated/prisma/client.js';
+﻿import { Prisma } from '../../../../../../generated/prisma/client.js';
 import { MenuCategory } from '../../../../domain/entities/menu-category.entity.js';
 
 export class MenuCategoryMapper {

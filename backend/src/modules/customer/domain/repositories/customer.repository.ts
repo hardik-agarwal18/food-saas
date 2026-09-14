@@ -1,4 +1,4 @@
-import { Customer } from '../entities/index.js';
+﻿import { Customer } from '../entities/index.js';
 
 export interface ICustomerRepository {
   findById(id: string): Promise<Customer | null>;

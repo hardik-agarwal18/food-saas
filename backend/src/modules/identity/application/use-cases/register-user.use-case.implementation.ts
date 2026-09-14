@@ -1,4 +1,4 @@
-import { injectable, inject } from 'tsyringe';
+﻿import { injectable, inject } from 'tsyringe';
 import { RegisterUserUseCase } from './register-user.use-case.js';
 import { RegisterUserInput } from '../dto/register-user.dto.js';
 import { RegisterUserResult } from '../dto/register-user-result.dto.js';

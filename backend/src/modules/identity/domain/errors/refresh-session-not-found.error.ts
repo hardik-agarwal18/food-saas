@@ -1,4 +1,4 @@
-import { AuthenticationError } from '../../../../shared/errors/AuthenticationError.js';
+﻿import { AuthenticationError } from '../../../../shared/errors/AuthenticationError.js';
 
 /**
  * Error thrown when a refresh session does not exist.

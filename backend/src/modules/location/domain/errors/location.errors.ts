@@ -1,4 +1,4 @@
-export class InvalidCoordinatesError extends Error {
+﻿export class InvalidCoordinatesError extends Error {
   constructor(message: string) {
     super(message);
     this.name = 'InvalidCoordinatesError';

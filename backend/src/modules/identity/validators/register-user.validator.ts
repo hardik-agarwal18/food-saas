@@ -1,4 +1,4 @@
-import { z } from 'zod';
+﻿import { z } from 'zod';
 import { Role } from '../domain/enums/index.js';
 
 export const registerUserSchema = z.strictObject({

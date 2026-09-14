@@ -1,4 +1,4 @@
-export * from './domain.error.js';
+﻿export * from './domain.error.js';
 
 export * from './duplicate-permission.error.js';
 export * from './duplicate-role.error.js';

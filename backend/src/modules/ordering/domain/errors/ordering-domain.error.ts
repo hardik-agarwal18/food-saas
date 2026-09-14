@@ -1,4 +1,4 @@
-export class OrderingDomainError extends Error {
+﻿export class OrderingDomainError extends Error {
   constructor(message: string) {
     super(message);
     this.name = 'OrderingDomainError';

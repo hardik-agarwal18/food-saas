@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Central dependency-registration coordinator.
  *
  * This file coordinates dependency registration for all application
@@ -29,16 +29,16 @@
  * Registration flow:
  *
  * registerDependencies()
- *   ├── registerInfrastructure()
- *   ├── registerIdentity()
- *   ├── registerAdmin()
- *   ├── registerCustomer()
- *   ├── registerDelivery()
- *   ├── registerDriver()
- *   ├── registerOrdering()
- *   ├── registerPayment()
- *   ├── registerRestaurant()
- *   └── registerMenuModule()
+ *   â”œâ”€â”€ registerInfrastructure()
+ *   â”œâ”€â”€ registerIdentity()
+ *   â”œâ”€â”€ registerAdmin()
+ *   â”œâ”€â”€ registerCustomer()
+ *   â”œâ”€â”€ registerDelivery()
+ *   â”œâ”€â”€ registerDriver()
+ *   â”œâ”€â”€ registerOrdering()
+ *   â”œâ”€â”€ registerPayment()
+ *   â”œâ”€â”€ registerRestaurant()
+ *   â””â”€â”€ registerMenuModule()
  */
 
 import { registerInfrastructure } from './modules/infrastructure.js';
@@ -51,6 +51,7 @@ import { registerDeliveryModule } from './modules/delivery.js';
 import { registerAdminModule } from './modules/admin.js';
 import { registerNotificationsDependencies } from './modules/notifications.js';
 import { registerLocationModule } from './modules/location.js';
+import { registerPayment } from './modules/payment.js';
 
 /**
  * Registers dependencies for every application module.
@@ -73,6 +74,7 @@ export const registerDependencies = (): void => {
   registerDeliveryModule();
   registerAdminModule();
   registerNotificationsDependencies();
+  registerPayment();
 
   //Future dependency registrations can be added here
 };

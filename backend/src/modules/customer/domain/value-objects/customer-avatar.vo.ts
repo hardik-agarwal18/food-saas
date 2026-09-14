@@ -1,4 +1,4 @@
-import { InvalidCustomerAvatarUrlError } from '../errors/invalid-customer-avatar-url.error.js';
+﻿import { InvalidCustomerAvatarUrlError } from '../errors/invalid-customer-avatar-url.error.js';
 
 export class CustomerAvatarUrl {
   private readonly value: string | null;

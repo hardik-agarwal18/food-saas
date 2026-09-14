@@ -1,4 +1,4 @@
-import { injectable, inject } from 'tsyringe';
+﻿import { injectable, inject } from 'tsyringe';
 import { GetCustomerProfileUseCase } from './get-customer-profile.use-case.js';
 import { GetCustomerProfileResult } from '../dto/get-customer-profile-result.dto.js';
 import { GetCustomerProfileInput } from '../dto/get-customer-profile.dto.js';

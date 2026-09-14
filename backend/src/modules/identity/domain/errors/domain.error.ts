@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Base error class for all domain-level errors.
  *
  * Domain errors represent business-rule violations, such as:

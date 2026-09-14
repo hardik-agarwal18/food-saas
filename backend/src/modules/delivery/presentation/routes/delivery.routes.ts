@@ -1,4 +1,4 @@
-import express from 'express';
+﻿import express from 'express';
 import { container } from 'tsyringe';
 import { AuthenticationMiddleware } from '../../../../app/middleware/authentication.middleware.js';
 import { validate } from '../../../../shared/validation/validate.js';
@@ -45,10 +45,7 @@ router.post(
   registerDriverController.handle.bind(registerDriverController),
 );
 
-router.get(
-  '/drivers/me',
-  getDriverProfileController.handle.bind(getDriverProfileController),
-);
+router.get('/drivers/me', getDriverProfileController.handle.bind(getDriverProfileController));
 
 router.patch(
   '/drivers/me/availability',

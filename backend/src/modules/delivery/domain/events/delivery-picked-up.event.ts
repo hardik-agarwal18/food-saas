@@ -1,4 +1,4 @@
-import { DomainEvent } from '../../../../shared/events/domain-event.js';
+﻿import { DomainEvent } from '../../../../shared/events/domain-event.js';
 
 export class DeliveryPickedUpEvent implements DomainEvent {
   public readonly eventName = 'DeliveryPickedUpEvent';

@@ -446,6 +446,41 @@ model OrderStatusHistory {
   @@map("order_status_history")
 }
 
+// ─── PAYMENT MODULE ─────────────────────────────────────────────────────────
+
+enum PaymentProvider {
+  STRIPE
+  RAZORPAY
+  PAYPAL
+}
+
+enum PaymentAttemptStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+model PaymentAttempt {
+  id                String               @id @default(uuid()) @db.Uuid
+  orderId           String               @map("order_id") @db.Uuid
+  provider          PaymentProvider
+  providerPaymentId String               @map("provider_payment_id")
+  amount            Decimal              @db.Decimal(10, 2)
+  currency          String               @default("USD")
+  status            PaymentAttemptStatus @default(PENDING)
+  failureCode       String?              @map("failure_code")
+  failureReason     String?              @map("failure_reason")
+  metadata          Json?
+  
+  createdAt         DateTime             @default(now()) @map("created_at")
+  updatedAt         DateTime             @updatedAt @map("updated_at")
+
+  @@unique([provider, providerPaymentId])
+  @@index([orderId])
+  @@map("payment_attempts")
+}
+
 // ─── DELIVERY MODULE ────────────────────────────────────────────────────────
 
 enum DriverStatus {

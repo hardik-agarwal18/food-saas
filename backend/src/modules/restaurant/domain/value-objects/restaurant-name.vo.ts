@@ -1,4 +1,4 @@
-import { RestaurantDomainError } from '../errors/restaurant-domain.error.js';
+﻿import { RestaurantDomainError } from '../errors/restaurant-domain.error.js';
 
 export class RestaurantName {
   private readonly value: string;

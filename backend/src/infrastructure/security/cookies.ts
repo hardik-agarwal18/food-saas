@@ -1,4 +1,4 @@
-import cookieParser from 'cookie-parser';
+﻿import cookieParser from 'cookie-parser';
 
 /**
  * Express middleware that parses the Cookie header.

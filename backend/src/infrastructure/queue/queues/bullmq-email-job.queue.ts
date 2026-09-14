@@ -1,4 +1,4 @@
-import { injectable } from 'tsyringe';
+﻿import { injectable } from 'tsyringe';
 import { IEmailJobQueue } from '../../../modules/identity/application/services/email-job-queue.js';
 import { emailQueue } from './email.queue.js';
 import { EmailJobName } from '../types/email.job.types.js';

@@ -1,4 +1,4 @@
-import { z } from 'zod';
+﻿import { z } from 'zod';
 
 export const registerDriverSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),

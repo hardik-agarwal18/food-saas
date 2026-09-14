@@ -6,8 +6,8 @@ import { MenuCategoryRepositoryImpl } from '../../../modules/menu/infrastructure
 import { MenuItemRepositoryImpl } from '../../../modules/menu/infrastructure/persistence/prisma/menu-item.repository.js';
 import { MenuModifierRepositoryImpl } from '../../../modules/menu/infrastructure/persistence/prisma/menu-modifier.repository.js';
 import { MenuImportRepositoryImpl } from '../../../modules/menu/infrastructure/persistence/prisma/menu-import.repository.js';
-import { StubMenuDocumentReader } from '../../../modules/menu/infrastructure/ocr/stub-menu-document-reader.js';
-import { DefaultMenuParser } from '../../../modules/menu/infrastructure/parsers/default-menu-parser.js';
+import { GeminiMenuDocumentReader } from '../../../modules/menu/infrastructure/ai/gemini-menu-document-reader.js';
+import { GeminiMenuParser } from '../../../modules/menu/infrastructure/ai/gemini-menu-parser.js';
 
 // Use Cases
 import { CreateMenuCategoryUseCaseImpl } from '../../../modules/menu/application/use-cases/create-menu-category/create-menu-category.use-case.impl.js';
@@ -41,8 +41,8 @@ export function registerMenuModule(): void {
   container.registerSingleton(MenuTokens.MenuItemRepository, MenuItemRepositoryImpl);
   container.registerSingleton(MenuTokens.MenuModifierRepository, MenuModifierRepositoryImpl);
   container.registerSingleton(MenuTokens.MenuImportRepository, MenuImportRepositoryImpl);
-  container.registerSingleton(MenuTokens.MenuDocumentReader, StubMenuDocumentReader);
-  container.registerSingleton(MenuTokens.MenuParser, DefaultMenuParser);
+  container.registerSingleton(MenuTokens.MenuDocumentReader, GeminiMenuDocumentReader);
+  container.registerSingleton(MenuTokens.MenuParser, GeminiMenuParser);
 
   // Use Cases
   container.registerSingleton(MenuTokens.CreateMenuCategoryUseCase, CreateMenuCategoryUseCaseImpl);

@@ -1,4 +1,4 @@
-import { CustomerAddress } from '../entities/customer-address.entity.js';
+﻿import { CustomerAddress } from '../entities/customer-address.entity.js';
 
 export interface ICustomerAddressRepository {
   save(address: CustomerAddress): Promise<void>;

@@ -1,4 +1,4 @@
-import { EventHandler } from '../../../../shared/events/event-dispatcher.js';
+﻿import { EventHandler } from '../../../../shared/events/event-dispatcher.js';
 import { OrderReadyEvent } from '../../../ordering/domain/events/order-ready.event.js';
 import type { ICreateDeliveryAssignmentUseCase } from '../use-cases/create-delivery-assignment.use-case.js';
 import { inject, injectable } from 'tsyringe';

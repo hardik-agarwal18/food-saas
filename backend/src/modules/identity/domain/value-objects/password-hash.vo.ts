@@ -1,4 +1,4 @@
-import { InvalidPasswordHashError } from '../errors/index.js';
+﻿import { InvalidPasswordHashError } from '../errors/index.js';
 
 export class PasswordHash {
   private static readonly BCRYPT_REGEX = /^\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}$/;

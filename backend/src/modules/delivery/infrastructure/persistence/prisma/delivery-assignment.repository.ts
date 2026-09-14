@@ -1,4 +1,4 @@
-import { inject, injectable } from 'tsyringe';
+﻿import { inject, injectable } from 'tsyringe';
 import { IDeliveryAssignmentRepository } from '../../../domain/repositories/delivery-assignment.repository.js';
 import {
   DeliveryAssignment,
@@ -143,7 +143,7 @@ export class DeliveryAssignmentRepositoryImpl
   }
 
   async claimAssignment(assignmentId: string, driverId: string): Promise<boolean> {
-    // Optimistic concurrency control — atomic conditional UPDATE + driver status in one transaction
+    // Optimistic concurrency control â€” atomic conditional UPDATE + driver status in one transaction
     return await this.execute(() =>
       this.prisma.$transaction(async (tx) => {
         const result = await tx.$executeRaw`

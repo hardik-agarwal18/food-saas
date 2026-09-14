@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Health routes.
  *
  * This file defines the HTTP paths associated with health checks.

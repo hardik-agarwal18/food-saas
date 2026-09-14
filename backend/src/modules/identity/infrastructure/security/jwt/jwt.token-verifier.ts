@@ -1,4 +1,4 @@
-import { JWTPayload, jwtVerify } from 'jose';
+﻿import { JWTPayload, jwtVerify } from 'jose';
 import { ITokenPayload } from '../../../domain/services/token-payload.js';
 import { IJwtClaims, IJwtConfig } from './jwt.types.js';
 

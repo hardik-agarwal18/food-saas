@@ -1,4 +1,4 @@
-import { Coordinates } from '../value-objects/coordinates.vo.js';
+﻿import { Coordinates } from '../value-objects/coordinates.vo.js';
 import { GeoCell } from '../value-objects/geo-cell.vo.js';
 
 export interface IGeoGridService {

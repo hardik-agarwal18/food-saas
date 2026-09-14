@@ -1,4 +1,4 @@
-export interface LoginUserResult {
+﻿export interface LoginUserResult {
   user: {
     id: string;
     email: string;

@@ -1,4 +1,4 @@
-import { container } from 'tsyringe';
+﻿import { container } from 'tsyringe';
 import { Job, Worker } from 'bullmq';
 import { InfrastructureTokens } from '../../container/tokens/infrastructure.tokens.js';
 import { AvatarJobProcessor } from '../jobs/avatar/avatar.job.processor.js';

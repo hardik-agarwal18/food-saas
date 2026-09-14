@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Database transaction helper.
  *
  * This file provides a shared function for executing multiple

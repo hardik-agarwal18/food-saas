@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Database error translation.
  *
  * This file converts Prisma-specific database errors into

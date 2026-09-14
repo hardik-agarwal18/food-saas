@@ -1,4 +1,4 @@
-import { MenuCategory } from '../entities/menu-category.entity.js';
+﻿import { MenuCategory } from '../entities/menu-category.entity.js';
 
 export interface IMenuCategoryRepository {
   save(category: MenuCategory): Promise<void>;

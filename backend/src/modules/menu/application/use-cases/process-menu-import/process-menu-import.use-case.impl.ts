@@ -4,6 +4,7 @@ import { InfrastructureTokens } from '../../../../../infrastructure/container/to
 import type { MenuImportRepository } from '../../../domain/repositories/menu-import.repository.js';
 import type { MenuDocumentReader } from '../../contracts/menu-document-reader.interface.js';
 import type { MenuParser } from '../../contracts/menu-parser.interface.js';
+import type { FileStorage } from '../../../../../shared/contracts/storage/file-storage.js';
 import type {
   ProcessMenuImportInput,
   ProcessMenuImportUseCase,
@@ -26,6 +27,8 @@ export class ProcessMenuImportUseCaseImpl implements ProcessMenuImportUseCase {
     private readonly documentReader: MenuDocumentReader,
     @inject(MenuTokens.MenuParser)
     private readonly menuParser: MenuParser,
+    @inject(InfrastructureTokens.FileStorage)
+    private readonly fileStorage: FileStorage,
     @inject(InfrastructureTokens.Logger)
     private readonly logger: ILogger,
   ) {}
@@ -68,11 +71,12 @@ export class ProcessMenuImportUseCaseImpl implements ProcessMenuImportUseCase {
 
     try {
       // 1. Download file
-      // In a real implementation, we might fetch the file buffer.
-      // const url = this.fileStorage.getUrl(importEntity.getSourceFileKey());
-      // const response = await fetch(url);
-      // const buffer = Buffer.from(await response.arrayBuffer());
-      const buffer = Buffer.from(''); // Stub buffer
+      const url = this.fileStorage.getUrl(importEntity.getSourceFileKey());
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Failed to download file from storage: ${response.statusText}`);
+      }
+      const buffer = Buffer.from(await response.arrayBuffer());
 
       // 2. OCR Extraction
       const rawDocument = await this.documentReader.extract({

@@ -1,4 +1,4 @@
-import { InvalidCustomerPreferencesError } from '../errors/invalid-customer-preferences.error.js';
+﻿import { InvalidCustomerPreferencesError } from '../errors/invalid-customer-preferences.error.js';
 
 export interface ICustomerNotificationPreferencesProps {
   push: boolean;

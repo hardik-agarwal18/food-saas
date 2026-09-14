@@ -1,4 +1,4 @@
-import express from 'express';
+﻿import express from 'express';
 import { container } from 'tsyringe';
 import { RegisterUserController } from '../controllers/register-user.controller.js';
 import { validate } from '../../../../shared/validation/validate.js';

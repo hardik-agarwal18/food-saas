@@ -1,4 +1,4 @@
-import { Prisma } from '../../../../../../generated/prisma/client.js';
+﻿import { Prisma } from '../../../../../../generated/prisma/client.js';
 import { MenuModifierGroup } from '../../../../domain/entities/menu-modifier-group.entity.js';
 import { MenuModifierItem } from '../../../../domain/entities/menu-modifier-item.entity.js';
 import { Money } from '../../../../domain/value-objects/money.vo.js';

@@ -1,4 +1,4 @@
-import { inject, injectable } from 'tsyringe';
+﻿import { inject, injectable } from 'tsyringe';
 import { ISuspendRestaurantUseCase } from './suspend-restaurant.use-case.js';
 import { RestaurantResponseDto } from '../dto/restaurant.dto.js';
 import type { IRestaurantRepository } from '../../domain/repositories/restaurant.repository.js';

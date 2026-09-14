@@ -15,3 +15,9 @@ export const usePlaceOrderMutation = () => {
     },
   });
 };
+
+export const useInitializePaymentMutation = () => {
+  return useMutation({
+    mutationFn: (data: PlaceOrderRequest) => customerOrdersApi.initializePayment(data),
+  });
+};

@@ -1,4 +1,4 @@
-import { injectable, inject } from 'tsyringe';
+﻿import { injectable, inject } from 'tsyringe';
 import { CustomerAvatarRemoveUseCase } from './customer-avatar-remove.use-case.js';
 import { IdentityTokens } from '../../../identity/infrastructure/persistence/tokens/identity.tokens.js';
 import type { IUserRepository } from '../../../identity/domain/repositories/user.repository.js';

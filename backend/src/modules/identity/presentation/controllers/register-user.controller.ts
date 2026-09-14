@@ -1,4 +1,4 @@
-import { injectable, inject } from 'tsyringe';
+﻿import { injectable, inject } from 'tsyringe';
 import { IdentityTokens } from '../../infrastructure/persistence/tokens/identity.tokens.js';
 import type { RegisterUserUseCase } from '../../application/use-cases/register-user.use-case.js';
 import { NextFunction, Request, Response } from 'express';

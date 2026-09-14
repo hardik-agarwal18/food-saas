@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Database connection and health service.
  *
  * This class manages the application's shared Prisma client.

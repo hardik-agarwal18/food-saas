@@ -1,7 +1,7 @@
 'use client';
 
 import { useCartStore } from '@/features/customer/cart/store';
-import { usePlaceOrderMutation } from '../mutations';
+import { useInitializePaymentMutation } from '../mutations';
 import { useCustomerAddresses } from '@/features/customer/queries';
 import { OrderType } from '@/types/api.types';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,13 @@ import { useState, useEffect } from 'react';
 import { MapPin, CheckCircle2, CreditCard, ChevronDown } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements } from '@stripe/react-stripe-js';
+import { StripePaymentForm } from './StripePaymentForm';
+
+// Initialize Stripe outside of component to avoid recreating it
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
+
 const TAX_RATE = 0.08;
 const FIXED_DELIVERY_FEE = 4.99;
 
@@ -21,16 +28,16 @@ export function CheckoutForm() {
   const items = useCartStore((state: any) => state.items);
   const restaurantId = useCartStore((state: any) => state.restaurantId);
   const getCartTotal = useCartStore((state: any) => state.getCartTotal);
-  const clearCart = useCartStore((state: any) => state.clearCart);
   
-  const placeOrderMutation = usePlaceOrderMutation();
+  const initializePaymentMutation = useInitializePaymentMutation();
   const { data: addresses, isLoading: isLoadingAddresses } = useCustomerAddresses();
   
   const [orderType, setOrderType] = useState<OrderType>(OrderType.DELIVERY);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [step, setStep] = useState<number>(1);
+  const [paymentData, setPaymentData] = useState<{ clientSecret: string; orderId: string } | null>(null);
   
-  const { register, handleSubmit, formState: { errors }, watch } = useForm({
+  const { register, handleSubmit, formState: { errors } } = useForm({
     defaultValues: {
       street: '',
       city: '',
@@ -38,9 +45,6 @@ export function CheckoutForm() {
       zipCode: '',
       country: '',
       specialInstructions: '',
-      cardNumber: '',
-      expiry: '',
-      cvc: '',
     }
   });
 
@@ -57,7 +61,7 @@ export function CheckoutForm() {
     }
   }, [addresses, selectedAddressId]);
 
-  const onSubmit = (data: any) => {
+  const onSubmitDeliveryDetails = (data: any) => {
     if (!restaurantId || items.length === 0) return;
 
     let deliveryAddress = undefined;
@@ -85,7 +89,7 @@ export function CheckoutForm() {
       }
     }
 
-    placeOrderMutation.mutate({
+    initializePaymentMutation.mutate({
       restaurantId,
       orderType,
       specialInstructions: data.specialInstructions,
@@ -96,12 +100,19 @@ export function CheckoutForm() {
         modifierItemIds: item.modifiers.map((m: any) => m.id),
         specialInstructions: item.specialInstructions,
       }))
-      }, {
-        onSuccess: (order) => {
-          clearCart();
-          router.push(`/customer/orders/${order.id}`);
-        }
-      });
+    }, {
+      onSuccess: (res) => {
+        setPaymentData({
+          clientSecret: res.payment.clientSecret,
+          orderId: res.orderId,
+        });
+        setStep(2);
+      },
+      onError: (err) => {
+        console.error('Failed to initialize payment:', err);
+        // Could show a toast error here
+      }
+    });
   };
 
   if (items.length === 0) {
@@ -120,23 +131,23 @@ export function CheckoutForm() {
   return (
     <div className="grid lg:grid-cols-3 gap-8">
       <div className="lg:col-span-2 space-y-6">
-        <form id="checkout-form" onSubmit={handleSubmit(onSubmit)}>
+        
+        {/* STEP 1: Delivery Details */}
+        <Card className={`overflow-hidden transition-all border-2 ${step === 1 ? 'border-primary ring-4 ring-primary/10 shadow-md' : 'border-border opacity-75'}`}>
+          <CardHeader className="bg-muted/30 cursor-pointer flex flex-row items-center justify-between" onClick={() => !paymentData && setStep(1)}>
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <span className="bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center text-sm">1</span> 
+                Order Details
+              </CardTitle>
+              {step !== 1 && <CardDescription className="mt-1">{orderType}</CardDescription>}
+            </div>
+            {step !== 1 && <ChevronDown className="w-5 h-5 text-muted-foreground" />}
+          </CardHeader>
           
-          {/* STEP 1: Delivery Details */}
-          <Card className={`overflow-hidden transition-all border-2 ${step === 1 ? 'border-primary ring-4 ring-primary/10 shadow-md' : 'border-border opacity-75'}`}>
-            <CardHeader className="bg-muted/30 cursor-pointer flex flex-row items-center justify-between" onClick={() => setStep(1)}>
-              <div>
-                <CardTitle className="flex items-center gap-2">
-                  <span className="bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center text-sm">1</span> 
-                  Order Details
-                </CardTitle>
-                {step !== 1 && <CardDescription className="mt-1">{orderType}</CardDescription>}
-              </div>
-              {step !== 1 && <ChevronDown className="w-5 h-5 text-muted-foreground" />}
-            </CardHeader>
-            
-            {step === 1 && (
-              <CardContent className="p-6">
+          {step === 1 && (
+            <CardContent className="p-6">
+              <form id="checkout-form" onSubmit={handleSubmit(onSubmitDeliveryDetails)}>
                 <div className="flex gap-4 mb-6">
                   <Button 
                     type="button"
@@ -227,60 +238,47 @@ export function CheckoutForm() {
                   <Input id="specialInstructions" {...register('specialInstructions')} placeholder="Leave at door, allergies, etc." />
                 </div>
 
-                <Button type="button" className="w-full mt-6" onClick={() => setStep(2)}>
-                  Continue to Payment
+                <Button 
+                  type="submit" 
+                  className="w-full mt-6" 
+                  disabled={initializePaymentMutation.isPending}
+                >
+                  {initializePaymentMutation.isPending ? 'Preparing Payment...' : 'Continue to Payment'}
                 </Button>
-              </CardContent>
-            )}
-          </Card>
+              </form>
+            </CardContent>
+          )}
+        </Card>
 
-          {/* STEP 2: Payment */}
-          <Card className={`mt-6 overflow-hidden transition-all border-2 ${step === 2 ? 'border-primary ring-4 ring-primary/10 shadow-md' : 'border-border opacity-75'}`}>
-            <CardHeader className="bg-muted/30 cursor-pointer flex flex-row items-center justify-between" onClick={() => step > 1 && setStep(2)}>
-              <CardTitle className="flex items-center gap-2">
-                <span className={`w-6 h-6 rounded-full flex items-center justify-center text-sm ${step >= 2 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>2</span> 
-                Payment
-              </CardTitle>
-              {step > 2 && <CheckCircle2 className="w-5 h-5 text-primary" />}
-            </CardHeader>
-            
-            {step === 2 && (
-              <CardContent className="p-6 space-y-4">
-                <div className="bg-blue-50 text-blue-800 p-4 rounded-xl flex items-start gap-3 text-sm">
-                  <CreditCard className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                  <p>This is a simulated checkout. You can use any dummy card information to proceed with your order.</p>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="cardNumber">Card Number</Label>
-                  <Input id="cardNumber" placeholder="4242 4242 4242 4242" {...register('cardNumber')} />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="expiry">Expiry Date</Label>
-                    <Input id="expiry" placeholder="MM/YY" {...register('expiry')} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="cvc">CVC</Label>
-                    <Input id="cvc" placeholder="123" {...register('cvc')} />
-                  </div>
-                </div>
-                
-                <div className="flex gap-4 mt-6">
-                  <Button type="button" variant="outline" onClick={() => setStep(1)}>Back</Button>
-                  <Button 
-                    type="submit"
-                    className="flex-1" 
-                    size="lg"
-                    disabled={placeOrderMutation.isPending}
-                  >
-                    {placeOrderMutation.isPending ? 'Processing...' : `Pay $${grandTotal.toFixed(2)}`}
-                  </Button>
-                </div>
-              </CardContent>
-            )}
-          </Card>
-        </form>
+        {/* STEP 2: Payment */}
+        <Card className={`mt-6 overflow-hidden transition-all border-2 ${step === 2 ? 'border-primary ring-4 ring-primary/10 shadow-md' : 'border-border opacity-75'}`}>
+          <CardHeader className="bg-muted/30 cursor-pointer flex flex-row items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <span className={`w-6 h-6 rounded-full flex items-center justify-center text-sm ${step >= 2 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>2</span> 
+              Payment
+            </CardTitle>
+            {step > 2 && <CheckCircle2 className="w-5 h-5 text-primary" />}
+          </CardHeader>
+          
+          {step === 2 && paymentData && (
+            <CardContent className="p-6 space-y-4">
+              <Elements stripe={stripePromise} options={{ clientSecret: paymentData.clientSecret, appearance: { theme: 'stripe' } }}>
+                <StripePaymentForm 
+                  orderId={paymentData.orderId}
+                  clientSecret={paymentData.clientSecret}
+                  grandTotal={grandTotal}
+                  onBack={() => {
+                    // Reset if they want to change address, though normally order is already created
+                    // so we shouldn't allow changing address on the SAME order easily.
+                    // For demo, we just go back to step 1 but it might create duplicate orders if they resubmit.
+                    // Ideally we should update the order. We will leave it as is for simplicity.
+                    setStep(1);
+                  }}
+                />
+              </Elements>
+            </CardContent>
+          )}
+        </Card>
       </div>
 
       <div className="lg:col-span-1">

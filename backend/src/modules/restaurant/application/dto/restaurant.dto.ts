@@ -1,4 +1,4 @@
-export interface CreateRestaurantDto {
+﻿export interface CreateRestaurantDto {
   name: string;
   description?: string;
   phoneNumber: string;

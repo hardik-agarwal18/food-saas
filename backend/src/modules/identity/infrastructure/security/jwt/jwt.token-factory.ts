@@ -1,4 +1,4 @@
-import { randomUUID } from 'crypto';
+﻿import { randomUUID } from 'crypto';
 import { SignJWT } from 'jose';
 
 import { TokenType } from '../../../domain/enums/index.js';

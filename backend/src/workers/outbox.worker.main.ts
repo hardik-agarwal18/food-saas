@@ -1,4 +1,4 @@
-import 'reflect-metadata';
+﻿import 'reflect-metadata';
 import { container } from 'tsyringe';
 import { config } from 'dotenv';
 import { DatabaseService } from '../infrastructure/database/database.service.js';

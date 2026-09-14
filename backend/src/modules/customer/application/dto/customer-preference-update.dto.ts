@@ -1,4 +1,4 @@
-export interface CustomerPreferenceUpdateInput {
+﻿export interface CustomerPreferenceUpdateInput {
   userId: string;
   language?: string;
   notifications?: {

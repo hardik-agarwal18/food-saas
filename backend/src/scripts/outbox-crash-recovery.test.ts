@@ -1,4 +1,4 @@
-import 'reflect-metadata';
+﻿import 'reflect-metadata';
 import { prisma } from '../infrastructure/database/prisma.js';
 import { OrderPlacedEvent } from '../modules/ordering/domain/events/order-placed.event.js';
 import crypto from 'crypto';
@@ -43,8 +43,8 @@ async function runCrashRecoveryTest() {
       });
     });
 
-    console.log('✅ Atomically saved Order and OutboxEvent to PostgreSQL.');
-    console.log('💥 Process "crashes" here (no in-memory dispatch occurs).');
+    console.log('âœ… Atomically saved Order and OutboxEvent to PostgreSQL.');
+    console.log('ðŸ’¥ Process "crashes" here (no in-memory dispatch occurs).');
     console.log('Please verify the outbox worker automatically picks up and processes this event.');
     console.log(`Check the logs for OrderID: ${orderId}`);
   } catch (error) {

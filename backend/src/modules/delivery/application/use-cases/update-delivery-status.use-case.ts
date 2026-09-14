@@ -1,4 +1,4 @@
-export interface IUpdateDeliveryStatusUseCase {
+﻿export interface IUpdateDeliveryStatusUseCase {
   execute(
     assignmentId: string,
     userId: string,

@@ -1,3 +1,3 @@
-export interface GetCustomerProfileInput {
+﻿export interface GetCustomerProfileInput {
   userId: string;
 }

@@ -1,4 +1,4 @@
-export interface VerifyEmailInput {
+﻿export interface VerifyEmailInput {
   userId: string;
   token: string;
 }

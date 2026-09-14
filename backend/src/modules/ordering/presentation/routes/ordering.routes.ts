@@ -1,4 +1,4 @@
-import { Router } from 'express';
+﻿import { Router } from 'express';
 import { container } from 'tsyringe';
 import { AuthenticationMiddleware } from '../../../../app/middleware/authentication.middleware.js';
 import { AuthorizationMiddleware } from '../../../../app/middleware/authorization.middleware.js';

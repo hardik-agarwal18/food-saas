@@ -1,4 +1,4 @@
-import { container } from 'tsyringe';
+﻿import { container } from 'tsyringe';
 import express from 'express';
 import { AuthenticationMiddleware } from '../../../../app/middleware/authentication.middleware.js';
 import { AuthorizationMiddleware } from '../../../../app/middleware/authorization.middleware.js';
@@ -37,12 +37,12 @@ const deactivateRestaurantController = container.resolve(DeactivateRestaurantCon
 const suspendRestaurantController = container.resolve(SuspendRestaurantController);
 const approveRestaurantController = container.resolve(ApproveRestaurantController);
 
-// ─── Public ────────────────────────────────────────────────────────────────
-// GET /api/v1/restaurants  — list active restaurants
+// â”€â”€â”€ Public â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// GET /api/v1/restaurants  â€” list active restaurants
 router.route('/').get(getRestaurantsController.handle.bind(getRestaurantsController));
 
-// ─── Authenticated Owner ────────────────────────────────────────────────────
-// POST /api/v1/restaurants  — create a restaurant
+// â”€â”€â”€ Authenticated Owner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// POST /api/v1/restaurants  â€” create a restaurant
 router
   .route('/')
   .post(
@@ -52,7 +52,7 @@ router
     createRestaurantController.handle.bind(createRestaurantController),
   );
 
-// GET /api/v1/restaurants/my  — owner's own restaurants
+// GET /api/v1/restaurants/my  â€” owner's own restaurants
 router
   .route('/my')
   .get(
@@ -101,7 +101,7 @@ router
     deactivateRestaurantController.handle.bind(deactivateRestaurantController),
   );
 
-// ─── Admin ──────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Admin â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // PATCH /api/v1/restaurants/:id/suspend  (admin)
 router
   .route('/:id/suspend')

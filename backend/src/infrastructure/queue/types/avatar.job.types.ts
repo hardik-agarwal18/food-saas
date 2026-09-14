@@ -1,4 +1,4 @@
-export enum AvatarJobName {
+﻿export enum AvatarJobName {
   UPLOAD_AVATAR = 'upload-avatar',
 }
 

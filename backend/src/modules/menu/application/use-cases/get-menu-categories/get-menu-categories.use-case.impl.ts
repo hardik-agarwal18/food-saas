@@ -1,4 +1,4 @@
-import { injectable, inject } from 'tsyringe';
+﻿import { injectable, inject } from 'tsyringe';
 import type { IGetMenuCategoriesUseCase } from './get-menu-categories.use-case.js';
 import { MenuCategoryResponseDto } from '../../dto/menu-category.dto.js';
 import { MenuTokens } from '../../../infrastructure/tokens/menu.tokens.js';

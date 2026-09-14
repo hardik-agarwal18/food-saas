@@ -1,4 +1,4 @@
-export class VerifyEmail {
+﻿export class VerifyEmail {
   private readonly id: string;
   private userId: string;
   private tokenHash: string;

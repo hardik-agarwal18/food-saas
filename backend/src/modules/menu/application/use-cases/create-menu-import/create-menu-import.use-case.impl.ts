@@ -1,4 +1,4 @@
-import { inject, injectable } from 'tsyringe';
+﻿import { inject, injectable } from 'tsyringe';
 import { MenuTokens } from '../../../infrastructure/tokens/menu.tokens.js';
 import { InfrastructureTokens } from '../../../../../infrastructure/container/tokens/index.js';
 import type { FileStorage } from '../../../../../shared/contracts/storage/file-storage.js';

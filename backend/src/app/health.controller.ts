@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Health controller.
  *
  * The controller is responsible for handling HTTP requests related

@@ -1,4 +1,4 @@
-export enum MenuImportJobName {
+﻿export enum MenuImportJobName {
   PROCESS_MENU_IMPORT = 'PROCESS_MENU_IMPORT',
 }
 

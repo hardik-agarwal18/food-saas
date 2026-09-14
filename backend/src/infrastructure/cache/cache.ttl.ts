@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Default cache time-to-live values.
  *
  * All values are expressed in seconds because Redis EXPIRE

@@ -1,4 +1,4 @@
-import { EmailAlreadyRegisteredError } from '../../modules/identity/domain/errors/email-already-register.error.js';
+﻿import { EmailAlreadyRegisteredError } from '../../modules/identity/domain/errors/email-already-register.error.js';
 import { InvalidCredentialsError } from '../../modules/identity/domain/errors/invalid-credentials.error.js';
 import { AppError } from './AppError.js';
 import { AuthenticationError } from './AuthenticationError.js';

@@ -21,6 +21,10 @@ export interface PlaceOrderRequest {
 }
 
 export const customerOrdersApi = {
+  initializePayment: async (data: PlaceOrderRequest): Promise<{ orderId: string, payment: any }> => {
+    return apiClient.post('/payments/initialize', data);
+  },
+
   placeOrder: async (data: PlaceOrderRequest): Promise<Order> => {
     return apiClient.post('/orders', data);
   },

@@ -1,4 +1,4 @@
-import { inject, injectable } from 'tsyringe';
+﻿import { inject, injectable } from 'tsyringe';
 import { ISuspendUserUseCase } from './suspend-user.use-case.js';
 import type { IUserRepository } from '../../../../modules/identity/domain/repositories/user.repository.js';
 import { IdentityTokens } from '../../../../modules/identity/infrastructure/persistence/tokens/identity.tokens.js';

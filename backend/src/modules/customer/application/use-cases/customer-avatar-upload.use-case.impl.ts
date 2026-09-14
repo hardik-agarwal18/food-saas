@@ -1,4 +1,4 @@
-import { injectable, inject } from 'tsyringe';
+﻿import { injectable, inject } from 'tsyringe';
 import { CustomerAvatarUploadUseCase } from './customer-avatar-upload.use-case.js';
 import { CustomerTokens } from '../../infrastructure/persistence/tokens/customer.tokens.js';
 import type { ICustomerRepository } from '../../domain/repositories/customer.repository.js';

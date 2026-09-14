@@ -1,4 +1,4 @@
-export class ResetPasswordEntity {
+﻿export class ResetPasswordEntity {
   private readonly id: string;
   private userId: string;
   private tokenHash: string;
