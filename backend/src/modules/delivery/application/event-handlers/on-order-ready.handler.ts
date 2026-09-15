@@ -1,8 +1,8 @@
-﻿import { EventHandler } from '../../../../shared/events/event-dispatcher.js';
+import { EventHandler } from '../../../../shared/events/event-dispatcher.js';
 import { OrderReadyEvent } from '../../../ordering/domain/events/order-ready.event.js';
 import type { ICreateDeliveryAssignmentUseCase } from '../use-cases/create-delivery-assignment.use-case.js';
 import { inject, injectable } from 'tsyringe';
-import { OrderType } from '../../../../generated/prisma/client.js';
+import { OrderType } from '../../../ordering/domain/types/order.types.js';
 import { DeliveryTokens } from '../../infrastructure/tokens/delivery.tokens.js';
 
 @injectable()

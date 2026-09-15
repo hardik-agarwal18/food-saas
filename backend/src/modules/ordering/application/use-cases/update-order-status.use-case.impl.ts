@@ -1,4 +1,4 @@
-﻿import { injectable, inject } from 'tsyringe';
+import { injectable, inject } from 'tsyringe';
 import type { IUpdateOrderStatusUseCase } from './update-order-status.use-case.js';
 import { OrderResponseDto } from '../dto/order.dto.js';
 import { OrderDtoMapper } from '../mappers/order-dto.mapper.js';
@@ -7,7 +7,7 @@ import type { IOrderRepository } from '../../domain/repositories/order.repositor
 import { RestaurantTokens } from '../../../restaurant/infrastructure/persistence/tokens/restaurant.tokens.js';
 import type { IRestaurantRepository } from '../../../restaurant/domain/repositories/restaurant.repository.js';
 import { OrderingDomainError } from '../../domain/errors/ordering-domain.error.js';
-import { OrderStatus } from '../../../../generated/prisma/client.js';
+import { OrderStatus } from '../../domain/types/order.types.js';
 
 @injectable()
 export class UpdateOrderStatusUseCaseImpl implements IUpdateOrderStatusUseCase {

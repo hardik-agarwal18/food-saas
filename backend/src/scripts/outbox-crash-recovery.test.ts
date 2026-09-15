@@ -1,4 +1,5 @@
-﻿import 'reflect-metadata';
+import 'reflect-metadata';
+import { OrderType } from '../modules/ordering/domain/types/order.types.js';
 import { prisma } from '../infrastructure/database/prisma.js';
 import { OrderPlacedEvent } from '../modules/ordering/domain/events/order-placed.event.js';
 import crypto from 'crypto';
@@ -33,7 +34,7 @@ async function runCrashRecoveryTest() {
         },
       });
 
-      const event = new OrderPlacedEvent(orderId, restaurantId, 'DELIVERY', 5);
+      const event = new OrderPlacedEvent(orderId, restaurantId, OrderType.DELIVERY, 5);
 
       await tx.outboxEvent.create({
         data: {

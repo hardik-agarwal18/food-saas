@@ -1,9 +1,13 @@
-﻿import { Order } from '../../../../domain/entities/order.entity.js';
+import { Order } from '../../../../domain/entities/order.entity.js';
 import { OrderItem } from '../../../../domain/entities/order-item.entity.js';
 import { OrderItemModifier } from '../../../../domain/entities/order-item-modifier.entity.js';
 import { Money } from '../../../../../menu/domain/value-objects/money.vo.js';
 import { Prisma } from '../../../../../../generated/prisma/client.js';
-
+import {
+  OrderStatus as DomainOrderStatus,
+  PaymentStatus as DomainPaymentStatus,
+  OrderType as DomainOrderType,
+} from '../../../../domain/types/order.types.js';
 type PrismaOrderWithRelations = Prisma.OrderGetPayload<{
   include: {
     items: {
@@ -46,9 +50,9 @@ export class OrderMapper {
       customerId: raw.customerId,
       restaurantId: raw.restaurantId,
       restaurantName: raw.restaurantName,
-      status: raw.status,
-      paymentStatus: raw.paymentStatus,
-      orderType: raw.orderType,
+      status: raw.status as unknown as DomainOrderStatus,
+      paymentStatus: raw.paymentStatus as unknown as DomainPaymentStatus,
+      orderType: raw.orderType as unknown as DomainOrderType,
 
       subtotal: Money.fromNumber(raw.subtotal.toNumber()),
       deliveryFee: Money.fromNumber(raw.deliveryFee.toNumber()),
@@ -75,9 +79,9 @@ export class OrderMapper {
   static toCreateInput(domain: Order): Prisma.OrderCreateInput {
     return {
       id: domain.getId(),
-      status: domain.getStatus(),
-      paymentStatus: domain.getPaymentStatus(),
-      orderType: domain.getOrderType(),
+      status: domain.getStatus() as any,
+      paymentStatus: domain.getPaymentStatus() as any,
+      orderType: domain.getOrderType() as any,
 
       subtotal: domain.getSubtotal().getValue(),
       deliveryFee: domain.getDeliveryFee().getValue(),

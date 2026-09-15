@@ -1,7 +1,7 @@
-﻿import { Money } from '../../../menu/domain/value-objects/money.vo.js';
+import { Money } from '../../../menu/domain/value-objects/money.vo.js';
 import { OrderItem } from './order-item.entity.js';
 import { OrderingDomainError } from '../errors/ordering-domain.error.js';
-import { OrderStatus, PaymentStatus, OrderType } from '../../../../generated/prisma/client.js';
+import { OrderStatus, PaymentStatus, OrderType } from '../types/order.types.js';
 import { AggregateRoot } from '../../../../shared/domain/aggregate-root.js';
 import { OrderReadyEvent } from '../events/order-ready.event.js';
 import { OrderPlacedEvent } from '../events/order-placed.event.js';

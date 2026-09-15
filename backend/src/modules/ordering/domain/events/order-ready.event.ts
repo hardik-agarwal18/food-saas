@@ -1,5 +1,5 @@
-﻿import { DomainEvent } from '../../../../shared/events/domain-event.js';
-import { OrderType } from '../../../../generated/prisma/client.js';
+import { DomainEvent } from '../../../../shared/events/domain-event.js';
+import { OrderType } from '../types/order.types.js';
 
 export class OrderReadyEvent implements DomainEvent {
   public readonly eventName = 'OrderReadyEvent';

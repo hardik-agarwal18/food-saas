@@ -1,10 +1,14 @@
-﻿import { injectable, inject } from 'tsyringe';
+import { injectable, inject } from 'tsyringe';
 import { BaseRepository } from '../../../../infrastructure/database/base.repository.js';
 import { InfrastructureTokens } from '../../../../infrastructure/container/tokens/index.js';
 import type { PrismaExecutor } from '../../../../infrastructure/database/prisma-client.type.js';
 import { IPaymentAttemptRepository } from '../../application/ports/payment-attempt.repository.interface.js';
 import { PaymentAttempt } from '../../domain/entities/payment-attempt.entity.js';
-import { PaymentProvider } from '../../../../generated/prisma/client.js';
+
+import {
+  PaymentProvider as DomainPaymentProvider,
+  PaymentAttemptStatus as DomainPaymentAttemptStatus,
+} from '../../domain/types/payment.types.js';
 
 @injectable()
 export class PrismaPaymentAttemptRepository
@@ -22,11 +26,11 @@ export class PrismaPaymentAttemptRepository
     return PaymentAttempt.rehydrate({
       id: raw.id,
       orderId: raw.orderId,
-      provider: raw.provider,
+      provider: raw.provider as unknown as DomainPaymentProvider,
       providerPaymentId: raw.providerPaymentId,
       amount: Number(raw.amount),
       currency: raw.currency,
-      status: raw.status,
+      status: raw.status as unknown as DomainPaymentAttemptStatus,
       failureCode: raw.failureCode,
       failureReason: raw.failureReason,
       metadata: raw.metadata as Record<string, any> | null,
@@ -39,11 +43,11 @@ export class PrismaPaymentAttemptRepository
     const data = {
       id: paymentAttempt.getId(),
       orderId: paymentAttempt.getOrderId(),
-      provider: paymentAttempt.getProvider(),
+      provider: paymentAttempt.getProvider() as any,
       providerPaymentId: paymentAttempt.getProviderPaymentId(),
       amount: paymentAttempt.getAmount(),
       currency: paymentAttempt.getCurrency(),
-      status: paymentAttempt.getStatus(),
+      status: paymentAttempt.getStatus() as any,
       failureCode: paymentAttempt.getFailureCode(),
       failureReason: paymentAttempt.getFailureReason(),
       metadata: paymentAttempt.getMetadata() || {},
@@ -61,7 +65,7 @@ export class PrismaPaymentAttemptRepository
         await tx.paymentAttempt.update({
           where: { id: paymentAttempt.getId() },
           data: {
-            status: paymentAttempt.getStatus(),
+            status: paymentAttempt.getStatus() as any,
             failureCode: paymentAttempt.getFailureCode(),
             failureReason: paymentAttempt.getFailureReason(),
             updatedAt: paymentAttempt.getUpdatedAt(),
@@ -89,14 +93,14 @@ export class PrismaPaymentAttemptRepository
   }
 
   async findByProviderId(
-    provider: PaymentProvider,
+    provider: DomainPaymentProvider,
     providerPaymentId: string,
   ): Promise<PaymentAttempt | null> {
     const raw = await this.execute(() =>
       this.prisma.paymentAttempt.findUnique({
         where: {
           provider_providerPaymentId: {
-            provider,
+            provider: provider as any,
             providerPaymentId,
           },
         },

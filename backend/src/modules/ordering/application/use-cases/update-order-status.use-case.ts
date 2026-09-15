@@ -1,5 +1,5 @@
-﻿import { OrderResponseDto } from '../dto/order.dto.js';
-import { OrderStatus } from '../../../../generated/prisma/client.js';
+import { OrderResponseDto } from '../dto/order.dto.js';
+import { OrderStatus } from '../../domain/types/order.types.js';
 
 export interface IUpdateOrderStatusUseCase {
   execute(

@@ -1,7 +1,7 @@
 import { injectable, inject } from 'tsyringe';
 import type { PaymentProviderResolver } from '../services/payment-provider.resolver.js';
 import { PaymentTokens } from '../../infrastructure/tokens/payment.tokens.js';
-import { PaymentAttemptStatus } from '../../../../generated/prisma/client.js';
+import { PaymentAttemptStatus } from '../../domain/types/payment.types.js';
 import type { IPaymentTransaction } from '../transaction/payment.transaction.js';
 
 export class PaymentAttemptNotReadyError extends Error {

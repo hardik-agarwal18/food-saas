@@ -1,4 +1,4 @@
-﻿import { OrderStatus, PaymentStatus, OrderType } from '../../../../generated/prisma/client.js';
+import { OrderStatus, PaymentStatus, OrderType } from '../../domain/types/order.types.js';
 
 export type PlaceOrderItemModifierDto = {
   menuModifierItemId: string;

@@ -12,7 +12,7 @@ import { DeliveryDeliveredEvent } from '../../../modules/delivery/domain/events/
 import { OrderPlacedEvent } from '../../../modules/ordering/domain/events/order-placed.event.js';
 import { container } from 'tsyringe';
 import { InfrastructureTokens } from '../../container/tokens/index.js';
-import { OrderType } from '../../../generated/prisma/client.js';
+import { OrderType } from '../../../modules/ordering/domain/types/order.types.js';
 /**
  * Reconstructs a DomainEvent instance from its JSON payload.
  */

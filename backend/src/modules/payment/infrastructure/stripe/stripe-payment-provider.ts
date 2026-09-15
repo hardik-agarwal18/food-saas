@@ -1,5 +1,5 @@
 import Stripe from 'stripe';
-import { PaymentProvider } from '../../../../generated/prisma/client.js';
+import { PaymentProvider } from '../../domain/types/payment.types.js';
 import {
   IPaymentProvider,
   CreatePaymentInput,

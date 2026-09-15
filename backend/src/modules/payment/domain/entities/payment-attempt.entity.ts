@@ -1,5 +1,5 @@
-﻿import { AggregateRoot } from '../../../../shared/domain/aggregate-root.js';
-import { PaymentProvider, PaymentAttemptStatus } from '../../../../generated/prisma/client.js';
+import { AggregateRoot } from '../../../../shared/domain/aggregate-root.js';
+import { PaymentProvider, PaymentAttemptStatus } from '../types/payment.types.js';
 
 export type PaymentAttemptProps = {
   id: string;

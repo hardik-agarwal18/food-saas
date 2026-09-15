@@ -1,5 +1,5 @@
-﻿import { z } from 'zod';
-import { OrderType, OrderStatus } from '../../../../generated/prisma/client.js';
+import { z } from 'zod';
+import { OrderType, OrderStatus } from '../../domain/types/order.types.js';
 
 const placeOrderItemSchema = z.object({
   menuItemId: z.string().uuid(),

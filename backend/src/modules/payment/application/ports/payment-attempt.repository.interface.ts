@@ -1,5 +1,5 @@
-﻿import { PaymentAttempt } from '../../domain/entities/payment-attempt.entity.js';
-import { PaymentProvider } from '../../../../generated/prisma/client.js';
+import { PaymentAttempt } from '../../domain/entities/payment-attempt.entity.js';
+import { PaymentProvider } from '../../domain/types/payment.types.js';
 
 export interface IPaymentAttemptRepository {
   /**

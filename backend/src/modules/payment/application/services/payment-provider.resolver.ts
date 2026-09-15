@@ -1,6 +1,6 @@
-﻿import { injectable, inject } from 'tsyringe';
+import { injectable, inject } from 'tsyringe';
 import { IPaymentProvider } from '../ports/payment-provider.interface.js';
-import { PaymentProvider } from '../../../../generated/prisma/client.js';
+import { PaymentProvider } from '../../domain/types/payment.types.js';
 
 export const PAYMENT_PROVIDERS = Symbol('PAYMENT_PROVIDERS');
 
